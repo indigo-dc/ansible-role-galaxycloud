@@ -7,20 +7,32 @@ This role has been specifically developed to be used in the INDIGO project.
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Min ansible version: 2.0
+Platforms: CentOS 7 (cloud image with Ansible Hook enabled)
+
+```
+AGENT_ELEMENTS="os-collect-config os-refresh-config os-apply-config"
+DEPLOYMENT_BASE_ELEMENTS="heat-config heat-config-script"
+DEPLOYMENT_TOOL="heat-config-ansible heat-config-cfn-init heat-config-puppet heat-config-salt heat-config-docker-compose”
+```
 
 Role Variables
 --------------
 
 ```
-# Path to install the Galaxy software
-galaxy_install_path: /home/galaxy
-# Galaxy version to install
-GALAXY_VERSION: "-b master origin/master"
-# E-mail of the admin user
-galaxy_admin: admin@admin.com
-# User to launch the Galaxy portal
-galaxy_user: galaxy
+# Galaxy administrator username
+GALAXY_ADMIN_USERNAME: "{{galaxy_admin_username}}"
+
+# Galaxy administrator password.
+# It is hard coded. To be changed by the administrator.
+GALAXY_ADMIN_PASSWORD: "galaxy_admin_password"
+
+# Galaxy administrator API_KEY. https://wiki.galaxyproject.org/Admin/API
+# Please note that this key acts as an alternate means to access your account, and should be treated with the same care as your login password. To be changed by the administrator.
+GALAXY_ADMIN_API_KEY: "GALAXY_ADMIN_API_KEY"
+
+# Galaxy administrator e-mail address
+GALAXY_ADMIN_EMAIL: "{{galaxy_admin_mail}}"
 ```
 
 ```
