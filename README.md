@@ -67,7 +67,7 @@ Including an example of how to use your role (for instance, with variables passe
 License
 -------
 
-Apache Licence v2 [1]
+Apache Licence v2 [2]
 
 References
 -------
