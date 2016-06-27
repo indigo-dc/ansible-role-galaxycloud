@@ -1,0 +1,109 @@
+user  {{ nginx_user }};
+worker_processes  {{ nginx_worker_processes }};
+
+error_log  {{ nginx_error_log }};
+pid        {{ nginx_pidfile }};
+
+
+events {
+    worker_connections  {{ nginx_worker_connections }};
+}
+
+
+http {
+    include       {{ nginx_mime_file_path }};
+    default_type  application/octet-stream;
+
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+    #access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  {{ nginx_keepalive_timeout }};
+
+    gzip  on;
+    gzip_http_version 1.1;
+    gzip_vary on;
+    gzip_comp_level 4;
+    gzip_proxied any;
+    gzip_types text/plain text/css application/x-javascript text/xml application/xml text/javascript application/json;
+    gzip_buffers 16 8k;
+    gzip_disable "MSIE [1-6].(?!.*SV1)";
+
+    server {
+        client_max_body_size {{ nginx_client_max_body_size }};
+        listen       {{ nginx_listen_port }};
+        server_name  {{ nginx_server_name }};
+
+        location / {
+            root   html;
+            index  index.html index.htm;
+        }
+
+        location /galaxy {
+            uwsgi_pass 127.0.0.1:4001;
+            uwsgi_param UWSGI_SCHEME $scheme;
+            include uwsgi_params;
+        }  
+
+        location /galaxy/static {
+            alias {{galaxy_install_path}}/static;
+            expires 24h;
+        }
+        location /galaxy/static/style {
+            alias {{galaxy_install_path}}/static/june_2007_style/blue;
+            expires 24h;
+        }
+        location /galaxy/static/scripts {
+            alias {{galaxy_install_path}}/static/scripts/packed;
+        }
+        location /galaxy/favicon.ico {
+            alias {{galaxy_install_path}}/static/favicon.ico;
+        }   
+        location /galaxy/robots.txt {
+            alias {{galaxy_install_path}}/static/robots.txt;
+        }
+        location /_x_accel_redirect/ {
+            internal;
+            alias /;
+        }
+
+        # serve static content for visualization plugins
+        location ~ ^/galaxy/plugins/visualizations/(?<vis_name>.+?)/static/(?<static_file>.*?)$ {
+            alias {{galaxy_install_path}}/config/plugins/visualizations/$vis_name/static/$static_file;
+        }
+
+        location /galaxy/_upload {
+            upload_store {{nginx_upload_store_path}};
+            upload_pass_form_field "";
+            upload_set_form_field "__${upload_field_name}__is_composite" "true";
+            upload_set_form_field "__${upload_field_name}__keys" "name path";
+            upload_set_form_field "${upload_field_name}_name" "$upload_file_name";
+            upload_set_form_field "${upload_field_name}_path" "$upload_tmp_path";
+            upload_pass_args on;
+            upload_pass /_upload_done;
+        }
+        location /_upload_done {
+            set $dst /galaxy/api/tools;
+            if ($args ~ nginx_redir=([^&]+)) {
+                set $dst $1;
+            }
+
+            rewrite "" $dst;
+        }
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+
+    } # end server section
+
+    # include /etc/nginx/sites-enabled/*;
+
+} # end http section
+

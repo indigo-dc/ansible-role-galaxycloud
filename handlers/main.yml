@@ -1,0 +1,15 @@
+---
+- name: restart postgresql
+  service: name=postgresql state=restarted
+  become_user: root
+  become_method: sudo
+
+- name: restart nginx
+  service: name=nginx state=restarted
+  become_user: root
+  become_method: sudo
+
+- name: restart galaxy
+  supervisorctl: name='galaxy:' state=restarted
+  become_user: root
+  become_method: sudo

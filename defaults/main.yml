@@ -1,0 +1,70 @@
+---
+# Galaxy instance description
+galaxy_instance_description: "INDIGO-CNR test"
+
+# User to launch the Galaxy portal
+galaxy_user: galaxy
+
+# Path to install the Galaxy software
+galaxy_FS_path: /home/galaxy
+
+# Galaxy directory (usually galaxy or galaxy-dist)
+galaxy_directory: galaxy
+
+# Galaxy install path
+galaxy_install_path: "{{galaxy_FS_path}}/{{galaxy_directory}}"
+
+# Galaxy config/galaxy.ini path
+galaxy_config_path: "{{galaxy_install_path}}/config"
+galaxy_config_file: "{{galaxy_config_path}}/galaxy.ini"
+
+# Galaxy version to install
+GALAXY_VERSION: "-b master origin/master"
+
+# Virtualenv directory
+galaxy_venv_path: "{{galaxy_install_path}}/.venv"
+
+# Log directory
+galaxy_log_path: "/var/log/galaxy"
+
+# Galaxy instance url
+galaxy_instance_url: "http://{{ansible_eth0.ipv4.address}}/galaxy/"
+
+# Galaxy flavor
+galaxy_flavor: "galaxy-no-tools"
+
+#################################
+# Galaxy administrator username
+GALAXY_ADMIN_USERNAME: "{{galaxy_admin_username}}"
+
+# Galaxy administrator password.
+# It is hard coded. To be changed by the administrator.
+GALAXY_ADMIN_PASSWORD: "galaxy_admin_password"
+
+# Galaxy administrator API_KEY. https://wiki.galaxyproject.org/Admin/API
+# Please note that this key acts as an alternate means to access your account, and should be treated with the same care as your login password. To be changed by the administrator.
+GALAXY_ADMIN_API_KEY: "GALAXY_ADMIN_API_KEY"
+
+# Galaxy administrator e-mail address
+GALAXY_ADMIN_EMAIL: "{{galaxy_admin_mail}}"
+
+#################################
+#Galaxy configuration
+use_pbkdf2: true
+
+#################################
+# Postgres database details
+galaxy_db_dir: "{{galaxy_install_path}}/database"
+galaxy_db_port: 5432
+
+#################################
+# NGINX
+nginx_upload_store_path: "{{galaxy_db_dir}}/tmp/upload_store"
+
+#################################
+# PROFTPD
+proftpd_db_user: galaxyftp
+proftpd_files_path: "{{galaxy_db_dir}}/ftp"
+proftpd_passive_port_low: 30000
+proftpd_passive_port_high: 40000
+proftpd_welcome: "INDIGO-CNR ftp server test"

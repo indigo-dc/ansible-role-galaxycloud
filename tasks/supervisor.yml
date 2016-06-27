@@ -1,0 +1,21 @@
+---
+########################################################################
+# Install and config Supervisord
+
+- name: Check and install Supervisor dependencies
+  yum: name={{item}}
+       state=present
+  with_items:
+    - supervisor
+  become_user: root
+  become_method: sudo
+
+- name: Copy supervisord configuration file
+  template: src=supervisord.conf.j2 dest=/etc/supervisord.d/galaxy_web.ini
+  become_user: root
+  become_method: sudo
+
+- name: Enable supervisord
+  service: name=supervisord state=started enabled=yes
+  become_user: root
+  become_method: sudo

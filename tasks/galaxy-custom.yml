@@ -1,0 +1,17 @@
+---
+# Galaxy Customization recipe
+
+########################################################################
+# Galaxy administrator: email. username, password and api_key
+
+- name: Copy create_galaxy_user.py to /usr/local/bin/
+  template: src=create_galaxy_user.py.j2 dest=/usr/local/bin/create_galaxy_user.py
+  become_user: root
+  become_method: sudo
+
+- name: Create Galaxy administrator
+  command: "{{galaxy_venv_path}}/bin/python /usr/local/bin/create_galaxy_user.py --user {{GALAXY_ADMIN_EMAIL}} --password {{GALAXY_ADMIN_PASSWORD}} --username {{GALAXY_ADMIN_USERNAME}} -c {{galaxy_config_file}} --key {{GALAXY_ADMIN_API_KEY}} chdir={{galaxy_install_path}}/"
+  environment:
+    PYTHONPATH: "{{galaxy_install_path}}/lib"
+    VIRTUAL_ENV: "{{galaxy_venv_path}}"
+  notify: restart galaxy

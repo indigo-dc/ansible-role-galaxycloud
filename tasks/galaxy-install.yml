@@ -1,0 +1,31 @@
+---
+# This recipe downloads galaxy, setup python virtualenv and create the galaxy.ini file
+
+- name: Get Galaxy
+  git: repo=https://github.com/galaxyproject/galaxy/
+       clone=yes
+       dest={{galaxy_install_path}}
+       version={{GALAXY_VERSION}}
+
+- name: Create galaxy.ini file
+  shell: cp galaxy.ini.sample galaxy.ini
+         chdir={{galaxy_config_path}}/
+
+- name: Add admin mail address
+  replace: dest={{galaxy_config_file}}
+           regexp="#admin_users = None"
+           replace="admin_users = {{GALAXY_ADMIN_EMAIL}}"
+
+- name: Edit tool dependency dir
+  replace: dest={{galaxy_config_file}}
+           regexp="#tool_dependency_dir = None"
+           replace="tool_dependency_dir = {{galaxy_install_path}}/tool_dependency"
+
+- name: Install Galaxy dependencies
+  shell: ./scripts/common_startup.sh >> {{galaxy_log_path}}/galaxy_common_startup.log
+         chdir={{galaxy_install_path}}
+
+- name: Set Virtualenv
+  lineinfile: dest=/home/{{galaxy_user}}/.bashrc
+              line="\n#source Virutalenv\nsource {{galaxy_venv_path}}/bin/activate"
+              state=present

@@ -1,0 +1,101 @@
+---
+- name: Install postgresql
+  yum: name={{item}}
+       state=present
+  with_items:
+    - postgresql-server
+    - postgresql-contrib
+    - python-psycopg2
+    - expect #mkpasswd utility
+  become_user: root
+  become_method: sudo
+
+- name: Install Galaxy conditional dependencies
+  pip:
+    name: psycopg2
+    extra_args: "--index-url https://wheels.galaxyproject.org/simple/ --log {{galaxy_log_path}}/pip_psycopg2.log"
+    virtualenv: "{{galaxy_venv_path}}"
+  environment:
+    PYTHONPATH: "{{galaxy_install_path}}/lib"
+    VIRTUAL_ENV: "{{galaxy_venv_path}}"
+
+- name: initdb
+  command: postgresql-setup initdb creates=/var/lib/pgsql/data/pg_hba.conf
+  become_user: root
+  become_method: sudo
+
+- name: Edit pg_hba.conf IPv4 local connections
+  replace: dest=/var/lib/pgsql/data/pg_hba.conf
+           regexp="host    all             all             127.0.0.1/32            ident"
+           replace="host    all             all             127.0.0.1/32            md5"
+  become_user: root
+  become_method: sudo
+
+- name: Edit pg_hba.conf IPv6 local connections
+  replace: dest=/var/lib/pgsql/data/pg_hba.conf
+           regexp="host    all             all             ::1/128                 ident"
+           replace="host    all             all             ::1/128                 md5"
+  become_user: root
+  become_method: sudo
+
+- name: Enable and start the PostgreSQL server
+  service: name=postgresql enabled=yes state=started
+  become_user: root
+  become_method: sudo
+
+- name: Create galaxy db random passwd
+  shell: mkpasswd -l 20 -s 0
+  register: galaxy_db_passwd
+
+- name: Create galaxy_database_connection vars, needed in task/galaxy-custom.yml for create_galaxy_user.py
+  set_fact: galaxy_database_connection="postgresql://{{galaxy_user}}:{{galaxy_db_passwd.stdout}}@localhost:{{galaxy_db_port}}/{{galaxy_user}}"
+
+- name: Create galaxy_install_database_connection vars.
+  set_fact: galaxy_install_database_connection="postgresql://{{galaxy_user}}:{{galaxy_db_passwd.stdout}}@localhost:{{galaxy_db_port}}/galaxy_tools"
+
+- name: Create galaxy db user
+  postgresql_user: name={{galaxy_user}}
+                   password={{galaxy_db_passwd.stdout}}
+  become_user: postgres
+  become_method: sudo
+
+- name: Create postgresql galaxy db
+  postgresql_db: name={{galaxy_user}}
+                 owner={{galaxy_user}}
+  become_user: postgres
+  become_method: sudo
+
+- name: Edit galaxy.ini database_connection
+  replace: dest={{galaxy_config_file}}
+           regexp='#database_connection = sqlite:///./database/universe.sqlite\?isolation_level=IMMEDIATE'
+           replace='database_connection = {{galaxy_database_connection}}'
+
+- name: Edit galaxy.ini database_engine_option_server_side_cursors
+  replace: dest={{galaxy_config_file}}
+           regexp='#database_engine_option_server_side_cursors = False'
+           replace='database_engine_option_server_side_cursors = True'
+
+- name: Create postgresql galaxy_tools db
+  postgresql_db: name=galaxy_tools
+                 owner={{galaxy_user}}
+  become_user: postgres
+  become_method: sudo
+
+- name: Edit galaxy.ini install_database_connection
+  replace: dest={{galaxy_config_file}}
+           regexp='#install_database_connection = sqlite:///./database/universe.sqlite\?isolation_level=IMMEDIATE'
+           replace='install_database_connection = {{galaxy_install_database_connection}}'
+
+- name: Edit galaxy.ini install_database_engine_option_server_side_cursors
+  lineinfile: dest={{galaxy_config_file}}
+              insertafter='install_database_connection = {{galaxy_install_database_connection}}'
+              line='install_database_engine_option_server_side_cursors = True'
+
+- name: Create Galaxy DB
+  command: "{{galaxy_venv_path}}/bin/python {{galaxy_install_path}}/scripts/create_db.py -c {{galaxy_config_file}} chdir={{galaxy_install_path}}/"
+
+- name: Create Galaxy install DB
+  command: "{{galaxy_venv_path}}/bin/python {{galaxy_install_path}}/scripts/create_db.py -c {{galaxy_config_file}} install chdir={{galaxy_install_path}}/"
+
+- name: Update Galaxy DB
+  command: "{{galaxy_venv_path}}/bin/python {{galaxy_install_path}}/scripts/manage_db.py -c {{galaxy_config_file}} upgrade install chdir={{galaxy_install_path}}/"

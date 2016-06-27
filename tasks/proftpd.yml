@@ -1,0 +1,42 @@
+---
+- name: Install proftpd
+  yum: name={{item}}
+       state=present
+  with_items:
+    - proftpd
+    - proftpd-postgresql
+    - expect #mkpasswd utility
+  become_user: root
+  become_method: sudo
+
+- name: Create proftpd db random passwd
+  shell: mkpasswd -l 20 -s 0
+  register: proftpd_db_passwd
+
+- name: Copy the proftpd configuration file
+  template: src=proftpd.conf.j2 dest=/etc/proftpd.conf
+  become_user: root
+  become_method: sudo
+
+- name: Create proftpd db user
+  postgresql_user: db=galaxy
+                   name={{proftpd_db_user}}
+                   password={{proftpd_db_passwd.stdout}}
+                   priv=galaxy_user:ALL
+  become_user: postgres
+  become_method: sudo
+
+- name: Edit galaxy.ini ftp_upload_directory
+  replace: dest={{galaxy_config_file}}
+           regexp='#ftp_upload_dir = None'
+           replace='ftp_upload_dir = {{proftpd_files_path}}'
+
+- name: Edit galaxy.ini ftp_upload_site
+  replace: dest={{galaxy_config_file}}
+           regexp='#ftp_upload_site = None'
+           replace='ftp_upload_site = {{ansible_eth0.ipv4.address}}'
+
+- name: Enable and start the proftpd server
+  service: name=proftpd enabled=yes state=started
+  become_user: root
+  become_method: sudo

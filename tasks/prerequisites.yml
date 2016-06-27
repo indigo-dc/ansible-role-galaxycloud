@@ -1,0 +1,26 @@
+---
+# Install prerequisites
+
+- name: Install git, vim, wget
+  yum: name={{item}}
+       state=present
+  with_items:
+    - git
+    - vim
+    - wget
+  become_user: root
+  become_method: sudo
+
+- name: Install the 'Development tools' package group
+  yum: name="@Development tools"
+       state=present
+  become_user: root
+  become_method: sudo
+
+- name: Creates log directory
+  file: path={{galaxy_log_path}}
+        state=directory
+        owner={{galaxy_user}}
+        group={{galaxy_user}}
+  become_user: root
+  become_method: sudo

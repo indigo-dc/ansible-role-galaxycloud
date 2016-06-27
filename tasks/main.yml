@@ -1,0 +1,9 @@
+- include: delete-ec2-user.yml
+- include: prerequisites.yml
+- include: galaxy-install.yml
+- include: postgresql.yml
+- include: nginx.yml
+- include: uwsgi.yml
+- include: proftpd.yml
+- include: supervisor.yml
+- include: galaxy-custom.yml

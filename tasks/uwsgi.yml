@@ -1,0 +1,187 @@
+---
+########################################################################
+# Install and config uWSGI
+
+- name: Check and install uWSGI dependencies
+  yum: name={{item}}
+       state=present
+  with_items:
+    - python
+    - python-devel
+  become_user: root
+  become_method: sudo
+
+- name: Include uWSGI specific variables.
+  include_vars: uwsgi_vars.yml
+
+- name: Install uWSGI
+  pip: name=uwsgi
+       virtualenv="{{galaxy_venv_path}}"
+
+# Add uWSGI section to galaxy.ini file
+
+- name: Add uWSGI section
+  blockinfile:
+    dest: "{{galaxy_config_file}}"
+    marker: ""
+    content: |
+      #
+      # ---- uWSGI -------------------------------------------------------------------------
+      # https://wiki.galaxyproject.org/Admin/Config/Performance/Scaling
+      #
+
+- name: if proc<=2
+  ini_file: dest={{galaxy_config_file}}
+            section=uwsgi
+            option=processes
+            value=1
+  when: ({{ansible_processor_vcpus}} <= 2)
+
+- name: if proc>2
+  ini_file: dest={{galaxy_config_file}}
+            section=uwsgi
+            option=processes
+            value={{uwsgi_processes}}
+  when: ({{ansible_processor_vcpus}} > 2)
+
+- name: Add socket option
+  ini_file: dest={{galaxy_config_file}}
+            section=uwsgi
+            option=socket
+            value=127.0.0.1:4001
+
+- name: Add stats option
+  ini_file: dest={{galaxy_config_file}}
+            section=uwsgi
+            option=stats
+            value=127.0.0.1:9191
+
+- name: Add pythonpath option
+  ini_file: dest={{galaxy_config_file}}
+            section=uwsgi
+            option=pythonpath
+            value={{galaxy_install_path}}/lib
+
+- name: Add pythonhome option
+  ini_file: dest={{galaxy_config_file}}
+            section=uwsgi
+            option=pythonhome
+            value={{galaxy_venv_path}}
+
+- name: Add threads option
+  ini_file: dest={{galaxy_config_file}}
+            section=uwsgi
+            option=threads
+            value={{uwsgi_threads}}
+
+- name: Add log file path
+  ini_file: dest={{galaxy_config_file}}
+            section=uwsgi
+            option=logto
+            value={{uwsgi_errorlog}}
+
+- name: Add pid file path
+  ini_file: dest={{galaxy_config_file}}
+            section=uwsgi
+            option=pidfile
+            value={{uwsgi_pidfile}}
+
+- name: Add master option
+  ini_file: dest={{galaxy_config_file}}
+            section=uwsgi
+            option=master
+            value=True
+
+# Edit galaxy.ini file
+
+- name: Edit galaxy.ini static_enabled
+  replace: dest={{galaxy_config_file}}
+           regexp='#static_enabled = True'
+           replace='static_enabled = False'
+
+- name: Edit galaxy.ini track_jobs_in_database
+  replace: dest={{galaxy_config_file}}
+           regexp='#track_jobs_in_database = True'
+           replace='track_jobs_in_database = True'
+
+########################################################################
+# job_conf section
+
+- name: Copy job_conf configration file
+  template: src=job_conf.xml.j2 dest={{galaxy_config_path}}/job_conf.xml
+
+# job configuration - 6 job handlers
+
+- name: Add server handler 0
+  blockinfile: 
+    dest: "{{galaxy_config_file}}"
+    marker: ""
+    content: |
+      [server:handler0]
+      use = egg:Paste@http
+      port = 8090
+      host = 127.0.0.1
+      use_threadpool = true
+      threadpool_workers = 5
+#---
+- name: Add server handler 1
+  blockinfile:
+    dest: "{{galaxy_config_file}}"
+    marker: ""
+    content: |
+      [server:handler1]
+      use = egg:Paste@http
+      port = 8091
+      host = 127.0.0.1
+      use_threadpool = true
+      threadpool_workers = 5
+#---
+- name: Add server handler 2
+  blockinfile:
+    dest: "{{galaxy_config_file}}"
+    marker: ""
+    content: |
+      [server:handler2]
+      use = egg:Paste@http
+      port = 8092
+      host = 127.0.0.1
+      use_threadpool = true
+      threadpool_workers = 5
+#---
+- name: Add server handler 3
+  blockinfile:
+    dest: "{{galaxy_config_file}}"
+    marker: ""
+    content: |
+      [server:handler3]
+      use = egg:Paste@http
+      port = 8093
+      host = 127.0.0.1
+      use_threadpool = true
+      threadpool_workers = 5
+#---
+- name: Add server handler 4
+  blockinfile:
+    dest: "{{galaxy_config_file}}"
+    marker: ""
+    content: |
+      [server:handler4]
+      use = egg:Paste@http
+      port = 8094
+      host = 127.0.0.1
+      use_threadpool = true
+      threadpool_workers = 5
+#---
+- name: Add server handler 5
+  blockinfile:
+    dest: "{{galaxy_config_file}}"
+    marker: ""
+    content: |
+      [server:handler5]
+      use = egg:Paste@http
+      port = 8095
+      host = 127.0.0.1
+      use_threadpool = true
+      threadpool_workers = 5
+
+########################################################################
