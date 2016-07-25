@@ -14,4 +14,20 @@
   environment:
     PYTHONPATH: "{{galaxy_install_path}}/lib"
     VIRTUAL_ENV: "{{galaxy_venv_path}}"
-  notify: restart galaxy
+
+- name: Restart galaxy | vm
+  supervisorctl: name='galaxy:' state=restarted
+  become_user: root
+  become_method: sudo
+  when: ansible_virtualization_type != "docker"
+
+- name: Stop services (to be loaded by the user) | docker
+  supervisorctl: name={{item}} state=stopped
+  with_items:
+    - 'postgresql'
+    - 'nginx'
+    - 'proftpd'
+    - 'galaxy:'
+  become_user: root
+  become_method: sudo
+  when: ansible_virtualization_type == "docker"

@@ -1,0 +1,47 @@
+---
+# Create Galaxy user
+# This recipe is mandatory to correctly setup users and permissions
+
+# Install sudo and sudoers fix (only for centos docker image)
+
+- name: Install sudo (CentOS Docker specific task)
+  yum: name=sudo
+       state=present
+  when: (ansible_os_family == "RedHat" and ansible_virtualization_type == "docker")
+
+- name: Edit sudoers to remove requiretty option (CentOS Docker specific task)
+  lineinfile: dest=/etc/sudoers regexp={{item.regexp}} state=absent
+  with_items:
+    - { regexp: '# Disable "ssh hostname sudo <cmd>", because it will show the password in clear.' }
+    - { regexp: '#         You have to run "ssh -t hostname sudo <cmd>".' }
+    - { regexp: 'Defaults    requiretty' }
+  when: (ansible_os_family == "RedHat" and ansible_virtualization_type == "docker")
+
+# Create Galaxy user
+
+- name: Create User {{galaxy_user}} on the server
+  user: name={{galaxy_user}}
+        shell=/bin/bash
+        groups=adm,wheel,systemd-journal
+        uid={{GALAXY_UID}}
+
+- name: Inject ssh public key - {{galaxy_user}}
+  authorized_key: user={{galaxy_user}}
+                  key={{galaxy_instance_key_pub}}
+  become: true
+  become_user: "{{galaxy_user}}"
+
+- name: User rules for {{galaxy_user}}
+  lineinfile: dest=/etc/sudoers
+              state=present 
+              line="{{galaxy_user}} ALL=(ALL) NOPASSWD:ALL"
+              insertafter=EOF
+
+- name: Inject ssh public key - root
+  authorized_key: user=root
+                  key={{galaxy_instance_key_pub}}
+
+- name: delete ec2-user
+  user: name=ec2-user
+        state=absent
+        remove=yes

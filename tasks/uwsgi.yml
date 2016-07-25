@@ -10,6 +10,7 @@
     - python-devel
   become_user: root
   become_method: sudo
+  when: ansible_os_family == "RedHat"
 
 - name: Include uWSGI specific variables.
   include_vars: uwsgi_vars.yml
@@ -30,79 +31,39 @@
       # https://wiki.galaxyproject.org/Admin/Config/Performance/Scaling
       #
 
-- name: if proc<=2
+- name: uWSGI section config
+  ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
+  with_items:
+    - { section: 'uwsgi', option: 'master', value: 'True' }
+    - { section: 'uwsgi', option: 'processes', value: '{{uwsgi_processes}}' }
+    - { section: 'uwsgi', option: 'socket', value: '{{uwsgi_socket_port}}' }
+    - { section: 'uwsgi', option: 'stats', value: '{{uwsgi_stats_port}}' }
+    - { section: 'uwsgi', option: 'pythonpath', value: '{{galaxy_install_path}}/lib' }
+    - { section: 'uwsgi', option: 'pythonhome', value: '{{galaxy_venv_path}}' }
+    - { section: 'uwsgi', option: 'threads', value: '{{uwsgi_threads}}' }
+    - { section: 'uwsgi', option: 'logto', value: '{{uwsgi_errorlog}}' }
+
+- name: if proc==1
   ini_file: dest={{galaxy_config_file}}
             section=uwsgi
             option=processes
             value=1
-  when: ({{ansible_processor_vcpus}} <= 2)
+  when: ({{ansible_processor_vcpus}} == 1)
 
-- name: if proc>2
+- name: if proc>8
   ini_file: dest={{galaxy_config_file}}
             section=uwsgi
             option=processes
-            value={{uwsgi_processes}}
-  when: ({{ansible_processor_vcpus}} > 2)
-
-- name: Add socket option
-  ini_file: dest={{galaxy_config_file}}
-            section=uwsgi
-            option=socket
-            value=127.0.0.1:4001
-
-- name: Add stats option
-  ini_file: dest={{galaxy_config_file}}
-            section=uwsgi
-            option=stats
-            value=127.0.0.1:9191
-
-- name: Add pythonpath option
-  ini_file: dest={{galaxy_config_file}}
-            section=uwsgi
-            option=pythonpath
-            value={{galaxy_install_path}}/lib
-
-- name: Add pythonhome option
-  ini_file: dest={{galaxy_config_file}}
-            section=uwsgi
-            option=pythonhome
-            value={{galaxy_venv_path}}
-
-- name: Add threads option
-  ini_file: dest={{galaxy_config_file}}
-            section=uwsgi
-            option=threads
-            value={{uwsgi_threads}}
-
-- name: Add log file path
-  ini_file: dest={{galaxy_config_file}}
-            section=uwsgi
-            option=logto
-            value={{uwsgi_errorlog}}
-
-- name: Add pid file path
-  ini_file: dest={{galaxy_config_file}}
-            section=uwsgi
-            option=pidfile
-            value={{uwsgi_pidfile}}
-
-- name: Add master option
-  ini_file: dest={{galaxy_config_file}}
-            section=uwsgi
-            option=master
-            value=True
+            value=8
+  when: ({{ansible_processor_vcpus}} > 8)
 
 # Edit galaxy.ini file
 
-- name: Edit galaxy.ini static_enabled
-  replace: dest={{galaxy_config_file}}
-           regexp='#static_enabled = True'
-           replace='static_enabled = False'
-
-- name: Edit galaxy.ini track_jobs_in_database
-  replace: dest={{galaxy_config_file}}
-           regexp='#track_jobs_in_database = True'
-           replace='track_jobs_in_database = True'
+- name: Edit galaxy.ini
+  replace: dest={{galaxy_config_file}} regexp={{item.regexp}} replace={{item.replace}}
+  with_items:
+    - { regexp: '#static_enabled = True', replace: 'static_enabled = False' }
+    - { regexp: '#track_jobs_in_database = True', replace: 'track_jobs_in_database = True' }
 
 ########################################################################
 # job_conf section
@@ -113,75 +74,57 @@
 # job configuration - 6 job handlers
 
 - name: Add server handler 0
-  blockinfile: 
-    dest: "{{galaxy_config_file}}"
-    marker: ""
-    content: |
-      [server:handler0]
-      use = egg:Paste@http
-      port = 8090
-      host = 127.0.0.1
-      use_threadpool = true
-      threadpool_workers = 5
+  ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
+  with_items: 
+    - { section: 'server:handler0', option: 'use', value: 'egg:Paste@http' }
+    - { section: 'server:handler0', option: 'port', value: '8090' }
+    - { section: 'server:handler0', option: 'host', value: '127.0.0.1' }
+    - { section: 'server:handler0', option: 'use_threadpool', value: 'true' }
+    - { section: 'server:handler0', option: 'threadpool_workers', value: '5' }
 #---
 - name: Add server handler 1
-  blockinfile:
-    dest: "{{galaxy_config_file}}"
-    marker: ""
-    content: |
-      [server:handler1]
-      use = egg:Paste@http
-      port = 8091
-      host = 127.0.0.1
-      use_threadpool = true
-      threadpool_workers = 5
+  ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
+  with_items: 
+    - { section: 'server:handler1', option: 'use', value: 'egg:Paste@http' }
+    - { section: 'server:handler1', option: 'port', value: '8091' }
+    - { section: 'server:handler1', option: 'host', value: '127.0.0.1' }
+    - { section: 'server:handler1', option: 'use_threadpool', value: 'true' }
+    - { section: 'server:handler1', option: 'threadpool_workers', value: '5' }
 #---
 - name: Add server handler 2
-  blockinfile:
-    dest: "{{galaxy_config_file}}"
-    marker: ""
-    content: |
-      [server:handler2]
-      use = egg:Paste@http
-      port = 8092
-      host = 127.0.0.1
-      use_threadpool = true
-      threadpool_workers = 5
+  ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
+  with_items: 
+    - { section: 'server:handler2', option: 'use', value: 'egg:Paste@http' }
+    - { section: 'server:handler2', option: 'port', value: '8092' }
+    - { section: 'server:handler2', option: 'host', value: '127.0.0.1' }
+    - { section: 'server:handler2', option: 'use_threadpool', value: 'true' }
+    - { section: 'server:handler2', option: 'threadpool_workers', value: '5' }
 #---
 - name: Add server handler 3
-  blockinfile:
-    dest: "{{galaxy_config_file}}"
-    marker: ""
-    content: |
-      [server:handler3]
-      use = egg:Paste@http
-      port = 8093
-      host = 127.0.0.1
-      use_threadpool = true
-      threadpool_workers = 5
+  ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
+  with_items: 
+    - { section: 'server:handler3', option: 'use', value: 'egg:Paste@http' }
+    - { section: 'server:handler3', option: 'port', value: '8093' }
+    - { section: 'server:handler3', option: 'host', value: '127.0.0.1' }
+    - { section: 'server:handler3', option: 'use_threadpool', value: 'true' }
+    - { section: 'server:handler3', option: 'threadpool_workers', value: '5' }
 #---
 - name: Add server handler 4
-  blockinfile:
-    dest: "{{galaxy_config_file}}"
-    marker: ""
-    content: |
-      [server:handler4]
-      use = egg:Paste@http
-      port = 8094
-      host = 127.0.0.1
-      use_threadpool = true
-      threadpool_workers = 5
+  ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
+  with_items: 
+    - { section: 'server:handler4', option: 'use', value: 'egg:Paste@http' }
+    - { section: 'server:handler4', option: 'port', value: '8094' }
+    - { section: 'server:handler4', option: 'host', value: '127.0.0.1' }
+    - { section: 'server:handler4', option: 'use_threadpool', value: 'true' }
+    - { section: 'server:handler4', option: 'threadpool_workers', value: '5' }
 #---
 - name: Add server handler 5
-  blockinfile:
-    dest: "{{galaxy_config_file}}"
-    marker: ""
-    content: |
-      [server:handler5]
-      use = egg:Paste@http
-      port = 8095
-      host = 127.0.0.1
-      use_threadpool = true
-      threadpool_workers = 5
+  ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
+  with_items: 
+    - { section: 'server:handler5', option: 'use', value: 'egg:Paste@http' }
+    - { section: 'server:handler5', option: 'port', value: '8095' }
+    - { section: 'server:handler5', option: 'host', value: '127.0.0.1' }
+    - { section: 'server:handler5', option: 'use_threadpool', value: 'true' }
+    - { section: 'server:handler5', option: 'threadpool_workers', value: '5' }
 
 ########################################################################

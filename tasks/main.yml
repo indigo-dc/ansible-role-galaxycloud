@@ -1,9 +1,44 @@
-- include: delete-ec2-user.yml
+---
+# Main tasks file for indigo-dc.galaxycloud
+# Deploy a Galaxy server
+
+# Users rules
+- include: user.yml
+
+# Install Galaxy dependencies
 - include: prerequisites.yml
+
+# Download and install Galaxy
 - include: galaxy-install.yml
+  become_user: "{{galaxy_user}}"
+  become: true
+
+# Configure Postgresql
 - include: postgresql.yml
+  become_user: "{{galaxy_user}}"
+  become: true
+
+# Configure NGINX
 - include: nginx.yml
+  become_user: "{{galaxy_user}}"
+  become: true
+
+# Configure uWSGI and job_conf
 - include: uwsgi.yml
+  become_user: "{{galaxy_user}}"
+  become: true
+
+# Configure Proftpd
 - include: proftpd.yml
+  become_user: "{{galaxy_user}}"
+  become: true
+
+# Configure supervisor
 - include: supervisor.yml
+  become_user: "{{galaxy_user}}"
+  become: true
+
+# Galaxy customization
 - include: galaxy-custom.yml
+  become_user: "{{galaxy_user}}"
+  become: true

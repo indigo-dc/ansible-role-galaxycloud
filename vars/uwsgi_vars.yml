@@ -1,8 +1,10 @@
 ---
 # uWSGI config vars
+uwsgi_socket_port: "127.0.0.1:4001"
+uwsgi_stats_port: "127.0.0.1:9191"
 uwsgi_errorlog: "{{galaxy_log_path}}/uwsgi.log"
 uwsgi_pidfile: "{{galaxy_log_path}}/uwsgi.pid"
-uwsgi_processes: "{{ 2*(ansible_processor_vcpus-1) }}"
+uwsgi_processes: "{{ ansible_processor_vcpus-1 }}"
 uwsgi_threads: 4
 # job_conf vars
 # Number of concurrent local jobs that can be run

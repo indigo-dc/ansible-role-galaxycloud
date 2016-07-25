@@ -1,7 +1,0 @@
----
-- name: delete ec2-user
-  user: name=ec2-user
-        state=absent
-        remove=yes
-  become_user: root
-  become_method: sudo

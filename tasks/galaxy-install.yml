@@ -11,15 +11,11 @@
   shell: cp galaxy.ini.sample galaxy.ini
          chdir={{galaxy_config_path}}/
 
-- name: Add admin mail address
-  replace: dest={{galaxy_config_file}}
-           regexp="#admin_users = None"
-           replace="admin_users = {{GALAXY_ADMIN_EMAIL}}"
-
-- name: Edit tool dependency dir
-  replace: dest={{galaxy_config_file}}
-           regexp="#tool_dependency_dir = None"
-           replace="tool_dependency_dir = {{galaxy_install_path}}/tool_dependency"
+- name: Add admin mail address and edit tool dependency dir
+  replace: dest={{galaxy_config_file}} regexp={{item.regexp}} replace={{item.replace}}
+  with_items:
+    - { regexp: "#admin_users = None", replace: "admin_users = {{GALAXY_ADMIN_EMAIL}}" }
+    - { regexp: "#tool_dependency_dir = None", replace: "tool_dependency_dir = {{galaxy_install_path}}/tool_dependency" }
 
 - name: Install Galaxy dependencies
   shell: ./scripts/common_startup.sh >> {{galaxy_log_path}}/galaxy_common_startup.log

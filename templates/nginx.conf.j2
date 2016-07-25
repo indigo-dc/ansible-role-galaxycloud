@@ -1,5 +1,8 @@
 user  {{ nginx_user }};
 worker_processes  {{ nginx_worker_processes }};
+{% if ansible_virtualization_type == "docker" %}
+daemon off;
+{% endif %}
 
 error_log  {{ nginx_error_log }};
 pid        {{ nginx_pidfile }};

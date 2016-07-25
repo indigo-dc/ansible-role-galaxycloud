@@ -5,6 +5,9 @@ galaxy_instance_description: "INDIGO-CNR test"
 # User to launch the Galaxy portal
 galaxy_user: galaxy
 
+# Galaxy user UID
+GALAXY_UID: "4001"
+
 # Path to install the Galaxy software
 galaxy_FS_path: /home/galaxy
 
@@ -30,8 +33,14 @@ galaxy_log_path: "/var/log/galaxy"
 # Galaxy instance url
 galaxy_instance_url: "http://{{ansible_eth0.ipv4.address}}/galaxy/"
 
+# Galaxy instance ssh public key
+galaxy_instance_key_pub: ""
+
 # Galaxy flavor
 galaxy_flavor: "galaxy-no-tools"
+
+# Galaxy virtual elastic cluster support
+galaxy_virtual_cluster_support: false
 
 #################################
 # Galaxy administrator username
@@ -63,8 +72,10 @@ nginx_upload_store_path: "{{galaxy_db_dir}}/tmp/upload_store"
 
 #################################
 # PROFTPD
+proftpd_conf_path: "/etc/proftpd.conf"
 proftpd_db_user: galaxyftp
 proftpd_files_path: "{{galaxy_db_dir}}/ftp"
+proftpd_ftp_port: 21
 proftpd_passive_port_low: 30000
 proftpd_passive_port_high: 40000
 proftpd_welcome: "INDIGO-CNR ftp server test"

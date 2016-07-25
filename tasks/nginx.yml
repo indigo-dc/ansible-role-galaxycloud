@@ -4,7 +4,7 @@
 # Modifications to the upstream (CentOS7) nginx package to add the upload (and possibly other) module(s).
 # The package is built for CentOS7.
 
-- name: Install dependencies
+- name: Install NGINX dependencies
   yum: name={{item}}
        state=present
   with_items:
@@ -12,63 +12,47 @@
     - pcre-devel
   become_user: root
   become_method: sudo
+  when: ansible_os_family == "RedHat"
 
-- name: Move nginx rpm in /tmp
+- name: Move NGINX rpm in /tmp
   copy: src=nginx-1.8.1-1.el7.centos.ngx.x86_64.rpm
         dest=/tmp/nginx-1.8.1-1.el7.centos.ngx.x86_64.rpm
+  when: ansible_os_family == "RedHat"
   
-- name: Install nginx rpm from /tmp
+- name: Install NGINX rpm from /tmp
   yum: name=/tmp/nginx-1.8.1-1.el7.centos.ngx.x86_64.rpm
        state=present
   become_user: root
   become_method: sudo
+  when: ansible_os_family == "RedHat"
 
 # /etc/nginx/nginx.conf configuration
 
-- name: Include nginx specific variables.
+- name: Include NGINX specific variables.
   include_vars: nginx_vars.yml
 
-- name: Copy the nginx configuration file
+- name: Copy the NGINX configuration file
   template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
   become_user: root
   become_method: sudo
 
 # modify galaxy.ini
 
-- name: Edit galaxy.ini nginx_upload_store
-  replace: dest={{galaxy_config_file}}
-           regexp='#nginx_upload_store = False'
-           replace='nginx_upload_store = database/tmp/upload_store'
+- name: Edit galaxy.ini
+  replace: dest={{galaxy_config_file}} regexp={{item.regexp}} replace={{item.replace}}
+  with_items:
+    - { regexp: '#nginx_upload_store = False', replace: 'nginx_upload_store = database/tmp/upload_store' }
+    - { regexp: '#nginx_upload_path = False', replace: 'nginx_upload_path = /galaxy/_upload' }
+    - { regexp: '#nginx_x_accel_redirect_base = False', replace: 'nginx_x_accel_redirect_base = /_x_accel_redirect' }
+    - { regexp: '#nginx_x_archive_files_base = False', replace: 'nginx_x_archive_files_base = /_x_accel_redirect' }
+    - { regexp: '#filter-with = proxy-prefix', replace: 'filter-with = proxy-prefix' }
+    - { regexp: '#cookie_path = None', replace: 'cookie_path = /galaxy' }
 
-- name: Edit galaxy.ini nginx_upload_path
-  replace: dest={{galaxy_config_file}}
-           regexp='#nginx_upload_path = False'
-           replace='nginx_upload_path = /galaxy/_upload'
-
-- name: Edit galaxy.ini nginx_x_accel_redirect_base
-  replace: dest={{galaxy_config_file}}
-           regexp='#nginx_x_accel_redirect_base = False'
-           replace='nginx_x_accel_redirect_base = /_x_accel_redirect'
-
-- name: Edit galaxy.ini nginx_x_archive_files_base
-  replace: dest={{galaxy_config_file}}
-           regexp='#nginx_x_archive_files_base = False'
-           replace='nginx_x_archive_files_base = /_x_accel_redirect'
-
-- name: Edit galaxy.ini filter-with
-  replace: dest={{galaxy_config_file}}
-           regexp='#filter-with = proxy-prefix'
-           replace='filter-with = proxy-prefix'
-
-- name: Edit galaxy.ini cookie_path
-  replace: dest={{galaxy_config_file}}
-           regexp='#cookie_path = None'
-           replace='cookie_path = /galaxy'
-
-- name: Create nginx upload_store dir
+- name: Create NGINX upload_store dir
   file: state=directory path={{nginx_upload_store_path}}
 
-- name: Star NGINX
+- name: Start NGINX | vm
   service: name=nginx state=started enabled=yes
   become_user: root
   become_method: sudo
+  when: ansible_virtualization_type != "docker"

@@ -15,6 +15,36 @@
 # see https://wiki.galaxyproject.org/Admin/Config/Performance/Scaling#uWSGI-1
 # or https://wiki.galaxyproject.org/Admin/Config/Performance/Scaling#uWSGI-2 . 
 
+{% if ansible_virtualization_type == "docker" %}
+[program:postgresql]
+user            = postgres
+command         = /usr/bin/postgres -D {{pgsql_pgdata}}
+process_name    = %(program_name)s
+stopsignal      = INT
+autostart       = true
+autorestart     = true
+redirect_stderr = true
+priority        = 100
+
+[program:nginx]
+command         = /usr/sbin/nginx
+directory       = /
+umask           = 022
+autostart       = true
+autorestart     = unexpected
+startsecs       = 5
+exitcodes       = 0
+user            = root
+priority        = 200
+
+[program:proftpd]
+command         = /usr/sbin/proftpd -n -c {{proftpd_conf_path}}
+autostart       = true
+autorestart     = true
+stopasgroup     = true
+killasgroup     = true
+{% endif %}
+
 [program:galaxy_web]
 command         = {{galaxy_venv_path}}/bin/uwsgi --ini-paste {{galaxy_config_file}}
 directory       = {{galaxy_install_path}}

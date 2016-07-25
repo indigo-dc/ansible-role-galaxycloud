@@ -9,6 +9,7 @@
     - expect #mkpasswd utility
   become_user: root
   become_method: sudo
+  when: ansible_os_family == "RedHat"
 
 - name: Install Galaxy conditional dependencies
   pip:
@@ -19,10 +20,20 @@
     PYTHONPATH: "{{galaxy_install_path}}/lib"
     VIRTUAL_ENV: "{{galaxy_venv_path}}"
 
-- name: initdb
+- name: Include postgresql specific variables.
+  include_vars: postgresql_vars.yml
+
+- name: Initialize the database | vm
   command: postgresql-setup initdb creates=/var/lib/pgsql/data/pg_hba.conf
   become_user: root
   become_method: sudo
+  when: ansible_virtualization_type != "docker"
+
+- name: Initialize the database | docker
+  command: "/usr/bin/initdb -D {{pgsql_pgdata}}"
+  become: True
+  become_user: postgres
+  when: ansible_virtualization_type == "docker"
 
 - name: Edit pg_hba.conf IPv4 local connections
   replace: dest=/var/lib/pgsql/data/pg_hba.conf
@@ -30,18 +41,27 @@
            replace="host    all             all             127.0.0.1/32            md5"
   become_user: root
   become_method: sudo
+  when: ansible_os_family == "RedHat"
 
 - name: Edit pg_hba.conf IPv6 local connections
   replace: dest=/var/lib/pgsql/data/pg_hba.conf
            regexp="host    all             all             ::1/128                 ident"
            replace="host    all             all             ::1/128                 md5"
-  become_user: root
-  become_method: sudo
+  become_user: postgres
+  become: yes
+  when: ansible_os_family == "RedHat"
 
-- name: Enable and start the PostgreSQL server
+- name: Enable and start PostgreSQL server | vm
   service: name=postgresql enabled=yes state=started
   become_user: root
   become_method: sudo
+  when: ansible_virtualization_type != "docker"
+
+- name: Start PostgreSQL server | docker
+  shell: "/usr/bin/postgres -D {{pgsql_pgdata}} &"
+  become: True
+  become_user: postgres
+  when: ansible_virtualization_type == "docker"
 
 - name: Create galaxy db random passwd
   shell: mkpasswd -l 20 -s 0
