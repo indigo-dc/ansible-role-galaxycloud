@@ -37,16 +37,15 @@
   become_method: sudo
 
 # modify galaxy.ini
-
 - name: Edit galaxy.ini
-  replace: dest={{galaxy_config_file}} regexp={{item.regexp}} replace={{item.replace}}
+  ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
   with_items:
-    - { regexp: '#nginx_upload_store = False', replace: 'nginx_upload_store = database/tmp/upload_store' }
-    - { regexp: '#nginx_upload_path = False', replace: 'nginx_upload_path = /galaxy/_upload' }
-    - { regexp: '#nginx_x_accel_redirect_base = False', replace: 'nginx_x_accel_redirect_base = /_x_accel_redirect' }
-    - { regexp: '#nginx_x_archive_files_base = False', replace: 'nginx_x_archive_files_base = /_x_accel_redirect' }
-    - { regexp: '#filter-with = proxy-prefix', replace: 'filter-with = proxy-prefix' }
-    - { regexp: '#cookie_path = None', replace: 'cookie_path = /galaxy' }
+    - { section: 'app:main', option: 'nginx_upload_store', value: "database/tmp/upload_store" }
+    - { section: 'app:main', option: 'nginx_upload_path', value: "/galaxy/_upload" }
+    - { section: 'app:main', option: 'nginx_x_accel_redirect_base', value: "/_x_accel_redirect}" }
+    - { section: 'app:main', option: 'nginx_x_archive_files_base', value: "/_x_accel_redirect" }
+    - { section: 'app:main', option: 'filter-with', value: "proxy-prefix" }
+    - { section: 'app:main', option: 'cookie_path', value: "/galaxy" }
 
 - name: Create NGINX upload_store dir
   file: state=directory path={{nginx_upload_store_path}}
