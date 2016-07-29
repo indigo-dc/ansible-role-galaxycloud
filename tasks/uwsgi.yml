@@ -60,10 +60,10 @@
 # Edit galaxy.ini file
 
 - name: Edit galaxy.ini
-  replace: dest={{galaxy_config_file}} regexp={{item.regexp}} replace={{item.replace}}
+  replace: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
   with_items:
-    - { regexp: '#static_enabled = True', replace: 'static_enabled = False' }
-    - { regexp: '#track_jobs_in_database = True', replace: 'track_jobs_in_database = True' }
+    - { section: 'app:main', option: 'static_enabled', value: ' False' }
+    - { section: 'app:main', option: 'track_jobs_in_database', value: 'True' }
 
 ########################################################################
 # job_conf section
