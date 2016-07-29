@@ -85,6 +85,12 @@
   become_user: postgres
   become_method: sudo
 
+- name: Create postgresql galaxy_tools db
+  postgresql_db: name=galaxy_tools
+                 owner={{galaxy_user}}
+  become_user: postgres
+  become_method: sudo
+
 - name: Set DB galaxy.ini values
   ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
   with_items:
@@ -92,12 +98,6 @@
     - { section: 'app:main', option: 'database_engine_option_server_side_cursors', value: "True" }
     - { section: 'app:main', option: 'install_database_connection', value: "{{galaxy_install_database_connection}}" }
     - { section: 'app:main', option: 'install_database_engine_option_server_side_cursors', value: "True" }
-
-- name: Create postgresql galaxy_tools db
-  postgresql_db: name=galaxy_tools
-                 owner={{galaxy_user}}
-  become_user: postgres
-  become_method: sudo
 
 - name: Create Galaxy DB
   command: "{{galaxy_venv_path}}/bin/python {{galaxy_install_path}}/scripts/create_db.py -c {{galaxy_config_file}} chdir={{galaxy_install_path}}/"
