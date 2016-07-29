@@ -22,7 +22,7 @@ galaxy_config_path: "{{galaxy_install_path}}/config"
 galaxy_config_file: "{{galaxy_config_path}}/galaxy.ini"
 
 # Galaxy version to install
-GALAXY_VERSION: "-b master origin/master"
+GALAXY_VERSION: "master"
 
 # Virtualenv directory
 galaxy_venv_path: "{{galaxy_install_path}}/.venv"
@@ -39,12 +39,12 @@ galaxy_instance_key_pub: ""
 # Galaxy flavor
 galaxy_flavor: "galaxy-no-tools"
 
-# Galaxy virtual elastic cluster support
-galaxy_virtual_cluster_support: false
+# Galaxy virtual elastic cluster support: Currently supported local and slurm
+galaxy_lrms: local
 
 #################################
 # Galaxy administrator username
-GALAXY_ADMIN_USERNAME: "{{galaxy_admin_username}}"
+GALAXY_ADMIN_USERNAME: "galaxy_admin_username"
 
 # Galaxy administrator password.
 # It is hard coded. To be changed by the administrator.
@@ -55,7 +55,7 @@ GALAXY_ADMIN_PASSWORD: "galaxy_admin_password"
 GALAXY_ADMIN_API_KEY: "GALAXY_ADMIN_API_KEY"
 
 # Galaxy administrator e-mail address
-GALAXY_ADMIN_EMAIL: "{{galaxy_admin_mail}}"
+GALAXY_ADMIN_EMAIL: "admin@server.com"
 
 #################################
 #Galaxy configuration

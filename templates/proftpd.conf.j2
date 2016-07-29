@@ -7,7 +7,7 @@ ServerName                      "{{proftpd_welcome}}"
 ServerType                      standalone
 DefaultServer                   on
 {% if ansible_virtualization_type != "docker" %}
-DefaultAddress                  {{ansible_eth0.ipv4.address}}
+DefaultAddress                  {{ansible_default_ipv4.address}}
 {% endif %}
 Port                            {{proftpd_ftp_port}}
 Umask                           077

@@ -85,31 +85,19 @@
   become_user: postgres
   become_method: sudo
 
-- name: Edit galaxy.ini database_connection
-  replace: dest={{galaxy_config_file}}
-           regexp='#database_connection = sqlite:///./database/universe.sqlite\?isolation_level=IMMEDIATE'
-           replace='database_connection = {{galaxy_database_connection}}'
-
-- name: Edit galaxy.ini database_engine_option_server_side_cursors
-  replace: dest={{galaxy_config_file}}
-           regexp='#database_engine_option_server_side_cursors = False'
-           replace='database_engine_option_server_side_cursors = True'
+- name: Set DB galaxy.ini values
+  ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
+  with_items:
+    - { section: 'app:main', option: 'database_connection', value: "{{galaxy_database_connection}}" }
+    - { section: 'app:main', option: 'database_engine_option_server_side_cursors', value: "True" }
+    - { section: 'app:main', option: 'install_database_connection', value: "{{galaxy_install_database_connection}}" }
+    - { section: 'app:main', option: 'install_database_engine_option_server_side_cursors', value: "True" }
 
 - name: Create postgresql galaxy_tools db
   postgresql_db: name=galaxy_tools
                  owner={{galaxy_user}}
   become_user: postgres
   become_method: sudo
-
-- name: Edit galaxy.ini install_database_connection
-  replace: dest={{galaxy_config_file}}
-           regexp='#install_database_connection = sqlite:///./database/universe.sqlite\?isolation_level=IMMEDIATE'
-           replace='install_database_connection = {{galaxy_install_database_connection}}'
-
-- name: Edit galaxy.ini install_database_engine_option_server_side_cursors
-  lineinfile: dest={{galaxy_config_file}}
-              insertafter='install_database_connection = {{galaxy_install_database_connection}}'
-              line='install_database_engine_option_server_side_cursors = True'
 
 - name: Create Galaxy DB
   command: "{{galaxy_venv_path}}/bin/python {{galaxy_install_path}}/scripts/create_db.py -c {{galaxy_config_file}} chdir={{galaxy_install_path}}/"

@@ -27,21 +27,12 @@
   become_user: postgres
   become_method: sudo
 
-- name: Edit galaxy.ini ftp_upload_directory
-  replace: dest={{galaxy_config_file}}
-           regexp='#ftp_upload_dir = None'
-           replace='ftp_upload_dir = {{proftpd_files_path}}'
+- ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_dir value="{{ proftpd_files_path }}"
 
-- name: Edit galaxy.ini ftp_upload_site
-  replace: dest={{galaxy_config_file}}
-           regexp='#ftp_upload_site = None'
-           replace='ftp_upload_site = {{ansible_eth0.ipv4.address}}'
+- ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_site value="{{ ansible_default_ipv4.address }}"
   when: ansible_virtualization_type != "docker"
 
-- name: Edit galaxy.ini ftp_upload_site
-  replace: dest={{galaxy_config_file}}
-           regexp='#ftp_upload_site = None'
-           replace='ftp_upload_site = "indigo-dc-cnr-docker"'
+- ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_site value="indigo-dc-cnr-docker"
   when: ansible_virtualization_type == "docker"
 
 - name: Enable and start the proftpd server
