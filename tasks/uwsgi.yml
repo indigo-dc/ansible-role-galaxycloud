@@ -60,9 +60,9 @@
 # Edit galaxy.ini file
 
 - name: Edit galaxy.ini
-  replace: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
+  replace: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value="{{item.value}}"
   with_items:
-    - { section: 'app:main', option: 'static_enabled', value: ' False' }
+    - { section: 'app:main', option: 'static_enabled', value: 'False' }
     - { section: 'app:main', option: 'track_jobs_in_database', value: 'True' }
 
 ########################################################################
