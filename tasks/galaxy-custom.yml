@@ -15,6 +15,18 @@
     PYTHONPATH: "{{galaxy_install_path}}/lib"
     VIRTUAL_ENV: "{{galaxy_venv_path}}"
 
+########################################################################
+# Stop services on docker
+
+- name: Stop postgres | docker
+  shell: "/usr/bin/pg_ctl --pgdata={{pgsql_pgdata}} stop"
+  become: True
+  become_user: postgres
+  when: ansible_virtualization_type == "docker"
+
+########################################################################
+# Start Galaxy on VM
+
 - name: Start Galaxy | Enable supervisord | vm
   service: name=supervisord state=started enabled=yes
   become_user: root

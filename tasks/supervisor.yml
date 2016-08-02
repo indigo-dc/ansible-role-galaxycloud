@@ -2,11 +2,11 @@
 ########################################################################
 # Stop services on docker
 
-- name: Stop postgres | docker
-  shell: "/usr/bin/pg_ctl --pgdata={{pgsql_pgdata}} stop"
-  become: True
-  become_user: postgres
-  when: ansible_virtualization_type == "docker"
+#- name: Stop postgres | docker
+#  shell: "/usr/bin/pg_ctl --pgdata={{pgsql_pgdata}} stop"
+#  become: True
+#  become_user: postgres
+#  when: ansible_virtualization_type == "docker"
 
 ########################################################################
 # Install and config Supervisord
