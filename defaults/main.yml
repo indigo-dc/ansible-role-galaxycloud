@@ -59,6 +59,18 @@ GALAXY_ADMIN_EMAIL: "admin@server.com"
 
 #################################
 #Galaxy configuration
+
+export_dir: "/export"
+
+galaxy_environment:
+  GALAXY_CONFIG_JOB_WORKING_DIRECTORY: "{{export_dir}}/galaxy/database/job_working_directory"
+  GALAXY_CONFIG_FILE_PATH: "{{export_dir}}/galaxy/database/files"
+  GALAXY_CONFIG_NEW_FILE_PATH: "{{export_dir}}/galaxy/database/files"
+  GALAXY_CONFIG_TEMPLATE_CACHE_PATH: "{{export_dir}}/galaxy/database/compiled_templates"
+  GALAXY_CONFIG_CITATION_CACHE_DATA_DIR: "{{export_dir}}/galaxy/database/citations/data"
+  GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY: "{{export_dir}}/galaxy/database/pbs"
+  GALAXY_CONFIG_FTP_UPLOAD_DIR: "{{export_dir}}/galaxy/database/ftp"
+
 use_pbkdf2: true
 
 #################################
