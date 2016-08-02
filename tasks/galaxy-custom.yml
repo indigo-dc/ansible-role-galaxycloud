@@ -15,19 +15,8 @@
     PYTHONPATH: "{{galaxy_install_path}}/lib"
     VIRTUAL_ENV: "{{galaxy_venv_path}}"
 
-- name: Restart galaxy | vm
-  supervisorctl: name='galaxy:' state=restarted
+- name: Start Galaxy | Enable supervisord | vm
+  service: name=supervisord state=started enabled=yes
   become_user: root
   become_method: sudo
   when: ansible_virtualization_type != "docker"
-
-- name: Stop services (to be loaded by the user) | docker
-  supervisorctl: name={{item}} state=stopped
-  with_items:
-    - 'postgresql'
-    - 'nginx'
-    - 'proftpd'
-    - 'galaxy:'
-  become_user: root
-  become_method: sudo
-  when: ansible_virtualization_type == "docker"

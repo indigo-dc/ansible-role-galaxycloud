@@ -25,14 +25,14 @@
   become_user: root
   become_method: sudo
 
-- name: Enable supervisord | vm
-  service: name=supervisord state=started enabled=yes
-  become_user: root
-  become_method: sudo
-  when: ansible_virtualization_type != "docker"
+#- name: Enable supervisord | vm
+#  service: name=supervisord state=started enabled=yes
+#  become_user: root
+#  become_method: sudo
+#  when: ansible_virtualization_type != "docker"
 
-- name: Start supervisord | docker
-  command: "/usr/bin/supervisord -c /etc/supervisord.conf"
-  become_user: root
-  become_method: sudo
-  when: ansible_virtualization_type == "docker"
+#- name: Start supervisord | docker
+#  command: "/usr/bin/supervisord -c /etc/supervisord.conf"
+#  become_user: root
+#  become_method: sudo
+#  when: ansible_virtualization_type == "docker"
