@@ -26,3 +26,12 @@
         group={{galaxy_user}}
   become_user: root
   become_method: sudo
+
+- name: Creates export directory
+  file: path={{export_dir}}
+        state=directory
+        owner={{galaxy_user}}
+        group={{galaxy_user}}
+  become_user: root
+  become_method: sudo
+
