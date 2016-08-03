@@ -1,14 +1,5 @@
 ---
 ########################################################################
-# Stop services on docker
-
-#- name: Stop postgres | docker
-#  shell: "/usr/bin/pg_ctl --pgdata={{pgsql_pgdata}} stop"
-#  become: True
-#  become_user: postgres
-#  when: ansible_virtualization_type == "docker"
-
-########################################################################
 # Install and config Supervisord
 
 - name: Check and install Supervisor dependencies
@@ -24,15 +15,3 @@
   template: src=supervisord.conf.j2 dest=/etc/supervisord.d/galaxy_web.ini
   become_user: root
   become_method: sudo
-
-#- name: Enable supervisord | vm
-#  service: name=supervisord state=started enabled=yes
-#  become_user: root
-#  become_method: sudo
-#  when: ansible_virtualization_type != "docker"
-
-#- name: Start supervisord | docker
-#  command: "/usr/bin/supervisord -c /etc/supervisord.conf"
-#  become_user: root
-#  become_method: sudo
-#  when: ansible_virtualization_type == "docker"
