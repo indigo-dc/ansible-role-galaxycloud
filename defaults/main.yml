@@ -86,7 +86,7 @@ nginx_upload_store_path: "{{galaxy_db_dir}}/tmp/upload_store"
 # PROFTPD
 proftpd_conf_path: "/etc/proftpd.conf"
 proftpd_db_user: galaxyftp
-proftpd_files_path: "{{galaxy_db_dir}}/ftp"
+proftpd_files_path: "{{GALAXY_CONFIG_FTP_UPLOAD_DIR}}"
 proftpd_ftp_port: 21
 proftpd_passive_port_low: 30000
 proftpd_passive_port_high: 40000
