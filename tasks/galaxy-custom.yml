@@ -31,5 +31,5 @@
   service: name=supervisord state=started enabled=yes
   become_user: root
   become_method: sudo
-  environment: {{galaxy_environment}}
+  environment: "{{galaxy_environment}}"
   when: ansible_virtualization_type != "docker"
