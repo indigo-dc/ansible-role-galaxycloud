@@ -7,6 +7,9 @@
        dest={{galaxy_install_path}}
        version={{GALAXY_VERSION}}
 
+- name: Setup Galaxy environment variables
+  shell: echo {{galaxy_environment}} >> /home/galaxy/vars.txt
+
 - name: Create galaxy.ini file
   copy: src={{galaxy_config_path}}/galaxy.ini.sample dest={{galaxy_config_path}}/galaxy.ini force=no
 
