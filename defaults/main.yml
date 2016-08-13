@@ -63,6 +63,11 @@ GALAXY_ADMIN_EMAIL: "admin@server.com"
 export_dir: "/export"
 
 galaxy_environment:
+  GALAXY_CONFIG_DATABASE_CONNECTION: "postgresql://galaxy:galaxy@localhost:5432/galaxy?client_encoding=utf8"
+  GALAXY_CONFIG_TOOL_DEPENDENCY_DIR: "./tool_deps"
+  GALAXY_CONFIG_ADMIN_USERS: "admin@server.com"
+  GALAXY_CONFIG_BRAND: "Galaxycloud INDIGO Build"
+  GALAXY_CONFIG_STATIC_ENABLED: False
   GALAXY_CONFIG_JOB_WORKING_DIRECTORY: "{{export_dir}}/galaxy/database/job_working_directory"
   GALAXY_CONFIG_FILE_PATH: "{{export_dir}}/galaxy/database/files"
   GALAXY_CONFIG_NEW_FILE_PATH: "{{export_dir}}/galaxy/database/files"
@@ -70,6 +75,20 @@ galaxy_environment:
   GALAXY_CONFIG_CITATION_CACHE_DATA_DIR: "{{export_dir}}/galaxy/database/citations/data"
   GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY: "{{export_dir}}/galaxy/database/pbs"
   GALAXY_CONFIG_FTP_UPLOAD_DIR: "{{export_dir}}/galaxy/database/ftp"
+  GALAXY_CONFIG_FTP_UPLOAD_SITE: "elixir-italy.org"
+  GALAXY_CONFIG_USE_PBKDF2: True
+  GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE: "/_x_accel_redirect"
+  GALAXY_CONFIG_NGINX_X_ARCHIVE_FILES_BASE: "/_x_accel_redirect"
+  GALAXY_CONFIG_NGINX_UPLOAD_STORE: "/tmp/nginx_upload_store"
+  GALAXY_CONFIG_NGINX_UPLOAD_PATH: "/_upload"
+  GALAXY_CONFIG_DYNAMIC_PROXY_MANAGE: False
+  GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY: "config/plugins/visualizations"
+  GALAXY_CONFIG_TRUST_IPYTHON_NOTEBOOK_CONVERSION: True
+  GALAXY_CONFIG_TOOLFORM_UPGRADE: True
+  GALAXY_CONFIG_SANITIZE_ALL_HTML: False
+  GALAXY_CONFIG_TOOLFORM_UPGRADE: True
+  GALAXY_CONFIG_WELCOME_URL: "{{galaxy_config_path}}/web/welcome.html"
+  GALAXY_CONFIG_OVERRIDE_DEBUG: False
 
 use_pbkdf2: true
 
