@@ -1,8 +1,15 @@
 ---
 # Galaxy Customization recipe
 
-########################################################################
+- name: Copy the startup script
+  template: src=galaxy_start.j2 dest=/usr/bin/galaxy-startup mode=a+x
+  become_user: root
+  become_method: sudo
+
+#########################################################
 # Galaxy administrator: email. username, password and api_key
+# IMPORTANT: you need the galaxy database postgresql active to setup the galaxy administrator
+# IMPORTANT: so leave this here!!!
 
 - name: Copy create_galaxy_user.py to /usr/local/bin/
   template: src=create_galaxy_user.py.j2 dest=/usr/local/bin/create_galaxy_user.py
@@ -15,7 +22,7 @@
     PYTHONPATH: "{{galaxy_install_path}}/lib"
     VIRTUAL_ENV: "{{galaxy_venv_path}}"
 
-########################################################################
+#########################################################
 # Stop services on docker
 
 - name: Stop postgres | docker
@@ -24,7 +31,7 @@
   become_user: postgres
   when: ansible_virtualization_type == "docker"
 
-########################################################################
+#########################################################
 # Start Galaxy on VM
 
 - name: Start Galaxy | Enable supervisord | vm

@@ -1,14 +1,22 @@
 ---
+#########################################################
+# Proftpd configuration
+
+#---
+# CentOS 7
+
 - name: Install proftpd
   yum: name={{item}}
        state=present
   with_items:
     - proftpd
     - proftpd-postgresql
-    - expect #mkpasswd utility
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
+
+#---
+# Ubuntu 14.04
 
 - name: Create proftpd db random passwd
   shell: mkpasswd -l 20 -s 0
@@ -26,14 +34,6 @@
                    priv=galaxy_user:ALL
   become_user: postgres
   become_method: sudo
-
-- ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_dir value="{{ proftpd_files_path }}"
-
-- ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_site value="{{ ansible_default_ipv4.address }}"
-  when: ansible_virtualization_type != "docker"
-
-- ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_site value="indigo-dc-cnr-docker"
-  when: ansible_virtualization_type == "docker"
 
 - name: Enable and start the proftpd server
   service: name=proftpd enabled=yes state=started

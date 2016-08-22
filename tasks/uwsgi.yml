@@ -1,6 +1,6 @@
 ---
-########################################################################
-# Install and config uWSGI
+#########################################################
+# Install and configure uWSGI
 
 - name: Check and install uWSGI dependencies
   yum: name={{item}}
@@ -65,7 +65,7 @@
     - { section: 'app:main', option: 'static_enabled', value: 'False' }
     - { section: 'app:main', option: 'track_jobs_in_database', value: 'True' }
 
-########################################################################
+#########################################################
 # job_conf section
 
 - name: Copy job_conf configration file
@@ -127,4 +127,4 @@
     - { section: 'server:handler5', option: 'use_threadpool', value: 'true' }
     - { section: 'server:handler5', option: 'threadpool_workers', value: '5' }
 
-########################################################################
+#########################################################

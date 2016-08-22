@@ -1,6 +1,9 @@
 ---
-########################################################################
+#########################################################
 # Install and config Supervisord
+
+#---
+# CentOS 7
 
 - name: Check and install Supervisor dependencies
   yum: name={{item}}
@@ -10,6 +13,9 @@
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
+
+#---
+#Ubuntu 14.04
 
 - name: Copy supervisord configuration file
   template: src=supervisord.conf.j2 dest=/etc/supervisord.d/galaxy_web.ini

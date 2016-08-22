@@ -1,6 +1,8 @@
 ---
-# Nginx installation
+#########################################################
+# NGINX installation recipe
 
+#---
 # Modifications to the upstream (CentOS7) nginx package to add the upload (and possibly other) module(s).
 # The package is built for CentOS7.
 
@@ -26,6 +28,12 @@
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
+#---
+# Ubuntu 14.04
+
+#########################################################
+# NGINX configuration
+
 # /etc/nginx/nginx.conf configuration
 
 - name: Include NGINX specific variables.
@@ -36,19 +44,18 @@
   become_user: root
   become_method: sudo
 
-# modify galaxy.ini
+# Add galaxy proxy subdirectory configuration to galaxy.ini
+
 - name: Edit galaxy.ini
   ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
   with_items:
-    - { section: 'app:main', option: 'nginx_upload_store', value: "database/tmp/upload_store" }
-    - { section: 'app:main', option: 'nginx_upload_path', value: "/galaxy/_upload" }
-    - { section: 'app:main', option: 'nginx_x_accel_redirect_base', value: "/_x_accel_redirect}" }
-    - { section: 'app:main', option: 'nginx_x_archive_files_base', value: "/_x_accel_redirect" }
     - { section: 'app:main', option: 'filter-with', value: "proxy-prefix" }
     - { section: 'app:main', option: 'cookie_path', value: "/galaxy" }
 
 - name: Create NGINX upload_store dir
   file: state=directory path={{nginx_upload_store_path}}
+
+#########################################################
 
 - name: Start NGINX | vm
   service: name=nginx state=started enabled=yes

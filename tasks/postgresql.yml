@@ -1,4 +1,10 @@
 ---
+#########################################################
+# Postgresql installation and configration recipe
+
+#---
+# CentOS 7
+
 - name: Install postgresql
   yum: name={{item}}
        state=present
@@ -6,10 +12,15 @@
     - postgresql-server
     - postgresql-contrib
     - python-psycopg2
-    - expect #mkpasswd utility
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
+
+#---
+# Ubuntu 14.04
+
+#---
+# Galaxy pip install
 
 - name: Install Galaxy conditional dependencies
   pip:
@@ -19,6 +30,9 @@
   environment:
     PYTHONPATH: "{{galaxy_install_path}}/lib"
     VIRTUAL_ENV: "{{galaxy_venv_path}}"
+
+#########################################################
+# Postgresql configuration
 
 - name: Include postgresql specific variables.
   include_vars: postgresql_vars.yml
