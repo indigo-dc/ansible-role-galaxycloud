@@ -54,7 +54,7 @@
 - name: PostgreSQL initdb creates a new database cluster
   shell: "/usr/bin/pg_ctl -D {{pgsql_pgdata}} initdb"
   args:
-    creates: {{pgsql_pgdata}}/pg_hba.conf
+    creates: "{{pgsql_pgdata}}/pg_hba.conf"
   become: True
   become_user: postgres
 #  when: ansible_virtualization_type == "docker"
