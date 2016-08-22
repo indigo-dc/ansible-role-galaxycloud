@@ -49,7 +49,7 @@
 #  become_user: postgres
 #  when: ansible_virtualization_type == "docker"
 
-- name: PostgreSQL initdb: creates a new PostgreSQL database cluster
+- name: PostgreSQL initdb creates a new database cluster
   shell: "/usr/bin/pg_ctl -D {{pgsql_pgdata}} initdb" creates={{pgsql_pgdata}}/pg_hba.conf
   become: True
   become_user: postgres
