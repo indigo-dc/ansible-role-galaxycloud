@@ -49,8 +49,8 @@
 #  become_user: postgres
 #  when: ansible_virtualization_type == "docker"
 
-- name: Stop postgres | docker
-  shell: "/usr/bin/pg_ctl --pgdata={{pgsql_pgdata}} initdb"
+- name: PostgreSQL initdb: creates a new PostgreSQL database cluster
+  shell: "/usr/bin/pg_ctl -D {{pgsql_pgdata}} initdb" creates={{pgsql_pgdata}}/pg_hba.conf
   become: True
   become_user: postgres
   when: ansible_virtualization_type == "docker"
@@ -77,8 +77,14 @@
   become_method: sudo
   when: ansible_virtualization_type != "docker"
 
-- name: Start PostgreSQL server | docker
-  shell: "/usr/bin/postgres -D {{pgsql_pgdata}} &"
+#- name: Start PostgreSQL server | docker
+#  shell: "/usr/bin/postgres -D {{pgsql_pgdata}} &"
+#  become: True
+#  become_user: postgres
+#  when: ansible_virtualization_type == "docker"
+
+- name: Start PostgreSQL server
+  shell: "/usr/bin/pg_ctl -D {{pgsql_pgdata}} start"
   become: True
   become_user: postgres
   when: ansible_virtualization_type == "docker"
