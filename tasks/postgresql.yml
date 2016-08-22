@@ -43,8 +43,14 @@
   become_method: sudo
   when: ansible_virtualization_type != "docker"
 
-- name: Initialize the database | docker
-  command: "/usr/bin/initdb -D {{pgsql_pgdata}}"
+#- name: Initialize the database | docker
+#  command: "/usr/bin/initdb -D {{pgsql_pgdata}}"
+#  become: True
+#  become_user: postgres
+#  when: ansible_virtualization_type == "docker"
+
+- name: Stop postgres | docker
+  shell: "/usr/bin/pg_ctl --pgdata={{pgsql_pgdata}} initdb"
   become: True
   become_user: postgres
   when: ansible_virtualization_type == "docker"
