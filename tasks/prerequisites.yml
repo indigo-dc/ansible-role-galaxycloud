@@ -2,6 +2,9 @@
 #########################################################
 # Install prerequisites
 
+#---
+#CentOS 7
+
 - name: Install git, vim, wget
   yum: name={{item}}
        state=present
@@ -9,6 +12,8 @@
     - git
     - vim
     - wget
+    - expect #mkpasswd utility
+    - logrotate
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
@@ -20,10 +25,13 @@
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
+#---
+# Ubuntu 14.04
+
 #########################################################
 # Create directories
 
-- name: Creates log directory
+- name: Create log directory
   file: path={{galaxy_log_path}}
         state=directory
         owner={{galaxy_user}}
@@ -31,7 +39,7 @@
   become_user: root
   become_method: sudo
 
-- name: Creates export directory
+- name: Create export directory
   file: path={{export_dir}}
         state=directory
         owner={{galaxy_user}}
@@ -39,5 +47,18 @@
   become_user: root
   become_method: sudo
 
+- name: Create /etc/galaxy directory
+  file: path=/etc/galaxy
+        state=directory
+        owner={{galaxy_user}}
+        group={{galaxy_user}}
+  become_user: root
+  become_method: sudo
+
 #########################################################
-# Logrotate install and config
+# Configure Logrotate
+
+- name: Copy logrotate configuration file
+  template: src=logrotate.j2 dest=/etc/logrotate.d/galaxy
+  become_user: root
+  become_method: sudo
