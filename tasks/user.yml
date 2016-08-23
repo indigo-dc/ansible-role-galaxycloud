@@ -19,11 +19,18 @@
 
 # Create Galaxy user
 
-- name: Create User {{galaxy_user}} on the server
+- name: Create user {{galaxy_user}} on the server | CentOS7
   user: name={{galaxy_user}}
         shell=/bin/bash
         groups=adm,wheel,systemd-journal
         uid={{GALAXY_UID}}
+  when: ansible_os_family == "RedHat"
+
+- name: Create user {{galaxy_user}} on the server | Ubuntu
+  user: name={{galaxy_user}}
+        shell=/bin/bash
+        uid={{GALAXY_UID}}
+  when: ansible_os_family == "Debian"
 
 - name: Inject ssh public key - {{galaxy_user}}
   authorized_key: user={{galaxy_user}}
