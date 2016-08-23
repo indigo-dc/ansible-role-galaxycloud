@@ -14,11 +14,6 @@
   become: True
   become_user: postgres
 
-- name: Stop nginx
-  shell: "/usr/sbin/nginx -s stop"
-  become_user: root
-  become_method: sudo
-
 #########################################################
 # Start Galaxy on VM
 
