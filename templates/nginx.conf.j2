@@ -1,6 +1,6 @@
 user  {{ nginx_user }};
 worker_processes  {{ nginx_worker_processes }};
-{% if ansible_virtualization_type == "docker" %}
+{% if supervisor_manage_nginx == "True" %}
 daemon off;
 {% endif %}
 
