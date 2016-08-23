@@ -1,15 +1,9 @@
 ---
-# Galaxy Customization recipe
-
-- name: Copy the startup script
-  template: src=galaxy_startup.j2 dest=/usr/bin/galaxy-startup mode=a+x
-  become_user: root
-  become_method: sudo
+# Galaxy customization recipe
 
 #########################################################
 # Galaxy administrator: email. username, password and api_key
 # IMPORTANT: you need the galaxy database postgresql active to setup the galaxy administrator
-# IMPORTANT: so leave this here!!!
 
 - name: Copy create_galaxy_user.py to /usr/local/bin/
   template: src=create_galaxy_user.py.j2 dest=/usr/local/bin/create_galaxy_user.py
@@ -21,37 +15,3 @@
   environment:
     PYTHONPATH: "{{galaxy_install_path}}/lib"
     VIRTUAL_ENV: "{{galaxy_venv_path}}"
-
-#########################################################
-# Stop services
-
-- name: Stop postgres
-  shell: "/usr/bin/pg_ctl -D {{pgsql_pgdata}} stop"
-  become: True
-  become_user: postgres
-#  when: ansible_virtualization_type == "docker"
-
-#########################################################
-# Start Galaxy on VM
-
-- name: Enable and start PostgreSQL server | vm
-  service: name=postgresql enabled=yes state=started
-  become_user: root
-  become_method: sudo
-  when: supervisor_manage_postgres == "False"
-
-- name: Enable and start NGINX server | vm
-  service: name=nginx state=started enabled=yes
-  become_user: root
-  become_method: sudo
-  when: supervisor_manage_nginx == "False"
-
-- name: Enable and start the proftpd server | vm
-  service: name=proftpd enabled=yes state=started
-  become_user: root
-  become_method: sudo
-  when: supervisor_manage_proftpd == "False"
-
-- name: Start Galaxy | vm
-  command: "/usr/bin/galaxy-startup"
-  when: ansible_virtualization_type != "docker"

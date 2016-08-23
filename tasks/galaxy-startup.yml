@@ -1,0 +1,47 @@
+---
+# Galaxy startup recipe
+
+- name: Copy the startup script
+  template: src=galaxy_startup.j2 dest=/usr/bin/galaxy-startup mode=a+x
+  become_user: root
+  become_method: sudo
+
+#########################################################
+# Stop services
+
+- name: Stop postgres
+  shell: "/usr/bin/pg_ctl -D {{pgsql_pgdata}} stop"
+  become: True
+  become_user: postgres
+
+- name: Stop nginx
+  shell: "/usr/sbin/nginx -s stop"
+  become_user: root
+  become_method: sudo
+
+#########################################################
+# Start Galaxy on VM
+
+- name: Enable and start PostgreSQL server | vm
+  service: name=postgresql enabled=yes state=started
+  become_user: root
+  become_method: sudo
+  when: supervisor_manage_postgres == "False"
+
+- name: Enable and start NGINX server | vm
+  service: name=nginx state=started enabled=yes
+  become_user: root
+  become_method: sudo
+  when: supervisor_manage_nginx == "False"
+
+- name: Enable and start the proftpd server | vm
+  service: name=proftpd enabled=yes state=started
+  become_user: root
+  become_method: sudo
+  when: supervisor_manage_proftpd == "False"
+
+- name: Start Galaxy | vm
+  command: "/usr/bin/galaxy-startup"
+  become_user: root
+  become_method: sudo
+  when: ansible_virtualization_type != "docker"
