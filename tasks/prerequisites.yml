@@ -28,6 +28,21 @@
 #---
 # Ubuntu 14.04
 
+- name: Install git, vim, wget, build-essential
+  apt: name={{item}}
+       state=present
+  with_items:
+    - git
+    - vim
+    - wget
+    - whois #mkpasswd utility
+    - logrotate
+    - build-essential
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
+
+
 #########################################################
 # Create directories
 
