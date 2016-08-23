@@ -83,3 +83,9 @@ proftpd_ftp_port: 21
 proftpd_passive_port_low: 30000
 proftpd_passive_port_high: 40000
 proftpd_welcome: "INDIGO-CNR ftp server test"
+
+#################################
+# Supervisord
+supervisor_manage_postgres: "True"
+supervisor_manage_nginx: "True"
+supervisor_manage_proftpd: "True"

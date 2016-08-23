@@ -35,8 +35,8 @@
   become_user: postgres
   become_method: sudo
 
-- name: Enable and start the proftpd server
-  service: name=proftpd enabled=yes state=started
-  become_user: root
-  become_method: sudo
-  when: ansible_virtualization_type != "docker"
+#- name: Enable and start the proftpd server
+#  service: name=proftpd enabled=yes state=started
+#  become_user: root
+#  become_method: sudo
+#  when: ansible_virtualization_type != "docker"
