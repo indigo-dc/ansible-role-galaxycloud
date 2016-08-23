@@ -15,7 +15,7 @@
 # see https://wiki.galaxyproject.org/Admin/Config/Performance/Scaling#uWSGI-1
 # or https://wiki.galaxyproject.org/Admin/Config/Performance/Scaling#uWSGI-2 . 
 
-{% if ansible_virtualization_type == "docker" %}
+{% if supervisor_manage_postgres == "True" %}
 [program:postgresql]
 user            = postgres
 command         = /usr/bin/postgres -D {{pgsql_pgdata}}
@@ -25,7 +25,9 @@ autostart       = true
 autorestart     = true
 redirect_stderr = true
 priority        = 100
+{% endif %}
 
+{% if supervisor_manage_nginx == "True" %}
 [program:nginx]
 command         = /usr/sbin/nginx
 directory       = /
@@ -36,7 +38,9 @@ startsecs       = 5
 exitcodes       = 0
 user            = root
 priority        = 200
+{% endif %}
 
+{% if supervisor_manage_proftpd == "True" %}
 [program:proftpd]
 command         = /usr/sbin/proftpd -n -c {{proftpd_conf_path}}
 autostart       = true
