@@ -31,4 +31,5 @@
   lineinfile: dest=/etc/profile
               line="\n#Source Galaxy environment variables\nsource /etc/galaxy/galaxy_environment_vars"
               state=present
-
+  become_user: root
+  become_method: sudo
