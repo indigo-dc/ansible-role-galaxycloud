@@ -3,6 +3,7 @@
 # NGINX installation recipe
 
 #---
+# CentOS 7
 # Modifications to the upstream (CentOS7) nginx package to add the upload (and possibly other) module(s).
 # The package is built for CentOS7.
 
@@ -31,14 +32,14 @@
 #---
 # Ubuntu 14.04
 
-- name: Add NGINX repository
-  apt-repository: repo='ppa:galaxyproject/nginx'
+- name: Add NGINX repository on Ubuntu
+  apt_repository: repo='ppa:galaxyproject/nginx'
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
 
-- name: Install NGINX for Ubuntu
-  yum: name={{item}}
+- name: Install NGINX on Ubuntu
+  apt: name={{item}}
        state=present
   with_items:
     - nginx-extras=1.4.6-1ubuntu3.4ppa1
