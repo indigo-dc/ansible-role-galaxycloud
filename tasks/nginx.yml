@@ -31,6 +31,22 @@
 #---
 # Ubuntu 14.04
 
+- name: Add NGINX repository
+  apt-repository: repo='ppa:galaxyproject/nginx'
+  become_user: root
+  become_method: sudo
+    when: ansible_os_family == "Debian"
+
+- name: Install NGINX for Ubuntu
+  yum: name={{item}}
+       state=present
+  with_items:
+    - nginx-extras=1.4.6-1ubuntu3.4ppa1
+    - nginx-common=1.4.6-1ubuntu3.4ppa1
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
+
 #########################################################
 # NGINX configuration
 
