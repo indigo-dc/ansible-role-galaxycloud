@@ -2,7 +2,9 @@
 #########################################################
 # Install and configure uWSGI
 
-- name: Check and install uWSGI dependencies
+#---
+# CentOS 7
+- name: Check and install uWSGI dependencies on CentOS7
   yum: name={{item}}
        state=present
   with_items:
@@ -11,6 +13,21 @@
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
+
+#---
+# Ubuntu 14.04
+- name: Check and install uWSGI dependencies on Ubuntu
+  apt: name={{item}}
+       state=present
+  with_items:
+    - python
+    - python-dev
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
+
+#########################################################
+# Install uWSGI
 
 - name: Include uWSGI specific variables.
   include_vars: uwsgi_vars.yml

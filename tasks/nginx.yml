@@ -35,7 +35,7 @@
   apt-repository: repo='ppa:galaxyproject/nginx'
   become_user: root
   become_method: sudo
-    when: ansible_os_family == "Debian"
+  when: ansible_os_family == "Debian"
 
 - name: Install NGINX for Ubuntu
   yum: name={{item}}
@@ -70,11 +70,3 @@
 
 - name: Create NGINX upload_store dir
   file: state=directory path={{nginx_upload_store_path}}
-
-#########################################################
-
-#- name: Start NGINX | vm
-#  service: name=nginx state=started enabled=yes
-#  become_user: root
-#  become_method: sudo
-#  when: ansible_virtualization_type != "docker"
