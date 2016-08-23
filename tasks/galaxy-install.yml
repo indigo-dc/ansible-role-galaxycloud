@@ -28,7 +28,7 @@
               state=present
 
 - name: Set Galaxy environment variables
-  lineinfile: dest=/home/{{galaxy_user}}/.bashrc
-              line="\n#source Virutalenv\nsource /etc/galaxy/galaxy_environment_vars"
+  lineinfile: dest=/etc/profile
+              line="\n#Source Galaxy environment variables\nsource /etc/galaxy/galaxy_environment_vars"
               state=present
 
