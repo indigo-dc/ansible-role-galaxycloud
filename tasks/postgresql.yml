@@ -75,11 +75,11 @@
   become: yes
   when: ansible_os_family == "RedHat"
 
-- name: Enable and start PostgreSQL server | vm
-  service: name=postgresql enabled=yes state=started
-  become_user: root
-  become_method: sudo
-  when: ansible_virtualization_type != "docker"
+#- name: Enable and start PostgreSQL server | vm
+#  service: name=postgresql enabled=yes state=started
+#  become_user: root
+#  become_method: sudo
+#  when: ansible_virtualization_type != "docker"
 
 #- name: Start PostgreSQL server | docker
 #  shell: "/usr/bin/postgres -D {{pgsql_pgdata}} &"
@@ -91,7 +91,7 @@
   shell: "/usr/bin/pg_ctl -D {{pgsql_pgdata}} start"
   become: True
   become_user: postgres
-  when: ansible_virtualization_type == "docker"
+#  when: ansible_virtualization_type == "docker"
 
 - name: Create galaxy db random passwd
   shell: mkpasswd -l 20 -s 0
