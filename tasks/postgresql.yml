@@ -88,7 +88,7 @@
 #  when: ansible_virtualization_type == "docker"
 
 - name: Start PostgreSQL server
-  shell: "/usr/bin/pg_ctl -D {{pgsql_pgdata}} start"
+  shell: "/usr/bin/pg_ctl -D {{pgsql_pgdata}} -w start"
   become: True
   become_user: postgres
 #  when: ansible_virtualization_type == "docker"
