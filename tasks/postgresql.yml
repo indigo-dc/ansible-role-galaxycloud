@@ -16,6 +16,10 @@
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
+- name: Set pg_ctl path on CentOS7
+  set_fact: pg_ctl_path="/usr/bin"
+  when: ansible_os_family == "RedHat"
+
 #---
 # Ubuntu 14.04
 
@@ -28,6 +32,10 @@
     - python-psycopg2
   become_user: root
   become_method: sudo
+  when: ansible_os_family == "Debian"
+
+- name: Set pg_ctl path on Ubuntu
+  set_fact: pg_ctl_path="/usr/lib/postgresql/9.3/bin/"
   when: ansible_os_family == "Debian"
 
 #---
@@ -49,7 +57,7 @@
   include_vars: postgresql_vars.yml
 
 - name: PostgreSQL initdb creates a new database cluster
-  shell: "/usr/bin/pg_ctl -D {{pgsql_pgdata}} initdb"
+  shell: "{{pg_ctl_path}}/pg_ctl -D {{pgsql_pgdata}} initdb"
   args:
     creates: "{{pgsql_pgdata}}/pg_hba.conf"
   become: True
@@ -72,7 +80,7 @@
   when: ansible_os_family == "RedHat"
 
 - name: Start PostgreSQL server
-  shell: "/usr/bin/pg_ctl -D {{pgsql_pgdata}} -w start"
+  shell: "{{pg_ctl_path}}/pg_ctl -D {{pgsql_pgdata}} -w start"
   become: True
   become_user: postgres
 
