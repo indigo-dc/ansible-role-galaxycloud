@@ -56,6 +56,15 @@
 - name: Include postgresql specific variables.
   include_vars: postgresql_vars.yml
 
+- name: Fix pgdata directory creation on Ubuntu
+  file: path={{pgsql_pgdata}}
+        state=directory
+        owner=postgres
+        group=postgres
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
+
 - name: PostgreSQL initdb creates a new database cluster
   shell: "{{pg_ctl_path}}/pg_ctl -D {{pgsql_pgdata}} initdb"
   args:
