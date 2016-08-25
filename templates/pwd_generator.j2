@@ -1,25 +1,27 @@
 #!{{galaxy_venv_path}}/bin/python
 
-import sys, optparse
+# argparse needs python 2.7
+
+import sys, argparse
 import string
 import random
 
 def __main__():
 
-   # Parse generator command line options
-   parser = optparse.OptionParser()
-   parser.add_option( '-l', dest='pwdSize', help='Password size' )
-   parser.add_option( '-p', action='store_true', dest='punctuation_pwd', help='Generate alphanumeric + special characters password' )
-   (options, args) = parser.parse_args()
+   # Parse pwd-generator command line options
+   parser = argparse.ArgumentParser(description='Random password generator.')
+   parser.add_argument( '-l', dest='pwdSize', help='Password size' )
+   parser.add_argument( '-p', action='store_true', dest='punctuation_pwd', help='Generate alphanumeric + special characters password' )
+   args = parser.parse_args()
 
    # Alphanumeric characters
    chars = string.letters + string.digits
 
    # Alphanumeric + special characters
-   if options.punctuation_pwd == True:
+   if args.punctuation_pwd == True:
      chars = string.letters + string.digits + string.punctuation
 
-   print ''.join((random.choice(chars)) for x in range(int(options.pwdSize)))
+   print ''.join((random.choice(chars)) for x in range(int(args.pwdSize)))
 
 if __name__ == "__main__":
    __main__()
