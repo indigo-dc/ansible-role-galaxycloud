@@ -1,5 +1,4 @@
 ---
-#########################################################
 # Postgresql installation and configration recipe
 
 #---
@@ -52,18 +51,12 @@
 
 #########################################################
 # Postgresql configuration
+# The default values of pgdata  variables are driven from the -D command-line option or PGDATA environment variable.
+# On Ubuntu 14.04 the default pgdata directory is /var/lib/postgresql/9.3/main. Ubuntu 14.04 uses Upstart as the init system, it works both on Docker and VMs. We keep the default behaviour.
+# On CentOS 7 the default pgdata directory is /var/lib/pgsql/data. CentOS 7 uses Systemd as init system. But it works only on VM, therefore we use pg_ctl to start it.
 
 - name: Include postgresql specific variables.
   include_vars: postgresql_vars.yml
-
-- name: Fix pgdata directory creation on Ubuntu
-  file: path={{pgsql_pgdata}}
-        state=directory
-        owner=postgres
-        group=postgres
-  become_user: root
-  become_method: sudo
-  when: ansible_os_family == "Debian"
 
 - name: PostgreSQL initdb creates a new database cluster
   shell: "{{pg_ctl_path}}/pg_ctl -D {{pgsql_pgdata}} initdb"
@@ -71,6 +64,7 @@
     creates: "{{pgsql_pgdata}}/pg_hba.conf"
   become: True
   become_user: postgres
+  when: ansible_os_family == "RedHat"
 
 - name: Edit pg_hba.conf IPv4 local connections
   replace: dest=/var/lib/pgsql/data/pg_hba.conf
@@ -92,6 +86,7 @@
   shell: "{{pg_ctl_path}}/pg_ctl -D {{pgsql_pgdata}} -w start"
   become: True
   become_user: postgres
+  when: ansible_os_family == "RedHat"
 
 - name: Create galaxy db random passwd
   shell: mkpasswd -l 20 -s 0

@@ -9,10 +9,18 @@
 #########################################################
 # Stop services
 
-- name: Stop postgres
+- name: Stop PostgreSQL server on CentOS
   shell: "{{pg_ctl_path}}/pg_ctl -D {{pgsql_pgdata}} stop" # the pg_ctl_path variable is defined in task/postgresql.yml
   become: True
   become_user: postgres
+  when: ansible_os_family == "RedHat"
+
+- name: Stop PostgreSQL server on Ubuntu
+  service: name=postgresql enabled=no state=stopped
+  become_user: root
+  become_method: sudo
+  when: supervisor_manage_postgres == "False"
+
 
 #########################################################
 # Start Galaxy on VM
