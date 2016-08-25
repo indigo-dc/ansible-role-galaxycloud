@@ -85,7 +85,7 @@
 #########################################################
 # Add python random password generator
 - name: Copy pwd-generator.py to /usr/local/bin
-  template: src=pwd_generator.py.j2 dest=/usr/local/bin/pwd-generator.py
+  template: src=pwd_generator.py.j2 dest=/usr/local/bin/pwd-generator.py mode=a+x
   become_user: root
   become_method: sudo
 
