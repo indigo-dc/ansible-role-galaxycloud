@@ -1,11 +1,11 @@
 ---
-#########################################################
-# Install prerequisites
+# Prerequisites installation recipe
+# Install CentOS 7 and Ubuntu 14.04 dependencies, creates directories, logrotate and password generator installation.
 
 #---
 #CentOS 7
 
-- name: Install git, vim, wget
+- name: Install CentOS7 packages
   yum: name={{item}}
        state=present
   with_items:
@@ -28,7 +28,7 @@
 #---
 # Ubuntu 14.04
 
-- name: Install git, vim, wget, build-essential
+- name: Install Ubuntu packages
   apt: name={{item}}
        state=present
   with_items:
@@ -40,6 +40,7 @@
     - whois #mkpasswd utility
     - logrotate
     - build-essential
+    - python-apt #needed by apt_repository ansible core module
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
@@ -79,3 +80,12 @@
   template: src=logrotate.j2 dest=/etc/logrotate.d/galaxy
   become_user: root
   become_method: sudo
+
+
+#########################################################
+# Add python random password generator
+- name: Copy pwd-generator.py to /usr/local/bin
+  template: src=pwd_generator.py.j2 dest=/usr/local/bin/pwd-generator.py
+  become_user: root
+  become_method: sudo
+
