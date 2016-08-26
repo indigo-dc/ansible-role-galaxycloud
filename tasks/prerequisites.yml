@@ -12,7 +12,6 @@
     - git
     - vim
     - wget
-    - expect #mkpasswd utility
     - logrotate
   become_user: root
   become_method: sudo
@@ -37,7 +36,6 @@
     - git
     - vim
     - wget
-    - whois #mkpasswd utility
     - logrotate
     - build-essential
     - python-apt #needed by apt_repository ansible core module
