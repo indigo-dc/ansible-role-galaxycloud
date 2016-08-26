@@ -30,7 +30,7 @@
 # Install Proftpd
 
 - name: Create proftpd db random passwd
-  shell: "pwd-generator -l 20"
+  shell: "{{galaxy_venv_path}}/bin/python /usr/local/bin/pwd-generator -l 20"
   register: proftpd_db_passwd
 
 - name: Copy the proftpd configuration file
