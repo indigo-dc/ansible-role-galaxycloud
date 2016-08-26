@@ -16,11 +16,14 @@
   when: ansible_os_family == "RedHat"
 
 - name: Stop PostgreSQL server on Ubuntu
-  service: name=postgresql enabled=no state=stopped
+  service: name={{item}} enabled=no state=stopped
+    with_items:
+    - postgresql
+    - nginx
+    - proftpd
   become_user: root
   become_method: sudo
-  when: supervisor_manage_postgres == "False"
-
+  when: ansible_os_family == "Debian"
 
 #########################################################
 # Start Galaxy on VM

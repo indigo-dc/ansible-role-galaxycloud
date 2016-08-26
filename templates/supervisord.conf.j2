@@ -16,15 +16,28 @@
 # or https://wiki.galaxyproject.org/Admin/Config/Performance/Scaling#uWSGI-2 . 
 
 {% if supervisor_manage_postgres == "True" %}
+
+{% if ansible_virtualization_type != "docker" %}
+[program:pre_postgresql]
+user            = root
+startsecs       = 0
+command         = /bin/bash -c "install -d -m 2775 -o postgres -g postgres /var/run/postgresql"
+{% endif %}
+
 [program:postgresql]
 user            = postgres
+{% if ansible_os_family == "Debian" %}
+command         = /usr/lib/postgresql/9.3/bin/postgres -D /etc/postgresql/9.3/main
+{% else %}
 command         = /usr/bin/postgres -D {{pgsql_pgdata}}
+{% endif %}
 process_name    = %(program_name)s
 stopsignal      = INT
 autostart       = true
 autorestart     = true
 redirect_stderr = true
 priority        = 100
+
 {% endif %}
 
 {% if supervisor_manage_nginx == "True" %}
