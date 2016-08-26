@@ -89,7 +89,7 @@
   when: ansible_os_family == "RedHat"
 
 - name: Create galaxy db random passwd
-  shell: mkpasswd -l 20 -s 0
+  shell: "pwd-generator -l 20"
   register: galaxy_db_passwd
 
 - name: Create galaxy_database_connection vars, needed in task/galaxy-custom.yml for create_galaxy_user.py

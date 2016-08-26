@@ -1,10 +1,8 @@
 ---
-#########################################################
-# Proftpd configuration
+# Proftpd installation and configuration recipe
 
 #---
 # CentOS 7
-
 - name: Install proftpd
   yum: name={{item}}
        state=present
@@ -17,9 +15,22 @@
 
 #---
 # Ubuntu 14.04
+- name: Install proftpd
+  apt: name={{item}}
+       state=present
+  with_items:
+    - proftpd
+    - proftpd-mod-pgsql
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
+
+
+#########################################################
+# Install Proftpd
 
 - name: Create proftpd db random passwd
-  shell: mkpasswd -l 20 -s 0
+  shell: "pwd-generator -l 20"
   register: proftpd_db_passwd
 
 - name: Copy the proftpd configuration file
@@ -34,9 +45,3 @@
                    priv=galaxy_user:ALL
   become_user: postgres
   become_method: sudo
-
-#- name: Enable and start the proftpd server
-#  service: name=proftpd enabled=yes state=started
-#  become_user: root
-#  become_method: sudo
-#  when: ansible_virtualization_type != "docker"
