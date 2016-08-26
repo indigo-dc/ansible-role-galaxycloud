@@ -12,6 +12,10 @@
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
+- name: Set supervisord conf path on CentOS
+  set_fact: supervisord_conf_path=/etc
+  when: ansible_os_family == "RedHat"
+
 - name: Copy supervisord configuration file
   template: src=supervisord.conf.j2 dest=/etc/supervisord.d/galaxy_web.ini
   become_user: root
@@ -28,6 +32,10 @@
     - supervisor
   become_user: root
   become_method: sudo
+  when: ansible_os_family == "Debian"
+
+- name: Set supervisord conf path on Ubuntu
+  set_fact: supervisord_conf_path=/etc/supervisor
   when: ansible_os_family == "Debian"
 
 - name: Copy supervisord configuration file

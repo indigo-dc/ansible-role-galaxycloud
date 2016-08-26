@@ -17,7 +17,7 @@ cd {{galaxy_install_path}}
 # Define supervisord start function
 function start_supervisord {
     echo "Starting the Galaxy production environment"
-    supervisord -c /etc/supervisord.conf
+    supervisord -c {{supervisord_conf_path}}/supervisord.conf
 }
 
 # Start supervisord
