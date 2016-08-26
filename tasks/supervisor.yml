@@ -43,3 +43,9 @@
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
+
+- name: Stop supervisor
+  service: name=supervisor state=stopped
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
