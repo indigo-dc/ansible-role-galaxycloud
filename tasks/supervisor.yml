@@ -1,11 +1,9 @@
 ---
-#########################################################
-# Install and config Supervisord
+# Supervisord installation and configuration recipe
 
 #---
 # CentOS 7
-
-- name: Check and install Supervisor dependencies
+- name: Check and install Supervisor dependencies on CentOS7
   yum: name={{item}}
        state=present
   with_items:
@@ -14,10 +12,26 @@
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
-#---
-#Ubuntu 14.04
-
 - name: Copy supervisord configuration file
   template: src=supervisord.conf.j2 dest=/etc/supervisord.d/galaxy_web.ini
   become_user: root
   become_method: sudo
+  when: ansible_os_family == "RedHat"
+
+#---
+# Ubuntu 14.04
+- name: Check and install Supervisor dependencies on Ubuntu
+  apt: name={{item}}
+       state=present
+  with_items:
+    - python-meld3
+    - supervisor
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
+
+- name: Copy supervisord configuration file
+  template: src=supervisord.conf.j2 dest=/etc/supervisor/conf.d/galaxy_web.conf
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
