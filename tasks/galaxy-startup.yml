@@ -9,29 +9,35 @@
 #########################################################
 # Stop services
 
+#---
+# CentOs 7
+
 - name: Stop PostgreSQL server on CentOS
   shell: "{{pg_ctl_path}}/pg_ctl -D {{pgsql_pgdata}} stop" # the pg_ctl_path variable is defined in task/postgresql.yml
   become: True
   become_user: postgres
   when: ansible_os_family == "RedHat"
 
+#---
+# Ubuntu 14.04
+
 - name: Stop PostgreSQL server on Ubuntu
   service: name=postgresql state=stopped enabled=no
   become_user: root
   become_method: sudo
-  when: ansible_os_family == "Debian" and supervisor_manage_postgres == "True"
+  when: ansible_os_family == "Debian"
 
 - name: Stop NGINX server on Ubuntu
   service: name=nginx state=stopped enabled=no
   become_user: root
   become_method: sudo
-  when: ansible_os_family == "Debian" and supervisor_manage_nginx == "True"
+  when: ansible_os_family == "Debian"
 
 - name: Stop Proftpd server on Ubuntu
   service: name=proftpd state=stopped enabled=no
   become_user: root
   become_method: sudo
-  when: ansible_os_family == "Debian" and supervisor_manage_proftpd == "True"
+  when: ansible_os_family == "Debian"
 
 #########################################################
 # Start Galaxy on VM
