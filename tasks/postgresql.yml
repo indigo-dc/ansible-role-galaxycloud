@@ -1,5 +1,19 @@
 ---
-# Postgresql installation and configration recipe
+# PostgreSQL installation and configration recipe
+
+# PostgreSQL configuration details
+# The default values of pgdata directory are driven from the -D command-line option or PGDATA environment variable.
+#---
+# Ubuntu 14.04:
+# On Ubuntu the default pgdata directory is /var/lib/postgresql/9.3/main, while the config files are in /etc/postgresql/9.3/main.
+# Ubuntu uses Upstart as init system, it works both on Docker and VMs. We keep the default behaviour.
+# The service is started by default. We keep the postgresql service running, it is stopped in the galaxy-startup recipe.
+#---
+# CentOS 7:
+# On CentOS 7 the default pgdata directory is /var/lib/pgsql/data. CentOS 7 uses Systemd as init system.
+# But it works only on VMs, therefore we use pg_ctl to start it on docker containers.
+# The database cluster needs to be created via initdb command and started. The database configuration has to be modified, too.
+# We use pg_ctl command to init and start the service. PostgreSQl will be stopped in the galaxy-startup recipe.
 
 #---
 # CentOS 7
@@ -40,7 +54,7 @@
 #---
 # Galaxy pip install
 
-- name: Install Galaxy conditional dependencies
+- name: Install Galaxy psycopg2 conditional dependency
   pip:
     name: psycopg2
     extra_args: "--index-url https://wheels.galaxyproject.org/simple/ --log {{galaxy_log_path}}/pip_psycopg2.log"
@@ -51,9 +65,6 @@
 
 #########################################################
 # Postgresql configuration
-# The default values of pgdata  variables are driven from the -D command-line option or PGDATA environment variable.
-# On Ubuntu 14.04 the default pgdata directory is /var/lib/postgresql/9.3/main. Ubuntu 14.04 uses Upstart as the init system, it works both on Docker and VMs. We keep the default behaviour.
-# On CentOS 7 the default pgdata directory is /var/lib/pgsql/data. CentOS 7 uses Systemd as init system. But it works only on VM, therefore we use pg_ctl to start it.
 
 - name: Include postgresql specific variables.
   include_vars: postgresql_vars.yml
@@ -87,6 +98,9 @@
   become: True
   become_user: postgres
   when: ansible_os_family == "RedHat"
+
+#########################################################
+# Galaxy database configuration
 
 - name: Create galaxy db random passwd
   command: "/usr/local/bin/pwd-generator -l 20"
