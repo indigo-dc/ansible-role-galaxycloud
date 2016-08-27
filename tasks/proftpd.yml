@@ -3,6 +3,7 @@
 
 #---
 # CentOS 7
+
 - name: Install proftpd
   yum: name={{item}}
        state=present
@@ -15,6 +16,8 @@
 
 #---
 # Ubuntu 14.04
+# On Ubuntu Proftpd service is started by default after installation. It needs to be restarted after the configuration.
+
 - name: Install proftpd
   apt: name={{item}}
        state=present
