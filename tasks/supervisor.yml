@@ -3,6 +3,7 @@
 
 #---
 # CentOS 7
+
 - name: Check and install Supervisor dependencies on CentOS7
   yum: name={{item}}
        state=present
@@ -24,6 +25,9 @@
 
 #---
 # Ubuntu 14.04
+# On Ubuntu Supervisord service is started by default after installation. We need to reread and update the configuration.
+# The service is stopped here and restarted using galaxy-startup script.
+
 - name: Check and install Supervisor dependencies on Ubuntu
   apt: name={{item}}
        state=present
