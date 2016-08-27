@@ -7,7 +7,8 @@
 # Ubuntu 14.04:
 # On Ubuntu the default pgdata directory is /var/lib/postgresql/9.3/main, while the config files are in /etc/postgresql/9.3/main.
 # Ubuntu uses Upstart as init system, it works both on Docker and VMs. We keep the default behaviour.
-# The service is started by default. We keep the postgresql service running, it is stopped in the galaxy-startup recipe.
+# The service is started by default on VMs and we keep it running.
+# We start the service on docker containers. It is stopped in the galaxy-startup recipe.
 #---
 # CentOS 7:
 # On CentOS 7 the default pgdata directory is /var/lib/pgsql/data. CentOS 7 uses Systemd as init system.
@@ -64,10 +65,13 @@
     VIRTUAL_ENV: "{{galaxy_venv_path}}"
 
 #########################################################
-# Postgresql configuration
+# Postgresql configuration and startup
 
 - name: Include postgresql specific variables.
   include_vars: postgresql_vars.yml
+
+#---
+# CentOS 7
 
 - name: PostgreSQL initdb creates a new database cluster
   shell: "{{pg_ctl_path}}/pg_ctl -D {{pgsql_pgdata}} initdb"
@@ -89,15 +93,24 @@
   replace: dest=/var/lib/pgsql/data/pg_hba.conf
            regexp="host    all             all             ::1/128                 ident"
            replace="host    all             all             ::1/128                 md5"
-  become_user: postgres
-  become: yes
+  become_user: root
+  become_method: sudo
   when: ansible_os_family == "RedHat"
 
-- name: Start PostgreSQL server
+- name: Start PostgreSQL server on CentOS
   shell: "{{pg_ctl_path}}/pg_ctl -D {{pgsql_pgdata}} -w start"
   become: True
   become_user: postgres
   when: ansible_os_family == "RedHat"
+
+#---
+# Ubuntu 14.04
+
+- name: Start PostgreSQL server on Ubuntu
+  service: name=postgresql state=started enabled=no
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
 
 #########################################################
 # Galaxy database configuration
