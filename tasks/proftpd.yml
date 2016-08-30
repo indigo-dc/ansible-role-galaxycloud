@@ -42,6 +42,10 @@
   command: "/usr/local/bin/pwd-generator -l 20"
   register: proftpd_db_passwd
 
+- name: Set proftpd configuration file path on Ubuntu
+  set_fact: proftpd_conf_path="/etc/proftpd/proftpd.conf"
+  when: ansible_os_family == "Debian"
+
 - name: Copy the proftpd configuration file
   template: src=proftpd.conf.j2 dest={{proftpd_conf_path}}
   become_user: root
