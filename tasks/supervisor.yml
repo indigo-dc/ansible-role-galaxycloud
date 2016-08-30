@@ -13,12 +13,6 @@
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
-- name: Stop supervisor
-  service: name=supervisor state=stopped
-  become_user: root
-  become_method: sudo
-  when: ansible_os_family == "RedHat"
-
 - name: Set supervisord conf path on CentOS
   set_fact: supervisord_conf_path=/etc
   when: ansible_os_family == "RedHat"
