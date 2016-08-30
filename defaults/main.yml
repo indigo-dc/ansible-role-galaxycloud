@@ -86,6 +86,6 @@ proftpd_welcome: "INDIGO-CNR ftp server test"
 
 #################################
 # Supervisord
-supervisor_manage_postgres: "True"
-supervisor_manage_nginx: "True"
-supervisor_manage_proftpd: "True"
+supervisor_manage_postgres: "False"
+supervisor_manage_nginx: "False"
+supervisor_manage_proftpd: "False"
