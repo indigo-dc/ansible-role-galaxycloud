@@ -8,11 +8,8 @@
 
 # Load Galaxy environment
 echo "Loading Galaxy environment"
-
 cd {{galaxy_install_path}}
 . {{galaxy_venv_path}}/bin/activate
-. /etc/galaxy/galaxy_environment_vars
-
 
 # Define supervisord start function
 function start_supervisord {
