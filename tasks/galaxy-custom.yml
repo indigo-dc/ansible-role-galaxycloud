@@ -18,7 +18,7 @@
     - { section: 'app:main', option: 'whoosh_index_dir', value: "{{galaxy_db_dir}}/whoosh_indexes" }
     - { section: 'app:main', option: 'object_store_cache_path', value: "{{galaxy_db_dir}}/object_store_cache" }
     - { section: 'app:main', option: 'cluster_file_directory', value: "{{galaxy_db_dir}}/pbs" }
-    - { section: 'app:main', option: 'ftp_upload_dir value', value: "{{galaxy_db_dir}}/ftp" }
+    - { section: 'app:main', option: 'ftp_upload_dir', value: "{{galaxy_db_dir}}/ftp" }
 
 #---
 # Galaxy administrator: email. username, password and api_key
@@ -35,6 +35,9 @@
     PYTHONPATH: "{{galaxy_install_path}}/lib"
     VIRTUAL_ENV: "{{galaxy_venv_path}}"
 
+#---
+# id_secret configuration
+
 - name: Generate random id_secret key
   command: "/usr/local/bin/pwd-generator -l 32"
   register: galaxy_id_secret
@@ -42,4 +45,4 @@
 - name: Galaxy id_secret key configuration
   ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
   with_items:
-    - { section: 'app:main', option: 'id_secret', value: "{{galaxy_id_secret}}" }
+    - { section: 'app:main', option: 'id_secret', value: "{{galaxy_id_secret.stdout}}" }
