@@ -27,18 +27,6 @@
   become_method: sudo
   when: ansible_os_family == "Debian"
 
-- name: Stop NGINX server on Ubuntu
-  service: name=nginx state=stopped enabled=no
-  become_user: root
-  become_method: sudo
-  when: ansible_os_family == "Debian"
-
-- name: Stop Proftpd server on Ubuntu
-  service: name=proftpd state=stopped enabled=no
-  become_user: root
-  become_method: sudo
-  when: ansible_os_family == "Debian"
-
 #########################################################
 # Start Galaxy on VM
 

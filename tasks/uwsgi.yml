@@ -1,6 +1,5 @@
 ---
-#########################################################
-# Install and configure uWSGI
+# uWSGI installation and configuration recipe
 
 #---
 # CentOS 7
@@ -80,7 +79,7 @@
   ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value="{{item.value}}"
   with_items:
     - { section: 'app:main', option: 'static_enabled', value: 'False' }
-    - { section: 'app:main', option: 'track_jobs_in_database', value: 'True' }
+    - { section: 'app:main', option: 'track_jobs_in_database', value: 'True' } # The track_jobs_in_database option in galaxy.ini can still be set but should be unnecessary. If there are more than one [server:...] sections in the file, database job tracking will be enabled automatically.
 
 #########################################################
 # job_conf section
@@ -143,5 +142,3 @@
     - { section: 'server:handler5', option: 'host', value: '127.0.0.1' }
     - { section: 'server:handler5', option: 'use_threadpool', value: 'true' }
     - { section: 'server:handler5', option: 'threadpool_workers', value: '5' }
-
-#########################################################

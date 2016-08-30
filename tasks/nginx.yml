@@ -48,6 +48,13 @@
   become_method: sudo
   when: ansible_os_family == "Debian"
 
+#---
+# Stop NGINX before configuration
+- name: Stop NGINX server
+  service: name=nginx state=stopped enabled=no
+  become_user: root
+  become_method: sudo
+
 #########################################################
 # NGINX configuration
 
@@ -61,13 +68,17 @@
   become_user: root
   become_method: sudo
 
-# Add galaxy proxy subdirectory configuration to galaxy.ini
+# NGINX configuration in galaxy.ini
 
 - name: Edit galaxy.ini
   ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
   with_items:
     - { section: 'app:main', option: 'filter-with', value: "proxy-prefix" }
     - { section: 'app:main', option: 'cookie_path', value: "/galaxy" }
+    - { section: 'app:main', option: 'nginx_upload_store', value: "{{nginx_upload_store_path}}" }
+    - { section: 'app:main', option: 'nginx_upload_path', value: "/galaxy/_upload" }
+    - { section: 'app:main', option: 'nginx_x_accel_redirect_base', value: "/_x_accel_redirect}" }
+    - { section: 'app:main', option: 'nginx_x_archive_files_base', value: "/_x_accel_redirect" }
 
 - name: Create NGINX upload_store dir
   file: state=directory path={{nginx_upload_store_path}}

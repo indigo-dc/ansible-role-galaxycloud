@@ -7,16 +7,8 @@
        dest={{galaxy_install_path}}
        version={{GALAXY_VERSION}}
 
-- name: Copy Galaxy environment variables
-  template: src=galaxy_env_vars.j2 dest=/etc/galaxy/galaxy_environment_vars
-
 - name: Create galaxy.ini file
   copy: src={{galaxy_config_path}}/galaxy.ini.sample dest={{galaxy_config_path}}/galaxy.ini force=no
-
-- name: Add administrator mail to galaxy.ini
-  ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
-  with_items:
-    - { section: 'app:main', option: 'admin_users', value: "{{GALAXY_ADMIN_EMAIL}}" }
 
 - name: Install Galaxy dependencies
   shell: ./scripts/common_startup.sh >> {{galaxy_log_path}}/galaxy_common_startup.log

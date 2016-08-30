@@ -28,9 +28,15 @@
   become_method: sudo
   when: ansible_os_family == "Debian"
 
+#---
+# Stop service before configuration
+- name: Stop Proftpd server
+  service: name=proftpd state=stopped enabled=no
+  become_user: root
+  become_method: sudo
 
 #########################################################
-# Install Proftpd
+# Install and configure Proftpd
 
 - name: Create proftpd db random passwd
   command: "/usr/local/bin/pwd-generator -l 20"
@@ -48,3 +54,11 @@
                    priv=galaxy_user:ALL
   become_user: postgres
   become_method: sudo
+
+- name: Set ip address | vm
+  ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_site value="{{ ansible_default_ipv4.address }}"
+  when: ansible_virtualization_type != "docker"
+
+- name: Set ip address | docker
+  ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_site value="indigo-dc.galaxycloud docker by elixir-italy.org"
+  when: ansible_virtualization_type == "docker"

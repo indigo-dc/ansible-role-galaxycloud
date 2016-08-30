@@ -2,6 +2,7 @@
 # Create Galaxy user
 # This recipe is mandatory to correctly setup users and permissions
 
+#---
 # Install sudo and sudoers fix (only for centos docker image)
 
 - name: Install sudo (CentOS Docker specific task)
@@ -17,6 +18,7 @@
     - { regexp: 'Defaults    requiretty' }
   when: (ansible_os_family == "RedHat" and ansible_virtualization_type == "docker")
 
+#---
 # Create Galaxy user
 
 - name: Create user {{galaxy_user}} on the server | CentOS7
