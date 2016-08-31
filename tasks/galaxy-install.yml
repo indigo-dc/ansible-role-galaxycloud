@@ -18,10 +18,3 @@
   lineinfile: dest=/home/{{galaxy_user}}/.bashrc
               line="\n#source Virutalenv\nsource {{galaxy_venv_path}}/bin/activate"
               state=present
-
-- name: Set Galaxy environment variables
-  lineinfile: dest=/etc/profile
-              line="\n#Source Galaxy environment variables\nsource /etc/galaxy/galaxy_environment_vars"
-              state=present
-  become_user: root
-  become_method: sudo
