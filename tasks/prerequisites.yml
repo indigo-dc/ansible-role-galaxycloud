@@ -64,7 +64,7 @@
   become_method: sudo
 
 - name: Create reference data directory
-  file: path={{reference_data_dir}}
+  file: path={{refdata_dir}}
         state=directory
         owner={{galaxy_user}}
         group={{galaxy_user}}
