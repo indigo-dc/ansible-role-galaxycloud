@@ -63,6 +63,14 @@
   become_user: root
   become_method: sudo
 
+- name: Create reference data directory
+  file: path={{reference_data_dir}}
+        state=directory
+        owner={{galaxy_user}}
+        group={{galaxy_user}}
+  become_user: root
+  become_method: sudo
+
 - name: Create /etc/galaxy directory
   file: path=/etc/galaxy
         state=directory
