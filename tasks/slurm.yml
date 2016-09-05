@@ -5,7 +5,7 @@
 - apt: name=slurm-drmaa1
   when: ansible_os_family == "Debian"
 
-- lineinfile: dest="{{galaxy_install_path}}/config/local_env.sh" regexp="DRMAA_LIBRARY_PATH=" line="export DRMAA_LIBRARY_PATH=/usr/lib/slurm-drmaa/lib/libdrmaa.so.1"
+- lineinfile: dest="{{galaxy_install_path}}/config/local_env.sh" regexp="DRMAA_LIBRARY_PATH=" line="export DRMAA_LIBRARY_PATH=/usr/lib/slurm-drmaa/lib/libdrmaa.so.1" create=yes
   when: ansible_os_family == "Debian"
 
 - get_url: url=http://apps.man.poznan.pl/trac/slurm-drmaa/downloads/9 dest=/tmp/slurm-drmaa.tar.gz
