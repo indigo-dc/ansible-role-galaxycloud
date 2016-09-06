@@ -69,7 +69,11 @@ autostart       = true
 autorestart     = true
 startsecs       = 20
 user            = {{galaxy_user}}
+{%if galaxy_lrms == "slurm"%}
+environment     = VIRTUAL_ENV="{{galaxy_venv_path}}",PATH="{{galaxy_venv_path}}/bin:%(ENV_PATH)s",PYTHONHOME="{{galaxy_venv_path}}",DRMAA_LIBRARY_PATH="/usr/local/lib/libdrmaa.so"
+{% else %}
 environment     = VIRTUAL_ENV="{{galaxy_venv_path}}",PATH="{{galaxy_venv_path}}/bin:%(ENV_PATH)s",PYTHONHOME="{{galaxy_venv_path}}"
+{% endif %}
 numprocs        = 1
 stopsignal      = INT
 startretries    = 15
@@ -84,7 +88,11 @@ autostart       = true
 autorestart     = true
 startsecs       = 20
 user            = {{galaxy_user}}
+{%if galaxy_lrms == "slurm"%}
+environment     = VIRTUAL_ENV="{{galaxy_venv_path}}",PATH="{{galaxy_venv_path}}/bin:%(ENV_PATH)s",PYTHONHOME="{{galaxy_venv_path}}",DRMAA_LIBRARY_PATH="/usr/local/lib/libdrmaa.so"
+{% else %}
 environment     = VIRTUAL_ENV="{{galaxy_venv_path}}",PATH="{{galaxy_venv_path}}/bin:%(ENV_PATH)s",PYTHONHOME="{{galaxy_venv_path}}"
+{% endif %}
 startretries    = 15
 
 [group:galaxy]

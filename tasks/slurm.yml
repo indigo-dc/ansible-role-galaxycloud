@@ -22,17 +22,8 @@
 - command: make install chdir=/tmp/slurm-drmaa-1.0.7 creates=/usr/local/lib/libdrmaa.so
   when: ansible_os_family == "RedHat"
 
-- ini_file: dest={{galaxy_config_file}}
-            section=uwsgi
-            option=env
-            value="DRMAA_LIBRARY_PATH=/usr/lib/slurm-drmaa/lib/libdrmaa.so.1"
+- file: src=/usr/lib/slurm-drmaa/lib/libdrmaa.so.1 dest=/usr/local/lib/libdrmaa.so state=link
   when: ansible_os_family == "Debian"
-
-- ini_file: dest={{galaxy_config_file}}
-            section=uwsgi
-            option=env
-            value="DRMAA_LIBRARY_PATH=/usr/local/lib/libdrmaa.so"
-  when: ansible_os_family == "RedHat"
 
 # Set the databse galaxy path to NFS shared dir
 - file: path={{galaxy_install_path}}/database/slurm state=directory recurse=yes
