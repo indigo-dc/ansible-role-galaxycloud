@@ -1,11 +1,12 @@
 ---
 # Configure Galaxy to use a Torque LRMS Back-end
 
+- name: Install drmaa
+  pip: name=drmaa
+       virtualenv="{{galaxy_venv_path}}"
+
 # Install slurm-drmaa
 - apt: name=slurm-drmaa1
-  when: ansible_os_family == "Debian"
-
-- lineinfile: dest="{{galaxy_install_path}}/config/local_env.sh" regexp="DRMAA_LIBRARY_PATH=" line="export DRMAA_LIBRARY_PATH=/usr/lib/slurm-drmaa/lib/libdrmaa.so.1"
   when: ansible_os_family == "Debian"
 
 - get_url: url=http://apps.man.poznan.pl/trac/slurm-drmaa/downloads/9 dest=/tmp/slurm-drmaa.tar.gz
@@ -21,30 +22,8 @@
 - command: make install chdir=/tmp/slurm-drmaa-1.0.7 creates=/usr/local/lib/libdrmaa.so
   when: ansible_os_family == "RedHat"
 
-- lineinfile: dest="{{galaxy_install_path}}/config/local_env.sh" regexp="DRMAA_LIBRARY_PATH=" line="export DRMAA_LIBRARY_PATH=/usr/local/lib/libdrmaa.so"
-  when: ansible_os_family == "RedHat"
-
-# Configure job_conf.xml
-- copy:
-    content: |
-        <?xml version="1.0"?>
-        <job_conf>
-          <plugins>
-            <plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner" workers="1"/>
-            <plugin id="slurm" type="runner" load="galaxy.jobs.runners.drmaa:DRMAAJobRunner" workers="10"/>
-          </plugins>
-          <handlers>
-            <handler id="main" />
-          </handlers>
-          <destinations default="slurm">
-            <destination id="local" runner="local"/>
-            <destination id="slurm" runner="slurm" tags="mycluster" />
-          </destinations>
-          <tools>
-            <tool id="upload1" destination="local"/>
-          </tools>
-        </job_conf>
-    dest: "{{galaxy_install_path}}/config/job_conf.xml"
+- file: src=/usr/lib/slurm-drmaa/lib/libdrmaa.so.1 dest=/usr/local/lib/libdrmaa.so state=link
+  when: ansible_os_family == "Debian"
 
 # Set the databse galaxy path to NFS shared dir
 - file: path={{galaxy_install_path}}/database/slurm state=directory recurse=yes

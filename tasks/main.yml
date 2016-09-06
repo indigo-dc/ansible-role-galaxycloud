@@ -48,4 +48,7 @@
   become_user: "{{galaxy_user}}"
   become: true
 
-
+# Galaxy startup
+- include: galaxy-startup.yml
+  become_user: "{{galaxy_user}}"
+  become: true

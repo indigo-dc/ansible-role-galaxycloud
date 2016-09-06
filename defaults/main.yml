@@ -31,7 +31,7 @@ galaxy_venv_path: "{{galaxy_install_path}}/.venv"
 galaxy_log_path: "/var/log/galaxy"
 
 # Galaxy instance url
-galaxy_instance_url: "http://{{ansible_eth0.ipv4.address}}/galaxy/"
+galaxy_instance_url: "http://{{ansible_default_ipv4.address}}/galaxy/"
 
 # Galaxy instance ssh public key
 galaxy_instance_key_pub: ""
@@ -58,24 +58,37 @@ GALAXY_ADMIN_API_KEY: "GALAXY_ADMIN_API_KEY"
 GALAXY_ADMIN_EMAIL: "admin@server.com"
 
 #################################
-#Galaxy configuration
+# Galaxy configuration
+
+# Galaxy userdata are stored here
+export_dir: "/export"
+
+# Galaxy reference data are stored here
+refdata_dir: "/refdata"
+
 use_pbkdf2: true
 
 #################################
 # Postgres database details
-galaxy_db_dir: "{{galaxy_install_path}}/database"
+galaxy_db_dir: "{{export_dir}}/galaxy/database"
 galaxy_db_port: 5432
 
 #################################
 # NGINX
-nginx_upload_store_path: "{{galaxy_db_dir}}/tmp/upload_store"
+nginx_upload_store_path: "{{galaxy_db_dir}}/tmp/nginx_upload_store"
 
 #################################
 # PROFTPD
+proftpd_welcome: "galaxy ftp server"
 proftpd_conf_path: "/etc/proftpd.conf"
-proftpd_db_user: galaxyftp
+proftpd_db_user: "galaxyftp"
 proftpd_files_path: "{{galaxy_db_dir}}/ftp"
 proftpd_ftp_port: 21
 proftpd_passive_port_low: 30000
 proftpd_passive_port_high: 40000
-proftpd_welcome: "INDIGO-CNR ftp server test"
+
+#################################
+# Supervisord
+supervisor_manage_postgres: "False"
+supervisor_manage_nginx: "False"
+supervisor_manage_proftpd: "False"

@@ -1,6 +1,8 @@
 ---
-# Nginx installation
+# NGINX installation and configuration recipe
 
+#---
+# CentOS 7
 # Modifications to the upstream (CentOS7) nginx package to add the upload (and possibly other) module(s).
 # The package is built for CentOS7.
 
@@ -26,6 +28,36 @@
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
+#---
+# Ubuntu 14.04
+# On Ubuntu NGINX service is started by default after installation. It needs to be restarted after the configuration.
+
+- name: Add NGINX repository on Ubuntu
+  apt_repository: repo='ppa:galaxyproject/nginx'
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
+
+- name: Install NGINX on Ubuntu
+  apt: name={{item}}
+       state=present
+  with_items:
+    - nginx-extras=1.4.6-1ubuntu3.4ppa1
+    - nginx-common=1.4.6-1ubuntu3.4ppa1
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
+
+#---
+# Stop NGINX before configuration
+- name: Stop NGINX server
+  service: name=nginx state=stopped enabled=no
+  become_user: root
+  become_method: sudo
+
+#########################################################
+# NGINX configuration
+
 # /etc/nginx/nginx.conf configuration
 
 - name: Include NGINX specific variables.
@@ -36,22 +68,17 @@
   become_user: root
   become_method: sudo
 
-# modify galaxy.ini
+# NGINX configuration in galaxy.ini
+
 - name: Edit galaxy.ini
   ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
   with_items:
-    - { section: 'app:main', option: 'nginx_upload_store', value: "database/tmp/upload_store" }
+    - { section: 'app:main', option: 'filter-with', value: "proxy-prefix" }
+    - { section: 'app:main', option: 'cookie_path', value: "/galaxy" }
+    - { section: 'app:main', option: 'nginx_upload_store', value: "{{nginx_upload_store_path}}" }
     - { section: 'app:main', option: 'nginx_upload_path', value: "/galaxy/_upload" }
     - { section: 'app:main', option: 'nginx_x_accel_redirect_base', value: "/_x_accel_redirect}" }
     - { section: 'app:main', option: 'nginx_x_archive_files_base', value: "/_x_accel_redirect" }
-    - { section: 'app:main', option: 'filter-with', value: "proxy-prefix" }
-    - { section: 'app:main', option: 'cookie_path', value: "/galaxy" }
 
 - name: Create NGINX upload_store dir
   file: state=directory path={{nginx_upload_store_path}}
-
-- name: Start NGINX | vm
-  service: name=nginx state=started enabled=yes
-  become_user: root
-  become_method: sudo
-  when: ansible_virtualization_type != "docker"

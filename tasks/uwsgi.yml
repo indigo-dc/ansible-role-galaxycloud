@@ -1,8 +1,9 @@
 ---
-########################################################################
-# Install and config uWSGI
+# uWSGI installation and configuration recipe
 
-- name: Check and install uWSGI dependencies
+#---
+# CentOS 7
+- name: Check and install uWSGI dependencies on CentOS7
   yum: name={{item}}
        state=present
   with_items:
@@ -12,6 +13,21 @@
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
+#---
+# Ubuntu 14.04
+- name: Check and install uWSGI dependencies on Ubuntu
+  apt: name={{item}}
+       state=present
+  with_items:
+    - python
+    - python-dev
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
+
+#########################################################
+# Install uWSGI
+
 - name: Include uWSGI specific variables.
   include_vars: uwsgi_vars.yml
 
@@ -19,6 +35,7 @@
   pip: name=uwsgi
        virtualenv="{{galaxy_venv_path}}"
 
+#---
 # Add uWSGI section to galaxy.ini file
 
 - name: Add uWSGI section
@@ -57,21 +74,62 @@
             value=8
   when: ({{ansible_processor_vcpus}} > 8)
 
+#---
 # Edit galaxy.ini file
 
 - name: Edit galaxy.ini
-  replace: dest={{galaxy_config_file}} regexp={{item.regexp}} replace={{item.replace}}
+  ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value="{{item.value}}"
   with_items:
-    - { regexp: '#static_enabled = True', replace: 'static_enabled = False' }
-    - { regexp: '#track_jobs_in_database = True', replace: 'track_jobs_in_database = True' }
+    - { section: 'app:main', option: 'static_enabled', value: 'False' }
+    - { section: 'app:main', option: 'track_jobs_in_database', value: 'True' } # The track_jobs_in_database option in galaxy.ini can still be set but should be unnecessary. If there are more than one [server:...] sections in the file, database job tracking will be enabled automatically.
 
-########################################################################
+#########################################################
 # job_conf section
+
+#---
+# Local runner configuration
+# https://wiki.galaxyproject.org/Admin/Config/Performance/Cluster
+
+- name: if proc==4
+  set_fact:
+    galaxy_workers: "4"
+    galaxy_local_slos: "2"
+    galaxy_registered_concurrent_jobs: "2"
+  when: ({{ansible_processor_vcpus}} == 4)
+
+- name: if proc==8
+  set_fact: 
+    galaxy_workers: "8"
+    galaxy_local_slos: "4"
+    galaxy_registered_concurrent_jobs: "2"
+  when: ({{ansible_processor_vcpus}} == 8)
+
+- name: if proc==16
+  set_fact: 
+    galaxy_workers: "16"
+    galaxy_local_slos: "4"
+    galaxy_registered_concurrent_jobs: "4"
+  when: ({{ansible_processor_vcpus}} == 16)
+
+- name: if proc==32
+  set_fact: 
+    galaxy_workers: "32"
+    galaxy_local_slos: "8"
+    galaxy_registered_concurrent_jobs: "4"
+  when: ({{ansible_processor_vcpus}} == 32)
+
+- name: if proc==64
+  set_fact: 
+    galaxy_workers: "64"
+    galaxy_local_slos: "8"
+    galaxy_registered_concurrent_jobs: "8"
+  when: ({{ansible_processor_vcpus}} == 64)
 
 - name: Copy job_conf configration file
   template: src=job_conf.xml.j2 dest={{galaxy_config_path}}/job_conf.xml
 
-# job configuration - 6 job handlers
+#---
+# Job configuration - 6 job handlers
 
 - name: Add server handler 0
   ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
@@ -126,5 +184,3 @@
     - { section: 'server:handler5', option: 'host', value: '127.0.0.1' }
     - { section: 'server:handler5', option: 'use_threadpool', value: 'true' }
     - { section: 'server:handler5', option: 'threadpool_workers', value: '5' }
-
-########################################################################

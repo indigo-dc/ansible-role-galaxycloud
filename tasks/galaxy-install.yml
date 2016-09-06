@@ -10,11 +10,6 @@
 - name: Create galaxy.ini file
   copy: src={{galaxy_config_path}}/galaxy.ini.sample dest={{galaxy_config_path}}/galaxy.ini force=no
 
-- ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
-  with_items:
-    - { section: 'app:main', option: 'admin_users', value: "{{GALAXY_ADMIN_EMAIL}}" }
-    - { section: 'app:main', option: 'tool_dependency_dir', value: "{{galaxy_install_path}}/tool_dependency" }
-
 - name: Install Galaxy dependencies
   shell: ./scripts/common_startup.sh >> {{galaxy_log_path}}/galaxy_common_startup.log
          chdir={{galaxy_install_path}}

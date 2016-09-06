@@ -1,17 +1,61 @@
 ---
-- name: Install postgresql
+# PostgreSQL installation and configration recipe
+
+# PostgreSQL configuration details
+# The default values of pgdata directory are driven from the -D command-line option or PGDATA environment variable.
+#---
+# Ubuntu 14.04:
+# On Ubuntu the default pgdata directory is /var/lib/postgresql/9.3/main, while the config files are in /etc/postgresql/9.3/main.
+# Ubuntu uses Upstart as init system, it works both on Docker and VMs. We keep the default behaviour.
+# The service is started by default on VMs and we keep it running.
+# We start the service on docker containers. It is stopped in the galaxy-startup recipe.
+#---
+# CentOS 7:
+# On CentOS 7 the default pgdata directory is /var/lib/pgsql/data. CentOS 7 uses Systemd as init system.
+# But it works only on VMs, therefore we use pg_ctl to start it on docker containers.
+# The database cluster needs to be created via initdb command and started. The database configuration has to be modified, too.
+# We use pg_ctl command to init and start the service. PostgreSQl will be stopped in the galaxy-startup recipe.
+
+#---
+# CentOS 7
+
+- name: Install postgresql on CentOS7
   yum: name={{item}}
        state=present
   with_items:
     - postgresql-server
     - postgresql-contrib
     - python-psycopg2
-    - expect #mkpasswd utility
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
-- name: Install Galaxy conditional dependencies
+- name: Set pg_ctl path on CentOS7
+  set_fact: pg_ctl_path="/usr/bin"
+  when: ansible_os_family == "RedHat"
+
+#---
+# Ubuntu 14.04
+
+- name: Install postgresql on Ubuntu
+  apt: name={{item}}
+       state=present
+  with_items:
+    - postgresql-9.3
+    - postgresql-contrib-9.3
+    - python-psycopg2
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
+
+- name: Set pg_ctl path on Ubuntu
+  set_fact: pg_ctl_path="/usr/lib/postgresql/9.3/bin/"
+  when: ansible_os_family == "Debian"
+
+#---
+# Galaxy pip install
+
+- name: Install Galaxy psycopg2 conditional dependency
   pip:
     name: psycopg2
     extra_args: "--index-url https://wheels.galaxyproject.org/simple/ --log {{galaxy_log_path}}/pip_psycopg2.log"
@@ -20,20 +64,22 @@
     PYTHONPATH: "{{galaxy_install_path}}/lib"
     VIRTUAL_ENV: "{{galaxy_venv_path}}"
 
+#########################################################
+# Postgresql configuration and startup
+
 - name: Include postgresql specific variables.
   include_vars: postgresql_vars.yml
 
-- name: Initialize the database | vm
-  command: postgresql-setup initdb creates=/var/lib/pgsql/data/pg_hba.conf
-  become_user: root
-  become_method: sudo
-  when: ansible_virtualization_type != "docker"
+#---
+# CentOS 7
 
-- name: Initialize the database | docker
-  command: "/usr/bin/initdb -D {{pgsql_pgdata}}"
+- name: PostgreSQL initdb creates a new database cluster
+  shell: "{{pg_ctl_path}}/pg_ctl -D {{pgsql_pgdata}} initdb"
+  args:
+    creates: "{{pgsql_pgdata}}/pg_hba.conf"
   become: True
   become_user: postgres
-  when: ansible_virtualization_type == "docker"
+  when: ansible_os_family == "RedHat"
 
 - name: Edit pg_hba.conf IPv4 local connections
   replace: dest=/var/lib/pgsql/data/pg_hba.conf
@@ -47,24 +93,30 @@
   replace: dest=/var/lib/pgsql/data/pg_hba.conf
            regexp="host    all             all             ::1/128                 ident"
            replace="host    all             all             ::1/128                 md5"
-  become_user: postgres
-  become: yes
-  when: ansible_os_family == "RedHat"
-
-- name: Enable and start PostgreSQL server | vm
-  service: name=postgresql enabled=yes state=started
   become_user: root
   become_method: sudo
-  when: ansible_virtualization_type != "docker"
+  when: ansible_os_family == "RedHat"
 
-- name: Start PostgreSQL server | docker
-  shell: "/usr/bin/postgres -D {{pgsql_pgdata}} &"
+- name: Start PostgreSQL server on CentOS
+  shell: "{{pg_ctl_path}}/pg_ctl -D {{pgsql_pgdata}} -w start"
   become: True
   become_user: postgres
-  when: ansible_virtualization_type == "docker"
+  when: ansible_os_family == "RedHat"
+
+#---
+# Ubuntu 14.04
+
+- name: Start PostgreSQL server on Ubuntu
+  service: name=postgresql state=started enabled=no
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
+
+#########################################################
+# Galaxy database configuration
 
 - name: Create galaxy db random passwd
-  shell: mkpasswd -l 20 -s 0
+  command: "/usr/local/bin/pwd-generator -l 20"
   register: galaxy_db_passwd
 
 - name: Create galaxy_database_connection vars, needed in task/galaxy-custom.yml for create_galaxy_user.py
@@ -85,6 +137,12 @@
   become_user: postgres
   become_method: sudo
 
+- name: Create postgresql galaxy_tools db
+  postgresql_db: name=galaxy_tools
+                 owner={{galaxy_user}}
+  become_user: postgres
+  become_method: sudo
+
 - name: Set DB galaxy.ini values
   ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
   with_items:
@@ -92,12 +150,6 @@
     - { section: 'app:main', option: 'database_engine_option_server_side_cursors', value: "True" }
     - { section: 'app:main', option: 'install_database_connection', value: "{{galaxy_install_database_connection}}" }
     - { section: 'app:main', option: 'install_database_engine_option_server_side_cursors', value: "True" }
-
-- name: Create postgresql galaxy_tools db
-  postgresql_db: name=galaxy_tools
-                 owner={{galaxy_user}}
-  become_user: postgres
-  become_method: sudo
 
 - name: Create Galaxy DB
   command: "{{galaxy_venv_path}}/bin/python {{galaxy_install_path}}/scripts/create_db.py -c {{galaxy_config_file}} chdir={{galaxy_install_path}}/"

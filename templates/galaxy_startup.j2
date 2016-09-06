@@ -1,0 +1,22 @@
+#!/bin/bash
+
+################################################
+#
+# Galaxy startup script
+#
+################################################
+
+# Load Galaxy environment
+echo "Loading Galaxy environment"
+cd {{galaxy_install_path}}
+. {{galaxy_venv_path}}/bin/activate
+
+# Define supervisord start function
+function start_supervisord {
+    echo "Starting the Galaxy production environment"
+    supervisord -c {{supervisord_conf_path}}/supervisord.conf
+}
+
+# Start supervisord
+start_supervisord
+

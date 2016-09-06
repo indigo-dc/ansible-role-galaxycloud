@@ -1,17 +1,10 @@
 ---
-########################################################################
-# Stop services on docker
+# Supervisord installation and configuration recipe
 
-- name: Stop postgres | docker
-  shell: "/usr/bin/pg_ctl --pgdata={{pgsql_pgdata}} stop"
-  become: True
-  become_user: postgres
-  when: ansible_virtualization_type == "docker"
+#---
+# CentOS 7
 
-########################################################################
-# Install and config Supervisord
-
-- name: Check and install Supervisor dependencies
+- name: Check and install Supervisor dependencies on CentOS7
   yum: name={{item}}
        state=present
   with_items:
@@ -20,19 +13,43 @@
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
+- name: Set supervisord conf path on CentOS
+  set_fact: supervisord_conf_path=/etc
+  when: ansible_os_family == "RedHat"
+
 - name: Copy supervisord configuration file
   template: src=supervisord.conf.j2 dest=/etc/supervisord.d/galaxy_web.ini
   become_user: root
   become_method: sudo
+  when: ansible_os_family == "RedHat"
 
-- name: Enable supervisord | vm
-  service: name=supervisord state=started enabled=yes
+#---
+# Ubuntu 14.04
+# On Ubuntu Supervisord service is started by default after installation. We need to reread and update the configuration.
+# The service is stopped here and restarted using galaxy-startup script.
+
+- name: Check and install Supervisor dependencies on Ubuntu
+  apt: name={{item}}
+       state=present
+  with_items:
+    - python-meld3
+    - supervisor
   become_user: root
   become_method: sudo
-  when: ansible_virtualization_type != "docker"
+  when: ansible_os_family == "Debian"
 
-- name: Start supervisord | docker
-  command: "/usr/bin/supervisord -c /etc/supervisord.conf"
+- name: Stop supervisor
+  service: name=supervisor state=stopped
   become_user: root
   become_method: sudo
-  when: ansible_virtualization_type == "docker"
+  when: ansible_os_family == "Debian"
+
+- name: Set supervisord conf path on Ubuntu
+  set_fact: supervisord_conf_path=/etc/supervisor
+  when: ansible_os_family == "Debian"
+
+- name: Copy supervisord configuration file
+  template: src=supervisord.conf.j2 dest=/etc/supervisor/conf.d/galaxy_web.conf
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"

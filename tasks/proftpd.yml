@@ -1,18 +1,50 @@
 ---
+# Proftpd installation and configuration recipe
+
+#---
+# CentOS 7
+
 - name: Install proftpd
   yum: name={{item}}
        state=present
   with_items:
     - proftpd
     - proftpd-postgresql
-    - expect #mkpasswd utility
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
+#---
+# Ubuntu 14.04
+# On Ubuntu Proftpd service is started by default after installation. It needs to be restarted after the configuration.
+
+- name: Install proftpd
+  apt: name={{item}}
+       state=present
+  with_items:
+    - proftpd
+    - proftpd-mod-pgsql
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
+
+#---
+# Stop service before configuration
+- name: Stop Proftpd server
+  service: name=proftpd state=stopped enabled=no
+  become_user: root
+  become_method: sudo
+
+#########################################################
+# Install and configure Proftpd
+
 - name: Create proftpd db random passwd
-  shell: mkpasswd -l 20 -s 0
+  command: "/usr/local/bin/pwd-generator -l 20"
   register: proftpd_db_passwd
+
+- name: Set proftpd configuration file path on Ubuntu
+  set_fact: proftpd_conf_path="/etc/proftpd/proftpd.conf"
+  when: ansible_os_family == "Debian"
 
 - name: Copy the proftpd configuration file
   template: src=proftpd.conf.j2 dest={{proftpd_conf_path}}
@@ -27,16 +59,10 @@
   become_user: postgres
   become_method: sudo
 
-- ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_dir value="{{ proftpd_files_path }}"
-
-- ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_site value="{{ ansible_default_ipv4.address }}"
+- name: Set ip address | vm
+  ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_site value="{{ ansible_default_ipv4.address }}"
   when: ansible_virtualization_type != "docker"
 
-- ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_site value="indigo-dc-cnr-docker"
+- name: Set ip address | docker
+  ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_site value="indigo-dc.galaxycloud docker by elixir-italy.org"
   when: ansible_virtualization_type == "docker"
-
-- name: Enable and start the proftpd server
-  service: name=proftpd enabled=yes state=started
-  become_user: root
-  become_method: sudo
-  when: ansible_virtualization_type != "docker"
