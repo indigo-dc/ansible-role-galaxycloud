@@ -54,6 +54,7 @@
   service: name=nginx state=stopped enabled=no
   become_user: root
   become_method: sudo
+  ignore_errors: yes
 
 #########################################################
 # NGINX configuration
