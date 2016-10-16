@@ -7,8 +7,13 @@
        dest={{galaxy_install_path}}
        version={{GALAXY_VERSION}}
 
+# we remove "force=no",due to a Ansible 2.1.0 bug (current IM version).
+# https://github.com/ansible/ansible-modules-core/issues/3080
+#- name: Create galaxy.ini file
+#  copy: src={{galaxy_config_path}}/galaxy.ini.sample dest={{galaxy_config_path}}/galaxy.ini force=no
+
 - name: Create galaxy.ini file
-  copy: src={{galaxy_config_path}}/galaxy.ini.sample dest={{galaxy_config_path}}/galaxy.ini force=no
+  copy: src={{galaxy_config_path}}/galaxy.ini.sample dest={{galaxy_config_path}}/galaxy.ini remote_src=true 
 
 - name: Install Galaxy dependencies
   shell: ./scripts/common_startup.sh >> {{galaxy_log_path}}/galaxy_common_startup.log
