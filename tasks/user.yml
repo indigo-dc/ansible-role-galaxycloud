@@ -39,7 +39,10 @@
                   key={{galaxy_instance_key_pub}}
   become: true
   become_user: "{{galaxy_user}}"
-  when: galaxy_lrms == "local"
+  register: authorized_key_error
+  failed_when: ('invalid key specified' in authorized_key_error.stderr)
+  ignore_errors: True
+  #when: galaxy_lrms == "local"
 
 - name: User rules for {{galaxy_user}}
   lineinfile: dest=/etc/sudoers
