@@ -39,8 +39,8 @@
                   key={{galaxy_instance_key_pub}}
   become: true
   become_user: "{{galaxy_user}}"
-  register: authorized_key_error
-  failed_when: ('invalid key specified' in authorized_key_error.stderr)
+  register: authorized_key_result
+  #failed_when: ('invalid key specified' in authorized_key_result.stderr)
   ignore_errors: True
   #when: galaxy_lrms == "local"
 
