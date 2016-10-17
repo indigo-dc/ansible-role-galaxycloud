@@ -39,6 +39,7 @@
                   key={{galaxy_instance_key_pub}}
   become: true
   become_user: "{{galaxy_user}}"
+  when: galaxy_lrms == "local"
 
 - name: User rules for {{galaxy_user}}
   lineinfile: dest=/etc/sudoers
