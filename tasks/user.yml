@@ -39,8 +39,8 @@
                   key={{galaxy_instance_key_pub}}
   become: true
   become_user: "{{galaxy_user}}"
-  register: authorized_key_result
-  #failed_when: ('invalid key specified' in authorized_key_result.stderr)
+  register: authorized_key_galaxy_user_result
+  failed_when: ('invalid key specified' in authorized_key_galaxy_user_result.stderr)
   ignore_errors: True
   #when: galaxy_lrms == "local"
 
@@ -53,6 +53,9 @@
 - name: Inject ssh public key - root
   authorized_key: user=root
                   key={{galaxy_instance_key_pub}}
+  register: authorized_key_root_result
+  failed_when: ('invalid key specified' in authorized_key_root_result.stderr)
+  ignore_errors: True
 
 - name: delete ec2-user
   user: name=ec2-user
