@@ -40,7 +40,8 @@
   become: true
   become_user: "{{galaxy_user}}"
   register: authorized_key_galaxy_user_result
-  changed_when: ('invalid key specified' in authorized_key_galaxy_user_result.stderr)
+  failed_when: ('invalid key specified' in authorized_key_galaxy_user_result.stderr)
+  ignore_errors: true
 
 - name: User rules for {{galaxy_user}}
   lineinfile: dest=/etc/sudoers
@@ -52,7 +53,8 @@
   authorized_key: user=root
                   key={{galaxy_instance_key_pub}}
   register: authorized_key_root_result
-  changed_when: ('invalid key specified' in authorized_key_root_result.stderr)
+  failed_when: ('invalid key specified' in authorized_key_root_result.stderr)
+  ignore_errors: true
 
 - name: delete ec2-user
   user: name=ec2-user
