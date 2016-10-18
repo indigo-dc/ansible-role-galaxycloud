@@ -48,7 +48,7 @@
   register: install_result
   changed_when: "'installed successfully' in install_result.stderr"
   failed_when: ('Error installing' in install_result.stderr) or ('Missing required' in install_result.stderr) or (install_result.rc != 0)
-  ignore_errors: {{galaxy_tools_ignore_errors}}
+  ignore_errors: "{{galaxy_tools_ignore_errors}}"
   with_items:
     - "{{ tools }}"
 
