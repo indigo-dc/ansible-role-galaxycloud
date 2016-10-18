@@ -4,3 +4,6 @@
 
 - include: install.yml
   when: not galaxy_installed.stat.exists
+
+- include: install-ShedTools.yml
+  when: (galaxy_installed.stat.exists and galaxy_flavor != "galaxy-no-tools" and ansible_virtualization_type != "docker")
