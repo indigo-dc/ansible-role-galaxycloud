@@ -2,8 +2,10 @@
 - stat: path=/usr/bin/galaxy-startup
   register: galaxy_installed
 
-- include: install.yml
+ include: install.yml
   when: not galaxy_installed.stat.exists
 
 - include: install-ShedTools.yml
+  become_user: "{{galaxy_user}}"
+  become: true
   when: (galaxy_installed.stat.exists and galaxy_flavor != "galaxy-no-tools" and galaxy_lrms == "local" and ansible_virtualization_type != "docker")

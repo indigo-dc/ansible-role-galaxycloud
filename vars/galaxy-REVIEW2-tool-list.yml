@@ -48,17 +48,17 @@ tools:
   owner: 'iuc'
   tool_panel_section_id: 'getext'
 
-#- name: 'package_ncurses_5_9'
-#  owner: 'iuc'
-#  tool_panel_section_id: 'getext'
-#
-#- name: 'package_ncurses_5_9'
-#  owner: 'anmoljh'
-#  tool_panel_section_id: 'getext'
-#
-#- name: 'package_samtools_1_2'
-#  owner: 'iuc'
-#  tool_panel_section_id: 'getext'
+- name: 'package_ncurses_5_9'
+  owner: 'iuc'
+  tool_panel_section_id: 'getext'
+
+- name: 'package_ncurses_5_9'
+  owner: 'anmoljh'
+  tool_panel_section_id: 'getext'
+
+- name: 'package_samtools_1_2'
+  owner: 'iuc'
+  tool_panel_section_id: 'getext'
 
 
 #---
@@ -66,4 +66,16 @@ tools:
 
 - name: 'fastqc'
   owner: 'devteam'
+  tool_panel_section_label: 'TOOLS REVIEW'
+
+- name: 'bowtie_wrappers'
+  owner: 'devteam'
+  tool_panel_section_label: 'TOOLS REVIEW'
+
+- name: 'bam_to_sam'
+  owner: 'devteam'
+  tool_panel_section_label: 'TOOLS REVIEW'
+
+- name: 'bam_to_bigwig'
+  owner: 'brad-chapman'
   tool_panel_section_label: 'TOOLS REVIEW'
