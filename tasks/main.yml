@@ -2,7 +2,7 @@
 - stat: path=/usr/bin/galaxy-startup
   register: galaxy_installed
 
- include: install.yml
+- include: install.yml
   when: not galaxy_installed.stat.exists
 
 - include: install-ShedTools.yml
