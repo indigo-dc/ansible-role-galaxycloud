@@ -1,0 +1,83 @@
+---
+# Galaxy tools installation recipe
+# This task is temporary. We will move it to a new tosca type.
+
+- name: Copy Galaxy restart script
+  template: src=galaxy_service.j2 dest=/usr/bin/galaxy-restart mode=a+x
+  become_user: root
+  become_method: sudo
+
+#---
+#CentOS 7
+
+- name: Install tools depedencencies
+  yum: name={{item}} state=present
+  with_items:
+    - java-1.7.0-openjdk # fastqc dependency
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "RedHat"
+
+
+#---
+# Ubuntu 14.04
+
+- name: Install tools dependencies
+  apt: name={{item}} state=present
+  with_items:
+    - openjdk-7-jdk # fastqc dependency
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
+
+
+#########################################################
+# Install tools
+
+- name: Create/invoke script virtualenv
+  pip: name={{ item }} virtualenv=/tmp/venv virtualenv_command="{{ pip_virtualenv_command | default( 'virtualenv' ) }}"
+  with_items:
+    - ephemeris==0.4.0  # Pinned version should make sure ephemeris version matches what the role has been tested with
+
+- name: Include ToolShed Install specific variables
+  include_vars: tools_vars.yml
+
+- include_vars: "{{galaxy_flavor}}-tool-list.yml"
+
+- name: Install Tool Shed tools
+  command: '/tmp/venv/bin/shed-install -y "{{ item | to_nice_yaml }}" -a "{{galaxy_tools_api_key}}" -g "{{galaxy_tools_galaxy_instance_url}}"'
+  register: install_result
+  changed_when: "'installed successfully' in install_result.stderr"
+  failed_when: ('Error installing' in install_result.stderr) or ('Missing required' in install_result.stderr) or (install_result.rc != 0)
+  ignore_errors: "{{galaxy_tools_ignore_errors}}"
+  with_items:
+    - "{{ tools }}"
+
+#---
+# Install reference data
+- name: Download Reference Data
+  get_url:
+    url: http://cloud.recas.ba.infn.it:8080/v1/AUTH_3b4918e0a982493e8c3ebcc43586a2a8/sacCer3/sacCer3.tar.gz
+    dest: /refdata
+
+- name: Extract reference data
+  command: 'tar xvzf /refdata/sacCer3.tar.gz'
+
+- name: Copy bowtie loc files
+  copy: 
+    src: bowtie_indices.loc
+    dest: {{galaxy_install_path}}/tool-data/toolshed.g2.bx.psu.edu/repos/devteam/bowtie_wrappers/306077e393d4/
+    force: "yes"
+
+- name: Copy sam_to_bam loc files
+  copy:
+    src: fasta_indexes.loc
+    dest: {{galaxy_install_path}}/tool-data/toolshed.g2.bx.psu.edu/repos/devteam/sam_to_bam/881e16ad05c6/
+    force: "yes" 
+
+#---
+- name: Restart Galaxy
+  command: "/usr/bin/galaxy-restart"
+  become_user: root
+  become_method: sudo
+
