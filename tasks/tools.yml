@@ -42,7 +42,10 @@
 - name: Include ToolShed Install specific variables
   include_vars: tools_vars.yml
 
-- include_vars: "{{galaxy_flavor}}-tool-list.yml"
+- name: Get tool-list
+  get_url: url=https://raw.githubusercontent.com/mtangaro/ansible-role-galaxycloud-tools/master/files/galaxy-REVIEW-tool-list.yml dest=/tmp/
+
+- include_vars: "/tmp/{{galaxy_flavor}}-tool-list.yml"
 
 - name: Install Tool Shed tools
   command: '/tmp/venv/bin/shed-install -y "{{ item | to_nice_yaml }}" -a "{{galaxy_tools_api_key}}" -g "{{galaxy_tools_galaxy_instance_url}}"'
