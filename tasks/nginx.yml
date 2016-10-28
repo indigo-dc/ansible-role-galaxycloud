@@ -78,7 +78,7 @@
     - { section: 'app:main', option: 'cookie_path', value: "/galaxy" }
     - { section: 'app:main', option: 'nginx_upload_store', value: "{{nginx_upload_store_path}}" }
     - { section: 'app:main', option: 'nginx_upload_path', value: "/galaxy/_upload" }
-    - { section: 'app:main', option: 'nginx_x_accel_redirect_base', value: "/_x_accel_redirect}" }
+    - { section: 'app:main', option: 'nginx_x_accel_redirect_base', value: "/_x_accel_redirect" }
     - { section: 'app:main', option: 'nginx_x_archive_files_base', value: "/_x_accel_redirect" }
 
 - name: Create NGINX upload_store dir
