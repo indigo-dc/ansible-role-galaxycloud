@@ -17,6 +17,7 @@
     - libpng12 # samtools dependency
     - ncurses # samtools dependency
     - ncurses-devel # samtools dependency
+    - bedtools
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
@@ -31,6 +32,7 @@
     - openjdk-7-jdk # fastqc dependency
     - libpng-dev # samtools dependency
     - libncurses5-dev # samtools dependency
+    - bedtools
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
@@ -134,6 +136,25 @@
     chdir: '{{samtools_path}}/samtools-{{samtools_version}}'
   become_user: root
   become_method: sudo
+
+#---
+- name: Install bedGraphToBigWig
+  get_url: url=http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/bedGraphToBigWig
+  args:
+    dest: "/usr/local/bin/"
+    force: "yes"
+    mode: "a+x"
+  become_user: root
+  become_method: sudo
+
+#---
+# ucsc_tools dependency workaround
+
+- name: remove old libstdc++.so.6 lib
+  file: path={{galaxy_install_path}}/tool_dependency/ucsc_tools/312/iuc/package_ucsc_tools_312/2d6bafd63401/lib/libstdc++.so.6 state=absent
+
+- name: link the new lib
+  file: src=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 dest={{galaxy_install_path}}/tool_dependency/ucsc_tools/312/iuc/package_ucsc_tools_312/2d6bafd63401/lib/libstdc++.so.6 state=link
 
 #---
 - name: Restart Galaxy
