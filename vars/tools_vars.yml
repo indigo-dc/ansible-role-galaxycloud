@@ -1,7 +1,7 @@
 ---
 # Galaxy install tools vars
 
-galaxy_tools_tool_list_file: "{{galaxy_flavor}}-list_file.yml"
+#galaxy_tools_tool_list_file: "{{galaxy_flavor}}-list_file.yml"
 
 galaxy_tools_galaxy_instance_url: "{{galaxy_instance_url}}"
 
