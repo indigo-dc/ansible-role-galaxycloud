@@ -50,7 +50,7 @@
   include_vars: tools_vars.yml
 
 - name: Get tool-list
-  get_url: url=https://raw.githubusercontent.com/mtangaro/galaxycloud-flavors-recipes/master/galaxy-recipes/{{galaxy_flavor}}-tool-list.yml dest=/tmp/
+  get_url: url=https://raw.githubusercontent.com/mtangaro/galaxycloud-flavors-recipes/master/galaxy-flavors/{{galaxy_flavor}}-tool-list.yml dest=/tmp/
 
 - include_vars: "/tmp/{{galaxy_flavor}}-tool-list.yml"
 
