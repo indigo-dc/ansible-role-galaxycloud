@@ -154,7 +154,12 @@
   file: path={{galaxy_install_path}}/tool_dependency/ucsc_tools/312/iuc/package_ucsc_tools_312/2d6bafd63401/lib/libstdc++.so.6 state=absent
 
 - name: link the new lib
+  file: src=/usr/lib64/libstdc++.so.6 dest={{galaxy_install_path}}/tool_dependency/ucsc_tools/312/iuc/package_ucsc_tools_312/2d6bafd63401/lib/libstdc++.so.6 state=link
+  when: ansible_os_family == "RedHat"
+
+- name: link the new lib
   file: src=/usr/lib/x86_64-linux-gnu/libstdc++.so.6 dest={{galaxy_install_path}}/tool_dependency/ucsc_tools/312/iuc/package_ucsc_tools_312/2d6bafd63401/lib/libstdc++.so.6 state=link
+  when: ansible_os_family == "Debian"
 
 #---
 - name: Restart Galaxy
