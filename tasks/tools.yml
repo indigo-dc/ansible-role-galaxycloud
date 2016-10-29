@@ -17,7 +17,7 @@
     - libpng12 # samtools dependency
     - ncurses # samtools dependency
     - ncurses-devel # samtools dependency
-    - bedtools
+    - BEDTools
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
