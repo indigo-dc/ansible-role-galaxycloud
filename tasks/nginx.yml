@@ -3,8 +3,8 @@
 
 #---
 # CentOS 7
-# Modifications to the upstream (CentOS7) nginx package to add the upload (and possibly other) module(s).
-# The package is built for CentOS7.
+# Modifications to the EPEL (CentOS7) nginx package to add the upload (and possibly other) module(s).
+# The package is built for CentOS 7.
 
 - name: Install NGINX dependencies
   yum: name={{item}}
@@ -17,13 +17,35 @@
   when: ansible_os_family == "RedHat"
 
 - name: Move NGINX rpm in /tmp
-  copy: src=nginx-1.8.1-1.el7.centos.ngx.x86_64.rpm
-        dest=/tmp/nginx-1.8.1-1.el7.centos.ngx.x86_64.rpm
+  copy: src={{item}}
+        dest=/tmp/
+  with_items:
+    - nginx-filesystem-1.10.1-1.el7.centos.noarch.rpm
+    - nginx-mod-http-geoip-1.10.1-1.el7.centos.x86_64.rpm
+    - nginx-mod-http-image-filter-1.10.1-1.el7.centos.x86_64.rpm
+    - nginx-mod-http-perl-1.10.1-1.el7.centos.x86_64.rpm
+    - nginx-mod-http-xslt-filter-1.10.1-1.el7.centos.x86_64.rpm
+    - nginx-mod-mail-1.10.1-1.el7.centos.x86_64.rpm
+    - nginx-all-modules-1.10.1-1.el7.centos.noarch.rpm
+    - nginx-1.10.1-1.el7.centos.x86_64.rpm
+    - nginx-mod-stream-1.10.1-1.el7.centos.x86_64.rpm
+    - nginx-debuginfo-1.10.1-1.el7.centos.x86_64.rpm
   when: ansible_os_family == "RedHat"
   
 - name: Install NGINX rpm from /tmp
-  yum: name=/tmp/nginx-1.8.1-1.el7.centos.ngx.x86_64.rpm
+  yum: name=/tmp/{{item}}
        state=present
+  with_items:
+    - nginx-filesystem-1.10.1-1.el7.centos.noarch.rpm
+    - nginx-mod-http-geoip-1.10.1-1.el7.centos.x86_64.rpm
+    - nginx-mod-http-image-filter-1.10.1-1.el7.centos.x86_64.rpm
+    - nginx-mod-http-perl-1.10.1-1.el7.centos.x86_64.rpm
+    - nginx-mod-http-xslt-filter-1.10.1-1.el7.centos.x86_64.rpm
+    - nginx-mod-mail-1.10.1-1.el7.centos.x86_64.rpm
+    - nginx-all-modules-1.10.1-1.el7.centos.noarch.rpm
+    - nginx-1.10.1-1.el7.centos.x86_64.rpm
+    - nginx-mod-stream-1.10.1-1.el7.centos.x86_64.rpm
+    - nginx-debuginfo-1.10.1-1.el7.centos.x86_64.rpm
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
