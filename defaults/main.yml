@@ -64,7 +64,7 @@ GALAXY_ADMIN_EMAIL: "admin@server.com"
 export_dir: "/export"
 
 # Galaxy reference data are stored here
-refdata_dir: "/refdata"
+refdata_dir: "/home/galaxy/refdata"
 
 use_pbkdf2: true
 
