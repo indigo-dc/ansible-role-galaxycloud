@@ -170,7 +170,7 @@
     chdir: '{{fastqc_path}}'
 
 - name: make fastqc executable
-  file: path={{fastqc_path}}/FastQC/fastqc mode="a+z"
+  file: path={{fastqc_path}}/FastQC/fastqc mode="a+x"
 
 - name: link fastqc to path
   file: src=/{{fastqc_path}}/FastQC/fastqc dest=/usr/local/bin/fastqc state=link
