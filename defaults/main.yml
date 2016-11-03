@@ -64,6 +64,7 @@ GALAXY_ADMIN_EMAIL: "admin@server.com"
 export_dir: "/export"
 
 # Galaxy reference data are stored here
+#refdata_dir: "/refdata" # FIXME This is our default. The commit should be reverted and the path should be fixed for SLURM clusters.
 refdata_dir: "/home/galaxy/refdata"
 
 use_pbkdf2: true
