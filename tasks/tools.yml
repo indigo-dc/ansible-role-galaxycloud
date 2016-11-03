@@ -160,12 +160,12 @@
   become_user: root
   become_method: sudo
 
-- name: Install fastqc
+- name: Download fastqc
   get_url: url=http://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v{{fastqc_version}}.zip
            dest={{fastqc_path}}/fastqc_v{{fastqc_version}}.zip
 
-- name: Extract tar.bz2 file
-  command: 'unzip {{fastqc_path}}/fastqc_v{{fastqc_version}}.zip -d {{fastqc_path}}/'
+- name: Unzip fastqc
+  command: 'unzip {{fastqc_path}}/fastqc_v{{fastqc_version}}.zip'
   args:
     chdir: '{{fastqc_path}}'
 
