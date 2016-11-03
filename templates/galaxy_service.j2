@@ -1,0 +1,42 @@
+#!/bin/bash
+
+################################################
+#
+# Galaxy service manager script
+#
+# Only galaxy forced restart is implemented now
+#
+################################################
+
+# Load Galaxy environment
+echo "Loading Galaxy environment"
+cd {{galaxy_install_path}}
+. {{galaxy_venv_path}}/bin/activate
+
+# Define supervisord restart function
+function restart_galaxy {
+
+  echo "Restarting the Galaxy production environment"
+
+  echo "1. Stop galaxy from supervisord"
+  supervisorctl stop galaxy:
+
+  echo "2. uWSGI nodes check"
+  if [ "$(pidof uwsgi)" ]
+  then
+  # process was found
+  echo "Killing uwsgi residual nodes"
+  kill -9 $(pidof uwsgi)
+  else
+  # process not found
+  echo "uWSGI already gracefully stopped"
+  fi
+
+  echo "3. Start Galaxy"
+  supervisorctl start galaxy:
+
+}
+
+# Start supervisord
+restart_galaxy
+

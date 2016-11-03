@@ -4,3 +4,8 @@
 
 - include: install.yml
   when: not galaxy_installed.stat.exists
+
+- include: tools.yml
+  become_user: "{{galaxy_user}}"
+  become: true
+  when: (galaxy_flavor != "galaxy-no-tools" and ansible_virtualization_type != "docker")
