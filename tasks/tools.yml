@@ -30,7 +30,6 @@
   apt: name={{item}} state=present
   with_items:
     - openjdk-7-jdk # fastqc dependency
-    - fastqc
     - libpng-dev # samtools dependency
     - libncurses5-dev # samtools dependency
     - bedtools
@@ -147,6 +146,34 @@
     mode: "a+x"
   become_user: root
   become_method: sudo
+
+#---
+# FastQC variables
+- set_fact: fastqc_path="/opt/fastqc"
+- set_fact: fastqc_version="0.11.5"
+
+- name: Create FastQC destination directory
+  file: path={{fastqc_path}}
+        state=directory
+        owner={{galaxy_user}}
+        group={{galaxy_user}}
+  become_user: root
+  become_method: sudo
+
+- name: Install fastqc
+  get_url: url=http://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v{{fastqc_version}}.zip
+           dest={{fastqc_path}}/fastqc_v{{fastqc_version}}.zip
+
+- name: Extract tar.bz2 file
+  command: 'unzip {{fastqc_path}}/fastqc_v{{fastqc_version}}.zip -d {{fastqc_path}}/'
+  args:
+    chdir: '{{fastqc_path}}'
+
+- name: make fastqc executable
+  file: path={{fastqc_path}}/FastQC/fastqc mode="a+z"
+
+- name: link fastqc to path
+  file: src=/{{fastqc_path}}/FastQC/fastqc dest=/usr/local/bin/fastqc state=link
 
 #---
 # ucsc_tools dependency workaround
