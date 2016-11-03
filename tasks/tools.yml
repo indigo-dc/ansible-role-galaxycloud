@@ -165,7 +165,7 @@
            dest={{fastqc_path}}/fastqc_v{{fastqc_version}}.zip
 
 - name: Unzip fastqc
-  command: 'unzip {{fastqc_path}}/fastqc_v{{fastqc_version}}.zip'
+  command: 'unzip -o {{fastqc_path}}/fastqc_v{{fastqc_version}}.zip'
   args:
     chdir: '{{fastqc_path}}'
 
@@ -174,6 +174,8 @@
 
 - name: link fastqc to path
   file: src=/{{fastqc_path}}/FastQC/fastqc dest=/usr/local/bin/fastqc state=link
+  become_user: root
+  become_method: sudo
 
 #---
 # ucsc_tools dependency workaround
