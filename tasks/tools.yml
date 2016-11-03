@@ -80,11 +80,11 @@
 - name: Download Reference Data
   get_url: url="http://cloud.recas.ba.infn.it:8080/v1/AUTH_3b4918e0a982493e8c3ebcc43586a2a8/sacCer3/sacCer3.tar.gz"
   args:
-    dest: "/refdata/"
+    dest: "{{refdata_dir}}"
     force: "yes"
 
 - name: Extract reference data
-  command: 'tar xvzf /refdata/sacCer3.tar.gz --directory=/refdata/'
+  command: 'tar xvzf {{refdata_dir}}/sacCer3.tar.gz --directory={{refdata_dir}}'
 
 - name: Get bowtie loc files from github
   get_url: url="https://raw.githubusercontent.com/mtangaro/galaxycloud-flavors-recipes/master/loc-files/bowtie_indices.loc"
