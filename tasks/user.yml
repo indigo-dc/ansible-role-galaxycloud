@@ -55,8 +55,3 @@
   register: authorized_key_root_result
   failed_when: ('invalid key specified' in authorized_key_root_result.stderr)
   ignore_errors: true
-
-- name: delete ec2-user
-  user: name=ec2-user
-        state=absent
-        remove=yes
