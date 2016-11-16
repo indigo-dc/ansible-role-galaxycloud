@@ -6,6 +6,11 @@
   become_user: root
   become_method: sudo
 
+- name: Copy Galaxy restart script
+  template: src=galaxy_service.j2 dest=/usr/bin/galaxy-restart mode=a+x
+  become_user: root
+  become_method: sudo
+
 #########################################################
 # Stop services
 
