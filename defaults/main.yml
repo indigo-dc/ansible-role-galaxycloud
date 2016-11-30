@@ -70,6 +70,7 @@ refdata_dir: "/refdata"
 # Enable Conda
 use_conda: true
 
+# Other
 use_pbkdf2: true
 
 #################################
