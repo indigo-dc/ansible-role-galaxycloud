@@ -68,9 +68,9 @@ export_dir: "/export"
 refdata_dir: "/refdata"
 
 # Enable Conda
-use_conda: true
+use_conda: True
 
-# Other
+# Enable pbkdf2
 use_pbkdf2: true
 
 #################################
