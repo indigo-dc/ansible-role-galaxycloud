@@ -67,6 +67,9 @@ export_dir: "/export"
 #refdata_dir: "/refdata" # FIXME This is our default. The commit should be reverted and the path should be fixed for SLURM clusters.
 refdata_dir: "/refdata"
 
+# Enable Conda
+use_conda: true
+
 use_pbkdf2: true
 
 #################################
