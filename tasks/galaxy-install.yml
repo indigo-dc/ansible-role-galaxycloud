@@ -2,7 +2,7 @@
 # This recipe downloads galaxy, setup python virtualenv and create the galaxy.ini file
 
 - name: Get Galaxy
-  git: repo=https://github.com/galaxyproject/galaxy/
+  git: repo=https://github.com/galaxyproject/galaxy.git
        clone=yes
        dest={{galaxy_install_path}}
        version={{GALAXY_VERSION}}
