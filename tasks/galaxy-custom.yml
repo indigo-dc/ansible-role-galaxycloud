@@ -27,7 +27,7 @@
     - { section: 'app:main', option: 'conda_ensure_channels', value: "conda-forge,r,bioconda,iuc" }
     - { section: 'app:main', option: 'conda_auto_install', value: "True" }
     - { section: 'app:main', option: 'conda_auto_init', value: "True" }
-  when: use_conda == 'True'
+  when: use_conda == "True"
 
 #---
 # Galaxy administrator: email. username, password and api_key
