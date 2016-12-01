@@ -23,7 +23,6 @@
 - name: Enable Conda
   ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
   with_items:
-    - { section: 'app:main', option: 'conda_prefix', value: "{{galaxy_install_path}}/tool_dependency/_conda" }
     - { section: 'app:main', option: 'conda_ensure_channels', value: "conda-forge,r,bioconda,iuc" }
     - { section: 'app:main', option: 'conda_auto_install', value: "True" }
     - { section: 'app:main', option: 'conda_auto_init', value: "True" }
