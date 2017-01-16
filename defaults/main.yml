@@ -71,7 +71,7 @@ refdata_dir: "/refdata"
 use_conda: true
 
 # Update UCSC genome database
-update_ucsc: true
+update_ucsc: false
 fast_update: true # Force database update by copying cached files. Only for testing!
 
 # Enable pbkdf2
