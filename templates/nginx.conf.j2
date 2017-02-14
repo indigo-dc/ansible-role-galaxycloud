@@ -38,11 +38,21 @@ http {
     gzip_disable "MSIE [1-6].(?!.*SV1)";
 
     server {
+{% if nginx_https %}
+        listen 443 http2 ssl;
+        listen [::]:443 http2 ssl;
+        ssl_certificate {{ ssl_cert }};
+        ssl_certificate_key {{ ssl_key }};
+        ssl_dhparam {{ ssl_dhparam }};
+{% endif %}
         client_max_body_size {{ nginx_client_max_body_size }};
         listen       {{ nginx_listen_port }};
         server_name  {{ nginx_server_name }};
 
         location / {
+{% if nginx_https %}
+            proxy_set_header X-URL-SCHEME https;
+{% endif %}
             root   html;
             index  index.html index.htm;
         }
