@@ -7,24 +7,25 @@
   ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
   with_items:
     - { section: 'app:main', option: 'admin_users', value: "{{GALAXY_ADMIN_EMAIL}}" }
-    - { section: 'app:main', option: 'tool_dependency_dir', value: "{{galaxy_install_path}}/tool_dependency" }
+    - { section: 'app:main', option: 'tool_dependency_dir', value: "{{ tool_deps_path }}" }
     - { section: 'app:main', option: 'brand', value: "{{galaxy_instance_description}}" }
-    #- { section: 'app:main', option: 'job_working_directory', value: "{{galaxy_db_dir}}/job_working_directory" }
-    #- { section: 'app:main', option: 'file_path', value: "{{galaxy_db_dir}}/files" }
-    #- { section: 'app:main', option: 'new_file_path', value: "{{galaxy_db_dir}}/tmp" }
-    #- { section: 'app:main', option: 'template_cache_path', value: "{{galaxy_db_dir}}/compiled_templates" }
-    #- { section: 'app:main', option: 'citation_cache_data_dir', value: "{{galaxy_db_dir}}/citations/data" }
-    #- { section: 'app:main', option: 'citation_cache_lock_dir', value: "{{galaxy_db_dir}}/citations/lock" }
-    #- { section: 'app:main', option: 'whoosh_index_dir', value: "{{galaxy_db_dir}}/whoosh_indexes" }
-    #- { section: 'app:main', option: 'object_store_cache_path', value: "{{galaxy_db_dir}}/object_store_cache" }
-    #- { section: 'app:main', option: 'cluster_file_directory', value: "{{galaxy_db_dir}}/pbs" }
-    #- { section: 'app:main', option: 'ftp_upload_dir', value: "{{galaxy_db_dir}}/ftp" }
+    - { section: 'app:main', option: 'job_working_directory', value: "{{galaxy_db_dir}}/job_working_directory" }
+    - { section: 'app:main', option: 'file_path', value: "{{galaxy_db_dir}}/files" }
+    - { section: 'app:main', option: 'new_file_path', value: "{{galaxy_db_dir}}/tmp" }
+    - { section: 'app:main', option: 'template_cache_path', value: "{{galaxy_db_dir}}/compiled_templates" }
+    - { section: 'app:main', option: 'citation_cache_data_dir', value: "{{galaxy_db_dir}}/citations/data" }
+    - { section: 'app:main', option: 'citation_cache_lock_dir', value: "{{galaxy_db_dir}}/citations/lock" }
+    - { section: 'app:main', option: 'whoosh_index_dir', value: "{{galaxy_db_dir}}/whoosh_indexes" }
+    - { section: 'app:main', option: 'object_store_cache_path', value: "{{galaxy_db_dir}}/object_store_cache" }
+    - { section: 'app:main', option: 'cluster_file_directory', value: "{{galaxy_db_dir}}/pbs" }
+    - { section: 'app:main', option: 'ftp_upload_dir', value: "{{galaxy_db_dir}}/ftp" }
 
 - name: Enable Conda
   ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
   with_items:
-    #- { section: 'app:main', option: 'conda_prefix', value: "{{galaxy_install_path}}/tool_dependency/_conda" }
-    - { section: 'app:main', option: 'conda_ensure_channels', value: "conda-forge,r,bioconda,iuc" }
+    - { section: 'app:main', option: 'conda_prefix', value: "{{ conda_prefix }}" }
+    - { section: 'app:main', option: 'job_working_directory', value: "{{ job_work_dir }}" } # change job working dir only when conda is enabled by default, to workaround current conda limitations.
+    - { section: 'app:main', option: 'conda_ensure_channels', value: "{{ conda_channels }}" }
     - { section: 'app:main', option: 'conda_auto_install', value: "True" }
     - { section: 'app:main', option: 'conda_auto_init', value: "True" }
   when: use_conda
