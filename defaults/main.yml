@@ -85,6 +85,10 @@ galaxy_db_port: 5432
 #################################
 # NGINX
 nginx_upload_store_path: "{{galaxy_db_dir}}/tmp/nginx_upload_store"
+nginx_https: false
+ssl_cert: /etc/certs/cert.pem
+ssl_key: /etc/certs/key.pem
+ssl_dhparam: /etc/certs/dhparam.pem
 
 #################################
 # PROFTPD

@@ -19,6 +19,21 @@ DEPLOYMENT_TOOL="heat-config-ansible heat-config-cfn-init heat-config-puppet hea
 Role Variables
 --------------
 
+The Galaxy portal runs through an `nginx` http proxy by default. The following
+variables enable you to set nginx in https mode:
+
+```
+nginx_https: true
+ssl_cert: /etc/certs/cert.pem
+ssl_key: /etc/certs/key.pem
+ssl_dhparam: /etc/certs/dhparam.pem
+```
+
+If `nginx_https` is set to `true`, the other ssl variables are required.
+You can either request a signed trusted certificate or generated self-signed
+certificate. An ansible role to generate self-signed certificate can be found
+in https://galaxy.ansible.com/LIP-Computing/ssl-certs/
+
 ```
 # Galaxy administrator username
 GALAXY_ADMIN_USERNAME: "{{galaxy_admin_username}}"
