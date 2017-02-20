@@ -77,7 +77,7 @@ conda_prefix: "{{ tool_deps_path }}/_conda"
 conda_channels: "conda-forge,r,bioconda,iuc"
 
 # Update UCSC genome database
-update_ucsc: false
+update_ucsc: true
 fast_update: true # Force database update by copying cached files. Only for testing!
 
 # Enable pbkdf2
