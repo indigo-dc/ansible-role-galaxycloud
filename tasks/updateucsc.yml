@@ -11,6 +11,7 @@
     url: 'http://cloud.recas.ba.infn.it:8080/v1/AUTH_3b4918e0a982493e8c3ebcc43586a2a8/INDIGO-REVIEW/ucsc.tar.gz'
     dest: /tmp/ucsc.tar.gz
     force: yes
+    timeout: 100
   when: fast_update
 
 - name: Copy ucsc genome indexes
