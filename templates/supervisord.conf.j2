@@ -72,7 +72,7 @@ user            = {{galaxy_user}}
 {%if galaxy_lrms == "slurm"%}
 environment     = VIRTUAL_ENV="{{galaxy_venv_path}}",PATH="{{galaxy_venv_path}}/bin:%(ENV_PATH)s",PYTHONHOME="{{galaxy_venv_path}}",DRMAA_LIBRARY_PATH="/usr/local/lib/libdrmaa.so"
 {% else %}
-environment     = VIRTUAL_ENV="{{galaxy_venv_path}}",PATH="{{galaxy_venv_path}}/bin:%(ENV_PATH)s",PYTHONHOME="{{galaxy_venv_path}}"
+environment     = VIRTUAL_ENV="{{galaxy_venv_path}}",PATH="{{galaxy_venv_path}}/bin:%(ENV_PATH)s"
 {% endif %}
 numprocs        = 1
 stopsignal      = INT
@@ -91,7 +91,7 @@ user            = {{galaxy_user}}
 {%if galaxy_lrms == "slurm"%}
 environment     = VIRTUAL_ENV="{{galaxy_venv_path}}",PATH="{{galaxy_venv_path}}/bin:%(ENV_PATH)s",PYTHONHOME="{{galaxy_venv_path}}",DRMAA_LIBRARY_PATH="/usr/local/lib/libdrmaa.so"
 {% else %}
-environment     = VIRTUAL_ENV="{{galaxy_venv_path}}",PATH="{{galaxy_venv_path}}/bin:%(ENV_PATH)s",PYTHONHOME="{{galaxy_venv_path}}"
+environment     = VIRTUAL_ENV="{{galaxy_venv_path}}",PATH="{{galaxy_venv_path}}/bin:%(ENV_PATH)s"
 {% endif %}
 startretries    = 15
 
