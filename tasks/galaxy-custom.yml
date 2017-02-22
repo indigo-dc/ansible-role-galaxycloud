@@ -8,7 +8,7 @@
   with_items:
     - { section: 'app:main', option: 'admin_users', value: "{{ GALAXY_ADMIN_EMAIL }}" }
     - { section: 'app:main', option: 'brand', value: "{{ galaxy_instance_description }}" }
-#    - { section: 'app:main', option: 'tool_dependency_dir', value: "{{ tool_deps_path }}" }
+    - { section: 'app:main', option: 'tool_dependency_dir', value: "{{ tool_deps_path }}" }
 #    - { section: 'app:main', option: 'job_working_directory', value: "{{galaxy_db_dir}}/job_working_directory" }
 #    - { section: 'app:main', option: 'file_path', value: "{{galaxy_db_dir}}/files" }
 #    - { section: 'app:main', option: 'new_file_path', value: "{{galaxy_db_dir}}/tmp" }
@@ -23,9 +23,9 @@
 - name: Enable Conda
   ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
   with_items:
-    #- { section: 'app:main', option: 'conda_prefix', value: "{{ conda_prefix }}" }
-    #- { section: 'app:main', option: 'job_working_directory', value: "{{ job_work_dir }}" } # change job working dir only when conda is enabled by default, to workaround current conda limitations.
-    #- { section: 'app:main', option: 'conda_ensure_channels', value: "{{ conda_channels }}" }
+    - { section: 'app:main', option: 'conda_prefix', value: "{{ conda_prefix }}" }
+    - { section: 'app:main', option: 'job_working_directory', value: "{{ job_work_dir }}" } # change job working dir only when conda is enabled by default, to workaround current conda limitations.
+    - { section: 'app:main', option: 'conda_ensure_channels', value: "{{ conda_channels }}" }
     - { section: 'app:main', option: 'conda_auto_install', value: "True" }
     - { section: 'app:main', option: 'conda_auto_init', value: "True" }
   when: use_conda
