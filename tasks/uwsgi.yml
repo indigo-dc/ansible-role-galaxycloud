@@ -42,6 +42,7 @@
   blockinfile:
     dest: "{{galaxy_config_file}}"
     marker: ""
+    insertafter: EOF
     content: |
       #
       # ---- uWSGI -------------------------------------------------------------------------
