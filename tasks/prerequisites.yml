@@ -49,7 +49,7 @@
 #########################################################
 # Create directories
 
-- name: Create directoryes
+- name: Create directories
   file: path={{ item }}
         state=directory
         owner={{galaxy_user}}
