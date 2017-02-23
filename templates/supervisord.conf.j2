@@ -1,20 +1,3 @@
-# This is a sample supervisor config file.
-# In this configuration, 2 handlers and 1 uwsgi (uwsgi is more performant than the default Paste) instance with 2 processes and 2 threads will be started.
-# In order for this to work, you will need to have a [uwsgi] section in galaxy.ini, as such:
-#
-# [uwsgi]
-# master = True
-#
-# Further, this assumes uwsgi has been installed through pip into a virtualenv (/home/galaxy/galaxy/.venv/, in this example). 
-# If this is not the case, adjust the path to uwsgi accordingly.
-# If uwsgi was not installed through pip, include "--plugin python" in the uwsgi command.
-# This configuration has been tested with galaxy release_16.01 and uWSGI==2.0.12.
-# This assumes galaxy is installed in /home/galaxy/galaxy, so change occurences of /home/galaxy/galaxy accordingly.
-# If you want to run galaxy under a different username, change "user = galaxy" to "user = <your user>".
-# You will probably want to proxy uwsgi (you can't connect with a browser to uwsgi port 4001) with nginx or apache, 
-# see https://wiki.galaxyproject.org/Admin/Config/Performance/Scaling#uWSGI-1
-# or https://wiki.galaxyproject.org/Admin/Config/Performance/Scaling#uWSGI-2 . 
-
 {% if supervisor_manage_postgres == "True" %}
 
 {% if ansible_virtualization_type != "docker" %}
@@ -62,24 +45,24 @@ killasgroup     = true
 {% endif %}
 
 [program:galaxy_web]
-command         = {{galaxy_venv_path}}/bin/uwsgi --ini-paste {{galaxy_config_file}}
-directory       = {{galaxy_install_path}}
+command         = {{ galaxy_venv_path }}/bin/uwsgi --virtualenv {{ galaxy_venv_path }} --ini-paste {{ galaxy_config_file }}
+directory       = {{ galaxy_install_path }}
 umask           = 022
 autostart       = true
 autorestart     = true
 startsecs       = 20
 user            = {{galaxy_user}}
 {%if galaxy_lrms == "slurm"%}
-environment     = VIRTUAL_ENV="{{galaxy_venv_path}}",PATH="{{galaxy_venv_path}}/bin:%(ENV_PATH)s",PYTHONHOME="{{galaxy_venv_path}}",DRMAA_LIBRARY_PATH="/usr/local/lib/libdrmaa.so"
+environment     = PATH="{{ galaxy_venv_path }}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",DRMAA_LIBRARY_PATH="/usr/local/lib/libdrmaa.so"
 {% else %}
-environment     = VIRTUAL_ENV="{{galaxy_venv_path}}",PATH="{{galaxy_venv_path}}/bin:%(ENV_PATH)s"
+environment     = PATH="{{ galaxy_venv_path }}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 {% endif %}
 numprocs        = 1
 stopsignal      = INT
 startretries    = 15
 
 [program:handler]
-command         = {{galaxy_venv_path}}/bin/python ./scripts/galaxy-main -c {{galaxy_config_file}} --server-name=handler%(process_num)s --log-file={{galaxy_log_path}}/handler%(process_num)s.log
+command         = {{ galaxy_venv_path }}/bin/python ./lib/galaxy/main.py -c {{ galaxy_config_file }} --server-name=handler%(process_num)s --log-file={{ galaxy_log_path }}/handler%(process_num)s.log
 directory       = {{galaxy_install_path}}
 process_name    = handler%(process_num)s
 numprocs        = 6
@@ -89,9 +72,7 @@ autorestart     = true
 startsecs       = 20
 user            = {{galaxy_user}}
 {%if galaxy_lrms == "slurm"%}
-environment     = VIRTUAL_ENV="{{galaxy_venv_path}}",PATH="{{galaxy_venv_path}}/bin:%(ENV_PATH)s",PYTHONHOME="{{galaxy_venv_path}}",DRMAA_LIBRARY_PATH="/usr/local/lib/libdrmaa.so"
-{% else %}
-environment     = VIRTUAL_ENV="{{galaxy_venv_path}}",PATH="{{galaxy_venv_path}}/bin:%(ENV_PATH)s"
+environment     = DRMAA_LIBRARY_PATH="/usr/local/lib/libdrmaa.so"
 {% endif %}
 startretries    = 15
 
