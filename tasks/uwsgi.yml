@@ -59,6 +59,7 @@
     - { section: 'uwsgi', option: 'pythonhome', value: '{{galaxy_venv_path}}' }
     - { section: 'uwsgi', option: 'threads', value: '{{uwsgi_threads}}' }
     - { section: 'uwsgi', option: 'logto', value: '{{uwsgi_errorlog}}' }
+    - { section: 'uwsgi', option: 'pidfile', value: '{{ uwsgi_pidfile }}' }
 
 - name: if proc==1
   ini_file: dest={{galaxy_config_file}}
