@@ -6,10 +6,10 @@
 - name: Galaxy configuration
   ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
   with_items:
-    - { section: 'app:main', option: 'admin_users', value: "{{GALAXY_ADMIN_EMAIL}}" }
-    - { section: 'app:main', option: 'tool_dependency_dir', value: "{{galaxy_install_path}}/tool_dependency" }
-    - { section: 'app:main', option: 'brand', value: "{{galaxy_instance_description}}" }
-    - { section: 'app:main', option: 'job_working_directory', value: "{{galaxy_db_dir}}/job_working_directory" }
+    - { section: 'app:main', option: 'admin_users', value: "{{ GALAXY_ADMIN_EMAIL }}" }
+    - { section: 'app:main', option: 'brand', value: "{{ galaxy_instance_description }}" }
+    - { section: 'app:main', option: 'tool_dependency_dir', value: "{{ tool_deps_path }}" }
+    - { section: 'app:main', option: 'job_working_directory', value: "{{galaxy_db_dir}}/job_working_directory" } # if conda is enabled, this config is modified.
     - { section: 'app:main', option: 'file_path', value: "{{galaxy_db_dir}}/files" }
     - { section: 'app:main', option: 'new_file_path', value: "{{galaxy_db_dir}}/tmp" }
     - { section: 'app:main', option: 'template_cache_path', value: "{{galaxy_db_dir}}/compiled_templates" }
@@ -20,6 +20,9 @@
     - { section: 'app:main', option: 'cluster_file_directory', value: "{{galaxy_db_dir}}/pbs" }
     - { section: 'app:main', option: 'ftp_upload_dir', value: "{{galaxy_db_dir}}/ftp" }
 
+# Enable conda by default
+- include: conda.yml
+  when: use_conda
 #---
 # Galaxy administrator: email. username, password and api_key
 # IMPORTANT: you need the galaxy database postgresql active to setup the galaxy administrator
@@ -46,3 +49,8 @@
   ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
   with_items:
     - { section: 'app:main', option: 'id_secret', value: "{{galaxy_id_secret.stdout}}" }
+
+#---
+# Update UCSC genome database
+- include: updateucsc.yml
+  when: update_ucsc

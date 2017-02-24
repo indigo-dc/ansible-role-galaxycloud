@@ -1,0 +1,19 @@
+---
+# Update ucsc genome database
+
+# Default Update via updateucsc.sh script
+# FIXME add cronjob
+
+# Fast Update (only for testing)
+
+- name: Download ucsc genome idexes
+  get_url:
+    url: 'http://cloud.recas.ba.infn.it:8080/v1/AUTH_3b4918e0a982493e8c3ebcc43586a2a8/INDIGO-REVIEW/ucsc.tar.gz'
+    dest: /tmp/ucsc.tar.gz
+    force: yes
+    timeout: 100
+  when: fast_update
+
+- name: Copy ucsc genome indexes
+  unarchive: src=/tmp/ucsc.tar.gz dest=/home/galaxy/galaxy/tool-data/shared/ remote_src=yes
+  when: fast_update

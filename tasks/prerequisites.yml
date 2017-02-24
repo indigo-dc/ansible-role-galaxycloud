@@ -49,35 +49,17 @@
 #########################################################
 # Create directories
 
-- name: Create log directory
-  file: path={{galaxy_log_path}}
+- name: Create directories
+  file: path={{ item }}
         state=directory
         owner={{galaxy_user}}
         group={{galaxy_user}}
-  become_user: root
-  become_method: sudo
-
-- name: Create export directory
-  file: path={{export_dir}}
-        state=directory
-        owner={{galaxy_user}}
-        group={{galaxy_user}}
-  become_user: root
-  become_method: sudo
-
-- name: Create reference data directory
-  file: path={{refdata_dir}}
-        state=directory
-        owner={{galaxy_user}}
-        group={{galaxy_user}}
-  become_user: root
-  become_method: sudo
-
-- name: Create /etc/galaxy directory
-  file: path=/etc/galaxy
-        state=directory
-        owner={{galaxy_user}}
-        group={{galaxy_user}}
+  with_items:
+    - '{{ galaxy_log_path }}'
+    - '{{ export_dir }}'
+    - '{{ refdata_dir }}'
+    - '/etc/galaxy'
+    - '{{ tool_deps_path }}'
   become_user: root
   become_method: sudo
 
