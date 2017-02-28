@@ -6,13 +6,8 @@
 # Modifications to the EPEL (CentOS7) nginx package to add the upload (and possibly other) module(s).
 # The package is built for CentOS 7.
 
-- name: Add NGINX repository on CentOS 7
-  yum_repository:
-    name: 'galaxy'
-    description: 'Galaxy Packages for Enterprise Linux $releasever - $basearch'
-    baseurl: 'https://depot.galaxyproject.org/yum/el/$releasever/$basearch/'
-    gpgcheck: no
-    enabled: yes
+- name: Add NGINX centos repository
+  command: 'yum-config-manager --add-repo https://depot.galaxyproject.org/yum/galaxy.repo'
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
@@ -32,7 +27,7 @@
 # Ubuntu 14.04
 # On Ubuntu NGINX service is started by default after installation. It needs to be restarted after the configuration.
 
-- name: Add NGINX repository on Ubuntu
+- name: Add NGINX Ubuntu repository
   apt_repository: repo='ppa:galaxyproject/nginx'
   become_user: root
   become_method: sudo
