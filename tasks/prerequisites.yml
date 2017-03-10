@@ -20,7 +20,7 @@
 
 - name: Install the 'Development tools' package group
   yum: name="@Development tools"
-       state=present
+       state=latest
        update_cache=yes
   become_user: root
   become_method: sudo
