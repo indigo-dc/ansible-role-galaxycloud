@@ -32,8 +32,7 @@
   include_vars: uwsgi_vars.yml
 
 - name: Install uWSGI
-  pip: name=uwsgi
-       virtualenv="{{galaxy_venv_path}}"
+  pip: name=uwsgi virtualenv={{ galaxy_venv_path }} virtualenv_command="{{ pip_virtualenv_command | default( 'virtualenv' ) }}"
 
 #---
 # Add uWSGI section to galaxy.ini file
