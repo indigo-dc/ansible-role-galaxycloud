@@ -19,9 +19,10 @@
   when: ansible_os_family == "RedHat"
 
 - name: Install the 'Development tools' package group
-  yum: name="@Development tools"
-       state=latest
-       update_cache=yes
+  yum:
+    name: "@Development tools"
+    state: latest
+    update_cache: yes
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
