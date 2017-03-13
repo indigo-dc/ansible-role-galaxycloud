@@ -18,12 +18,20 @@
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
-- name: Install the 'Development tools' package group
-  yum: name="@Development tools"
-       state=present
-  become_user: root
-  become_method: sudo
-  when: ansible_os_family == "RedHat"
+#- name: Install the 'Development tools' package group
+#  yum:
+#    name: "@Development tools"
+#    state: latest
+#    update_cache: yes
+#  become_user: root
+#  become_method: sudo
+#  when: ansible_os_family == "RedHat"
+
+-  name: Install 'Development tools' group # This solve broken dependencies on docker indigodatacloud/centos-sshd
+   command: 'yum groupinstall -y "Development tools" --skip-broken'
+   become_user: root
+   become_method: sudo
+   when: ansible_os_family == "RedHat"
 
 #---
 # Ubuntu 14.04

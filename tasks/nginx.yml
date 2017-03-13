@@ -6,46 +6,19 @@
 # Modifications to the EPEL (CentOS7) nginx package to add the upload (and possibly other) module(s).
 # The package is built for CentOS 7.
 
-- name: Install NGINX dependencies
-  yum: name={{item}}
-       state=present
-  with_items:
-    - openssl-devel
-    - pcre-devel
+- name: Add NGINX centos repository
+  command: 'yum-config-manager --add-repo https://depot.galaxyproject.org/yum/galaxy.repo'
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
-- name: Move NGINX rpm in /tmp
-  copy: src={{item}}
-        dest=/tmp/
-  with_items:
-    - nginx-filesystem-1.10.1-1.el7.centos.noarch.rpm
-    - nginx-mod-http-geoip-1.10.1-1.el7.centos.x86_64.rpm
-    - nginx-mod-http-image-filter-1.10.1-1.el7.centos.x86_64.rpm
-    - nginx-mod-http-perl-1.10.1-1.el7.centos.x86_64.rpm
-    - nginx-mod-http-xslt-filter-1.10.1-1.el7.centos.x86_64.rpm
-    - nginx-mod-mail-1.10.1-1.el7.centos.x86_64.rpm
-    - nginx-all-modules-1.10.1-1.el7.centos.noarch.rpm
-    - nginx-1.10.1-1.el7.centos.x86_64.rpm
-    - nginx-mod-stream-1.10.1-1.el7.centos.x86_64.rpm
-    - nginx-debuginfo-1.10.1-1.el7.centos.x86_64.rpm
-  when: ansible_os_family == "RedHat"
-  
-- name: Install NGINX rpm from /tmp
-  yum: name=/tmp/{{item}}
+- name: Install NGINX on centos
+  yum: name={{ item }}
        state=present
   with_items:
-    - nginx-filesystem-1.10.1-1.el7.centos.noarch.rpm
-    - nginx-mod-http-geoip-1.10.1-1.el7.centos.x86_64.rpm
-    - nginx-mod-http-image-filter-1.10.1-1.el7.centos.x86_64.rpm
-    - nginx-mod-http-perl-1.10.1-1.el7.centos.x86_64.rpm
-    - nginx-mod-http-xslt-filter-1.10.1-1.el7.centos.x86_64.rpm
-    - nginx-mod-mail-1.10.1-1.el7.centos.x86_64.rpm
-    - nginx-all-modules-1.10.1-1.el7.centos.noarch.rpm
-    - nginx-1.10.1-1.el7.centos.x86_64.rpm
-    - nginx-mod-stream-1.10.1-1.el7.centos.x86_64.rpm
-    - nginx-debuginfo-1.10.1-1.el7.centos.x86_64.rpm
+    - openssl-devel
+    - pcre-devel
+    - nginx-galaxy
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
@@ -54,7 +27,7 @@
 # Ubuntu 14.04
 # On Ubuntu NGINX service is started by default after installation. It needs to be restarted after the configuration.
 
-- name: Add NGINX repository on Ubuntu
+- name: Add NGINX Ubuntu repository
   apt_repository: repo='ppa:galaxyproject/nginx'
   become_user: root
   become_method: sudo
