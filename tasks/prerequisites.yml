@@ -13,7 +13,6 @@
     - vim
     - wget
     - logrotate
-    - python-virtualenv
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
@@ -48,11 +47,17 @@
     - logrotate
     - build-essential
     - python-apt #needed by apt_repository ansible core module
-    - python-virtualenv
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
 
+#---
+# Install virtualenv using pip. This prevent the system to use old virtualenv
+
+- name: Install Virtualenv package
+  pip: name={{ item }} 
+  with_items:
+    - virtualenv
 
 #########################################################
 # Create directories
