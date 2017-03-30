@@ -55,7 +55,7 @@
 # Install virtualenv using pip. This prevent the system to use old virtualenv
 
 - name: Install Virtualenv package
-  pip: name={{ item }} 
+  pip: name={{ item }} state=forcereinstall
   with_items:
     - virtualenv
   become_user: root
