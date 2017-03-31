@@ -74,7 +74,7 @@
 #  when: ansible_os_family == "Debian" and pip_is_installed != 0
 
 - name: Install Virtualenv package
-  pip: name={{ item }} state=forcereinstall
+  pip: name={{ item }} state=forcereinstall executable=pip
   with_items:
     - virtualenv
   become_user: root
