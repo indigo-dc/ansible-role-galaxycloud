@@ -54,7 +54,8 @@
 #---
 # Install virtualenv using pip. This prevent the system to use old virtualenv
 
-- command: 'pip --version'
+- name: Check pip
+  command: 'pip --version'
   ignore_errors: true
   changed_when: false # read-only task
   check_mode: no
@@ -69,6 +70,8 @@
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian" and pip_is_installed != 0
+
+# Install virtualenv using pip. This prevent the system to use old virtualenv
 
 - name: Install Virtualenv package
   pip: name={{ item }} state=forcereinstall executable=pip # pip2 is currently broken on centos7. Force use pip executable
