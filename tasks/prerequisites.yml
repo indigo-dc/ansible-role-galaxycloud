@@ -52,7 +52,7 @@
   when: ansible_os_family == "Debian"
 
 #---
-# Install virtualenv using pip. This prevent the system to use old virtualenv
+# Install pip. This prevent to install different pip versions.
 
 - name: Check pip
   command: 'pip --version'
