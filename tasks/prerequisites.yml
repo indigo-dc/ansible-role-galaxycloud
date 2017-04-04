@@ -13,7 +13,6 @@
     - vim
     - wget
     - logrotate
-    - python-pip
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
@@ -48,34 +47,34 @@
     - logrotate
     - build-essential
     - python-apt #needed by apt_repository ansible core module
-    - python-pip
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
 
 #---
+# Install pip. This prevent to install different pip versions.
+
+- name: Check pip
+  command: 'pip --version'
+  ignore_errors: true
+  changed_when: false # read-only task
+  check_mode: no
+  register: pip_is_installed
+
+- yum: name=python-pip state=present
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "RedHat" and pip_is_installed != 0
+
+- apt: name='python-pip' state=present
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian" and pip_is_installed != 0
+
 # Install virtualenv using pip. This prevent the system to use old virtualenv
 
-#- name: Check to see if pip is already installed.
-#  command: 'pip --version'
-#  ignore_errors: true
-#  changed_when: false # read-only task
-#  check_mode: no
-#  register: pip_is_installed
-
-#- yum: name=python-pip state=present
-#  become_user: root
-#  become_method: sudo
-#  when: ansible_os_family == "RedHat" and pip_is_installed != 0
-
-#- apt: name='python-pip' state=present
-#  become_user: root
-#  become_method: sudo
-#  when: ansible_os_family == "Debian" and pip_is_installed != 0
-
-
 - name: Install Virtualenv package
-  pip: name={{ item }} state=forcereinstall
+  pip: name={{ item }} state=forcereinstall executable=pip # pip2 is currently broken on centos7. Force use pip executable
   with_items:
     - virtualenv
   become_user: root
