@@ -74,7 +74,7 @@
 # Install virtualenv using pip. This prevent the system to use old virtualenv
 
 - name: Install Virtualenv package
-  pip: name={{ item }} state=forcereinstall executable=pip # pip2 is currently broken on centos7. Force use pip executable
+  pip: name={{ item }} state=forcereinstall
   with_items:
     - virtualenv
   become_user: root
