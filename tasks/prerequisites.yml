@@ -64,12 +64,12 @@
 - yum: name=python-pip state=present
   become_user: root
   become_method: sudo
-  when: ansible_os_family == "RedHat" and pip_is_installed != 0
+  when: ansible_os_family == "RedHat" and pip_is_installed.rc != 0
 
 - apt: name='python-pip' state=present
   become_user: root
   become_method: sudo
-  when: ansible_os_family == "Debian" and pip_is_installed != 0
+  when: ansible_os_family == "Debian" and pip_is_installed.rc != 0
 
 # Install virtualenv using pip. This prevent the system to use old virtualenv
 
