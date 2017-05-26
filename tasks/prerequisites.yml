@@ -104,7 +104,6 @@
   with_items:
     - '{{ galaxy_log_path }}'
     - '{{ export_dir }}'
-    - '{{ refdata_dir }}'
     - '/etc/galaxy'
     - '{{ tool_deps_path }}'
   become_user: root
