@@ -1,6 +1,10 @@
 ---
 - name: Enable Conda
-  ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
+  ini_file:
+    dest: '{{ galaxy_config_file }}'
+    section: '{{ item.section }}'
+    option: '{{ item.option }}'
+    value: '{{ item.value }}'
   with_items:
 #    - { section: 'app:main', option: 'conda_prefix', value: "{{ conda_prefix }}" }
     - { section: 'app:main', option: 'job_working_directory', value: "{{ job_work_dir }}" } # change job working dir only when conda is enabled by default, to workaround current conda limitations.
