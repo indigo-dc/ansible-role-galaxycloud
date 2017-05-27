@@ -111,3 +111,11 @@ proftpd_passive_port_high: 40000
 supervisor_manage_postgres: "False"
 supervisor_manage_nginx: "False"
 supervisor_manage_proftpd: "False"
+
+#______________________________________
+# Enable advanced storage configuration
+# False by default!
+# If this option is true the configuration is entrusted to indigo-dc.galaxycloud.os
+# Facts needs to be gathered!
+
+enable_storage_advanced_options: false
