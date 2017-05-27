@@ -96,6 +96,12 @@
 #______________________________________
 # Create directories
 
+- set_fact:
+    export_dir: /home/galaxy
+    #when: galaxy_lrms == "slurm"
+    #when: enable_storage_advanced_options|bool == false
+
+
 - name: Create directories
   file:
     path: '{{ item }}'
