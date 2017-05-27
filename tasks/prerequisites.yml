@@ -129,13 +129,3 @@
     mode: a+x
   become_user: root
   become_method: sudo
-
-#______________________________________
-# Set sudo autocomplete
-
-- name: Set sudo autocomplete
-  lineinfile:
-    dest: '/home/{{ galaxy_user }}/.bashrc'
-    line: "\n#sudo autocomplete\ncomplete -cf sudo"
-    state: present
-
