@@ -1,6 +1,7 @@
 ---
 # Prerequisites installation recipe
-# Install CentOS 7 and Ubuntu 14.04 dependencies, creates directories, logrotate and password generator installation.
+# Install OS dependencies, creates directories, logrotate and password generator installation.
+# Compatible with CentOS 7, Ubuntu 14.04
 
 #______________________________________
 # CentOS 7
@@ -128,4 +129,13 @@
     mode: a+x
   become_user: root
   become_method: sudo
+
+#______________________________________
+# Set sudo autocomplete
+
+- name: Set sudo autocomplete
+  lineinfile:
+    dest: '/home/{{ galaxy_user }}/.bashrc'
+    line: "\n#sudo autocomplete\ncomplete -cf sudo"
+    state: present
 
