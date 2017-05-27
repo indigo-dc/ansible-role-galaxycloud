@@ -1,0 +1,21 @@
+---
+# Create directories
+
+- set_fact:
+    export_dir: /home/galaxy
+    when: galaxy_lrms == "slurm"
+
+- name: Create directories
+  file:
+    path: '{{ item }}'
+    state: directory
+    owner: '{{ galaxy_user }}'
+    group: '{{ galaxy_user }}'
+  with_items:
+    - '{{ export_dir }}'
+    - '{{ galaxy_log_path }}'
+    - '/etc/galaxy'
+    - '{{ tool_deps_path }}'
+  become_user: root
+  become_method: sudo
+

@@ -96,25 +96,8 @@
 #______________________________________
 # Create directories
 
-- set_fact:
-    export_dir: /home/galaxy
-    #when: galaxy_lrms == "slurm"
-    #when: enable_storage_advanced_options|bool == false
-
-
-- name: Create directories
-  file:
-    path: '{{ item }}'
-    state: directory
-    owner: '{{ galaxy_user }}'
-    group: '{{ galaxy_user }}'
-  with_items:
-    - '{{ galaxy_log_path }}'
-    - '{{ export_dir }}'
-    - '/etc/galaxy'
-    - '{{ tool_deps_path }}'
-  become_user: root
-  become_method: sudo
+- include: path.yml
+  when: enable_storage_advanced_options|bool == false
 
 #______________________________________
 # Configure Logrotate
