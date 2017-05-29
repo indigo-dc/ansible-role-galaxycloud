@@ -19,12 +19,6 @@
   when: (ansible_os_family == "RedHat" and ansible_virtualization_type == "docker")
 
 #______________________________________
-# Create directories
-
-- include: path.yml
-  when: enable_storage_advanced_options|bool == false
-
-#______________________________________
 # Create Galaxy user
 
 - name: Create user {{galaxy_user}} on the server | CentOS7
