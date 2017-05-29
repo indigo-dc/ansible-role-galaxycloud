@@ -1,6 +1,6 @@
 ---
 # Prerequisites installation recipe
-# Install OS dependencies, creates directories, logrotate and password generator installation.
+# Install OS dependencies, logrotate and password generator installation.
 # Compatible with CentOS 7, Ubuntu 14.04
 
 #______________________________________
@@ -92,12 +92,6 @@
     - virtualenv
   become_user: root
   become_method: sudo
-
-#______________________________________
-# Create directories
-
-- include: path.yml
-  when: enable_storage_advanced_options|bool == false
 
 #______________________________________
 # Configure Logrotate
