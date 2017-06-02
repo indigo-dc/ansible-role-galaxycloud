@@ -1,9 +1,30 @@
 ---
 # Update ucsc genome database
 
+#______________________________________
 # Default Update via updateucsc.sh script
-# FIXME add cronjob
 
+- name: Create updateucsc script
+  copy:
+    src: '{{ galaxy_install_path}}/cron/updateucsc.sh.sample'
+    dest: '{{ galaxy_install_path}}/cron/updateucsc.sh'
+    mode: a+x
+
+- name: Change PYTHONPATH directory
+  lineinfile:
+    dest: '{{ galaxy_install_path}}/cron/updateucsc.sh'
+    regexp: '#GALAXY=/galaxy/path'
+    line: 'GALAXY={{ galaxy_install_path }}'
+
+- name: run updateucsc monthly cron job on the first sunday
+  cron:
+    name: updateucsc
+    minute: 0
+    hour: 0
+    weekday: 7
+    job: '[ $(date +\%d) -le 07 ] && {{ galaxy_install_path }}/updateucsc.sh'
+
+#______________________________________
 # Fast Update (only for testing)
 
 - name: Download ucsc genome idexes
