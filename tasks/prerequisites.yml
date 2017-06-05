@@ -15,6 +15,7 @@
     - vim
     - wget
     - logrotate
+    - cronie
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
