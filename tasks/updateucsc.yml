@@ -1,17 +1,36 @@
 ---
 # Update ucsc genome database
 
+#______________________________________
 # Default Update via updateucsc.sh script
-# FIXME add cronjob
 
-# Fast Update (only for testing)
+- name: Create updateucsc script
+  copy:
+    src: '{{ galaxy_install_path}}/cron/updateucsc.sh.sample'
+    dest: '{{ galaxy_install_path}}/cron/updateucsc.sh'
+    mode: a+x
 
-- name: Download ucsc genome idexes
-  get_url:
-    url: 'http://cloud.recas.ba.infn.it:8080/v1/AUTH_3b4918e0a982493e8c3ebcc43586a2a8/INDIGO-REVIEW/ucsc.tar.gz'
-    dest: /tmp/ucsc.tar.gz
-    force: yes
-    timeout: 100
+- name: Change PYTHONPATH directory
+  lineinfile:
+    dest: '{{ galaxy_install_path}}/cron/updateucsc.sh'
+    regexp: '#GALAXY=/galaxy/path'
+    line: 'GALAXY={{ galaxy_install_path }}'
+
+- name: run updateucsc monthly cron job on the first sunday
+  cron:
+    name: updateucsc
+    minute: 0
+    hour: 0
+    weekday: 7
+    job: '[ $(date +\%d) -le 07 ] && {{ galaxy_install_path }}/updateucsc.sh'
+
+#______________________________________
+# Fast Update
+
+- name: Copy ucsc genome idexes
+  copy:
+    src: 'ucsc.tar.gz'
+    dest: '/tmp/ucsc.tar.gz'
   when: fast_update
 
 - name: Copy ucsc genome indexes

@@ -1,43 +1,48 @@
 ---
 # Prerequisites installation recipe
-# Install CentOS 7 and Ubuntu 14.04 dependencies, creates directories, logrotate and password generator installation.
+# Install OS dependencies, create directories, logrotate and password generator installation.
+# Compatible with CentOS 7, Ubuntu 14.04
 
-#---
-#CentOS 7
+#______________________________________
+# CentOS 7
 
 - name: Install CentOS7 packages
-  yum: name={{item}}
-       state=present
+  yum:
+    name: '{{ item }}'
+    state: present
   with_items:
     - git
     - vim
     - wget
     - logrotate
+    - cronie
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
-#- name: Install the 'Development tools' package group
-#  yum:
-#    name: "@Development tools"
-#    state: latest
-#    update_cache: yes
-#  become_user: root
-#  become_method: sudo
-#  when: ansible_os_family == "RedHat"
+- name: Install the 'Development tools' package group
+  yum:
+    name: "@Development tools"
+    state: latest
+    skip_broken: yes # This solve broken dependencies on docker indigodatacloud/centos-sshd
+    update_cache: yes
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "RedHat" and ansible_version >= "2.3.0.0"
 
--  name: Install 'Development tools' group # This solve broken dependencies on docker indigodatacloud/centos-sshd
+-  name: Install Development tools group # This solve broken dependencies on docker indigodatacloud/centos-sshd
    command: 'yum groupinstall -y "Development tools" --skip-broken'
    become_user: root
    become_method: sudo
-   when: ansible_os_family == "RedHat"
+   when: ansible_os_family == "RedHat" and ansible_version < "2.3.0.0"
 
-#---
+#______________________________________
 # Ubuntu 14.04
 
 - name: Install Ubuntu packages
-  apt: name={{item}}
-       state=present
+  apt:
+    name: '{{ item }}'
+    state: present
   with_items:
     - apt-transport-https
     - software-properties-common
@@ -51,8 +56,9 @@
   become_method: sudo
   when: ansible_os_family == "Debian"
 
-#---
-# Install pip. This prevent to install different pip versions.
+#______________________________________
+# Install pip.
+# This prevent to install different pip versions.
 
 - name: Check pip
   command: 'pip --version'
@@ -61,55 +67,56 @@
   check_mode: no
   register: pip_is_installed
 
-- yum: name=python-pip state=present
+- yum:
+    name: 'python-pip'
+    state: present
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat" and pip_is_installed.rc != 0
 
-- apt: name='python-pip' state=present
+- apt:
+    name: 'python-pip'
+    state: present
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian" and pip_is_installed.rc != 0
 
-# Install virtualenv using pip. This prevent the system to use old virtualenv
+#______________________________________
+# Install virtualenv using pip.
+# This prevent the system to use old virtualenv.
 
 - name: Install Virtualenv package
-  pip: name={{ item }} state=forcereinstall
+  pip:
+    name: '{{ item }}'
+    state: forcereinstall
   with_items:
     - virtualenv
   become_user: root
   become_method: sudo
 
-#########################################################
+#______________________________________
 # Create directories
+# WARNING!!! Setup directories after galaxy user creation
 
-- name: Create directories
-  file: path={{ item }}
-        state=directory
-        owner={{galaxy_user}}
-        group={{galaxy_user}}
-  with_items:
-    - '{{ galaxy_log_path }}'
-    - '{{ export_dir }}'
-    - '{{ refdata_dir }}'
-    - '/etc/galaxy'
-    - '{{ tool_deps_path }}'
-  become_user: root
-  become_method: sudo
+- include: path.yml
+  when: enable_storage_advanced_options|bool == false
 
-#########################################################
+#______________________________________
 # Configure Logrotate
 
 - name: Copy logrotate configuration file
-  template: src=logrotate.j2 dest=/etc/logrotate.d/galaxy
+  template:
+    src: 'logrotate.j2'
+    dest: '/etc/logrotate.d/galaxy'
   become_user: root
   become_method: sudo
 
-
-#########################################################
+#______________________________________
 # Add python random password generator
 - name: Copy pwd-generator.py to /usr/local/bin
-  template: src=pwd_generator.j2 dest=/usr/local/bin/pwd-generator mode=a+x
+  template:
+    src: 'pwd_generator.j2'
+    dest: '/usr/local/bin/pwd-generator'
+    mode: a+x
   become_user: root
   become_method: sudo
-
