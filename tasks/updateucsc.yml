@@ -9,6 +9,7 @@
     src: '{{ galaxy_install_path}}/cron/updateucsc.sh.sample'
     dest: '{{ galaxy_install_path}}/cron/updateucsc.sh'
     mode: a+x
+    remote_src: true
 
 - name: Change PYTHONPATH directory
   lineinfile:
