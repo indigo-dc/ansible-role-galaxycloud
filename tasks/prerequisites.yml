@@ -1,7 +1,7 @@
 ---
 # Prerequisites installation recipe
 # Install OS dependencies, create directories, logrotate and password generator installation.
-# Compatible with CentOS 7, Ubuntu 14.04
+# Compatible with CentOS 7, Ubuntu 16.04 and 14.04
 
 #______________________________________
 # CentOS 7
@@ -37,7 +37,7 @@
    when: ansible_os_family == "RedHat" and ansible_version < "2.3.0.0"
 
 #______________________________________
-# Ubuntu 14.04
+# Ubuntu 14.04 and 16.04
 
 - name: Install Ubuntu packages
   apt:
