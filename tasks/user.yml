@@ -6,12 +6,16 @@
 # Install sudo and sudoers fix (only for centos docker image)
 
 - name: Install sudo (CentOS Docker specific task)
-  yum: name=sudo
-       state=present
+  yum:
+    name: sudo
+    state: present
   when: (ansible_os_family == "RedHat" and ansible_virtualization_type == "docker")
 
 - name: Edit sudoers to remove requiretty option (CentOS Docker specific task)
-  lineinfile: dest=/etc/sudoers regexp={{item.regexp}} state=absent
+  lineinfile:
+    dest: '/etc/sudoers'
+    regexp: '{{ item.regexp }}'
+    state: absent
   with_items:
     - { regexp: '# Disable "ssh hostname sudo <cmd>", because it will show the password in clear.' }
     - { regexp: '#         You have to run "ssh -t hostname sudo <cmd>".' }
@@ -22,36 +26,41 @@
 # Create Galaxy user
 
 - name: Create user {{galaxy_user}} on the server | CentOS7
-  user: name={{galaxy_user}}
-        shell=/bin/bash
-        groups=adm,wheel,systemd-journal
-        uid={{GALAXY_UID}}
+  user:
+    name: '{{ galaxy_user }}'
+    shell: '/bin/bash'
+    groups: adm,wheel,systemd-journal
+    uid: '{{ GALAXY_UID }}'
   when: ansible_os_family == "RedHat"
 
 - name: Create user {{galaxy_user}} on the server | Ubuntu
-  user: name={{galaxy_user}}
-        shell=/bin/bash
-        uid={{GALAXY_UID}}
+  user:
+    name: '{{ galaxy_user }}'
+    shell: '/bin/bash'
+    uid: '{{ GALAXY_UID }}'
   when: ansible_os_family == "Debian"
 
 - name: Inject ssh public key - {{galaxy_user}}
-  authorized_key: user={{galaxy_user}}
-                  key={{galaxy_instance_key_pub}}
+  authorized_key:
+    user: '{{ galaxy_user }}'
+    key: '{{ galaxy_instance_key_pub }}'
   become: true
-  become_user: "{{galaxy_user}}"
+  become_user: '{{ galaxy_user }}'
   register: authorized_key_galaxy_user_result
   failed_when: ('invalid key specified' in authorized_key_galaxy_user_result.stderr)
   ignore_errors: true
 
 - name: User rules for {{galaxy_user}}
-  lineinfile: dest=/etc/sudoers
-              state=present 
-              line="{{galaxy_user}} ALL=(ALL) NOPASSWD:ALL"
-              insertafter=EOF
+  lineinfile:
+    dest: '/etc/sudoers'
+    state: present 
+    line: '{{ galaxy_user }} ALL=(ALL) NOPASSWD:ALL'
+    insertafter: EOF
 
 - name: Inject ssh public key - root
-  authorized_key: user=root
-                  key={{galaxy_instance_key_pub}}
+  authorized_key:
+    user: 'root'
+    key: '{{ galaxy_instance_key_pub }}'
   register: authorized_key_root_result
   failed_when: ('invalid key specified' in authorized_key_root_result.stderr)
   ignore_errors: true
