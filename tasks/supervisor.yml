@@ -1,36 +1,41 @@
 ---
 # Supervisord installation and configuration recipe
 
-#---
+#______________________________________
 # CentOS 7
 
-- name: Check and install Supervisor dependencies on CentOS7
-  yum: name={{item}}
-       state=present
+- name: '[EL] Check and install Supervisor dependencies'
+  yum:
+    name: '{{ item }}'
+    state: present
   with_items:
     - supervisor
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
-- name: Set supervisord conf path on CentOS
-  set_fact: supervisord_conf_path=/etc
+- name: '[EL] Set supervisord conf path'
+  set_fact:
+    supervisord_conf_path: '/etc'
   when: ansible_os_family == "RedHat"
 
-- name: Copy supervisord configuration file
-  template: src=supervisord.conf.j2 dest=/etc/supervisord.d/galaxy_web.ini
+- name: '[EL] Copy supervisord configuration file'
+  template:
+    src: 'supervisord.conf.j2'
+    dest: '/etc/supervisord.d/galaxy_web.ini'
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
-#---
+#______________________________________
 # Ubuntu 14.04
 # On Ubuntu Supervisord service is started by default after installation. We need to reread and update the configuration.
 # The service is stopped here and restarted using galaxy-startup script.
 
-- name: Check and install Supervisor dependencies on Ubuntu
-  apt: name={{item}}
-       state=present
+- name: '[Ubuntu] Check and install Supervisor dependencies'
+  apt:
+    name: '{{ item }}'
+    state: present
   with_items:
     - python-meld3
     - supervisor
@@ -38,18 +43,23 @@
   become_method: sudo
   when: ansible_os_family == "Debian"
 
-- name: Stop supervisor
-  service: name=supervisor state=stopped
+- name: '[Ubuntu] Stop supervisor'
+  service:
+    name: supervisor
+    state: stopped
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
 
-- name: Set supervisord conf path on Ubuntu
-  set_fact: supervisord_conf_path=/etc/supervisor
+- name: '[Ubuntu] Set supervisord conf path'
+  set_fact:
+    supervisord_conf_path: '/etc/supervisor'
   when: ansible_os_family == "Debian"
 
-- name: Copy supervisord configuration file
-  template: src=supervisord.conf.j2 dest=/etc/supervisor/conf.d/galaxy_web.conf
+- name: '[Ubuntu] Copy supervisord configuration file'
+  template:
+    src: 'supervisord.conf.j2'
+    dest: '/etc/supervisor/conf.d/galaxy_web.conf'
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
