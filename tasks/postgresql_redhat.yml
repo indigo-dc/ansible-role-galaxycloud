@@ -1,0 +1,49 @@
+---
+# CentOS 7:
+# On CentOS 7 the default pgdata directory is /var/lib/pgsql/data. CentOS 7 uses Systemd as init system.
+# But it works only on VMs, therefore we use pg_ctl to start it on docker containers.
+# The database cluster needs to be created via initdb command and started. The database configuration has to be modified, too.
+# We use pg_ctl command to init and start the service. PostgreSQl will be stopped in the galaxy-startup recipe.
+
+- name: '[EL] Install postgresql'
+  yum:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - postgresql-server
+    - postgresql-contrib
+    - python-psycopg2
+  become_user: root
+  become_method: sudo
+
+- name: '[EL] Set pg_ctl path'
+  set_fact:
+    pg_ctl_path: '/usr/bin'
+
+- name: '[EL] PostgreSQL initdb creates a new database cluster'
+  shell: "{{ pg_ctl_path }}/pg_ctl -D {{ pgsql_pgdata }} initdb"
+  args:
+    creates: "{{pgsql_pgdata}}/pg_hba.conf"
+  become: True
+  become_user: postgres
+
+- name: '[EL] Edit pg_hba.conf IPv4 local connections'
+  replace:
+    dest: '/var/lib/pgsql/data/pg_hba.conf'
+    regexp: 'host    all             all             127.0.0.1/32            ident'
+    replace: 'host    all             all             127.0.0.1/32            md5'
+  become_user: root
+  become_method: sudo
+
+- name: '[EL] Edit pg_hba.conf IPv6 local connections'
+  replace:
+    dest: '/var/lib/pgsql/data/pg_hba.conf'
+    regexp: 'host    all             all             ::1/128                 ident'
+    replace: 'host    all             all             ::1/128                 md5'
+  become_user: root
+  become_method: sudo
+
+- name: '[EL] Start PostgreSQL server on CentOS'
+  shell: "{{ pg_ctl_path }}/pg_ctl -D {{ pgsql_pgdata }} -w start"
+  become: True
+  become_user: postgres
