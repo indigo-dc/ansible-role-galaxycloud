@@ -42,7 +42,7 @@ galaxy_flavor: "galaxy-no-tools"
 # Galaxy virtual elastic cluster support: Currently supported local and slurm
 galaxy_lrms: local
 
-#################################
+#______________________________________
 # Galaxy administrator username
 GALAXY_ADMIN_USERNAME: "galaxy_admin_username"
 
@@ -57,7 +57,7 @@ GALAXY_ADMIN_API_KEY: "GALAXY_ADMIN_API_KEY"
 # Galaxy administrator e-mail address
 GALAXY_ADMIN_EMAIL: "admin@server.com"
 
-#################################
+#______________________________________
 # Galaxy configuration
 
 # Galaxy userdata are stored here
@@ -83,12 +83,12 @@ fast_update: true # Force database update by copying cached files. Only for test
 # Enable pbkdf2
 use_pbkdf2: true
 
-#################################
+#______________________________________
 # Postgres database details
 galaxy_db_dir: "{{export_dir}}/galaxy/database"
 galaxy_db_port: 5432
 
-#################################
+#______________________________________
 # NGINX
 nginx_upload_store_path: "{{galaxy_db_dir}}/tmp/nginx_upload_store"
 nginx_https: false
@@ -96,7 +96,7 @@ ssl_cert: /etc/certs/cert.pem
 ssl_key: /etc/certs/key.pem
 ssl_dhparam: /etc/certs/dhparam.pem
 
-#################################
+#______________________________________
 # PROFTPD
 proftpd_welcome: "galaxy ftp server"
 proftpd_conf_path: "/etc/proftpd.conf"
@@ -106,7 +106,7 @@ proftpd_ftp_port: 21
 proftpd_passive_port_low: 30000
 proftpd_passive_port_high: 40000
 
-#################################
+#______________________________________
 # Supervisord
 supervisor_manage_postgres: "False"
 supervisor_manage_nginx: "False"
