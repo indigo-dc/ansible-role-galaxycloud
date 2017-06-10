@@ -28,7 +28,7 @@
   when: ansible_os_family == "RedHat"
 
 #______________________________________
-# Ubuntu 14.04
+# Ubuntu
 # On Ubuntu Supervisord service is started by default after installation. We need to reread and update the configuration.
 # The service is stopped here and restarted using galaxy-startup script.
 
