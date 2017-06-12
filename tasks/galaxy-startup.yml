@@ -22,16 +22,13 @@
 # the pg_ctl_path variable is defined in task/postgresql.yml
 
 - name: '[EL] Stop PostgreSQL server on CentOS'
-  shell: "{{ pg_ctl_path }}/pg_ctl -D {{ pgsql_pgdata }} stop"
+  shell: '/usr/pgsql-{{ postgresql_version }}/bin/pg_ctl -D {{ postgresql_pgdata }} stop'
   become: True
   become_user: postgres
   when: ansible_os_family == "RedHat"
 
 - name: '[Ubuntu] Stop PostgreSQL server on Ubuntu'
-  service:
-    name: postgresql
-    state: stopped
-    enabled: no
+  shell: '/etc/init.d/postgresql stop'
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
@@ -41,7 +38,7 @@
 
 - name: '[VM] Enable and start PostgreSQL server'
   service:
-    name: postgresql
+    name: {{ postgresql_service_name }}
     enabled: yes
     state: started
   become_user: root

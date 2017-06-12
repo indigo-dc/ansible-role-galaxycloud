@@ -1,59 +1,25 @@
 ---
-# Ubuntu 16.04 postgresql version = 9.5
-# Ubuntu 14.04 postgresql version = 9.3
-# On Ubuntu the default pgdata directory is /var/lib/postgresql/<pg_version>/main, while the config files are in /etc/postgresql/<pg_version>/main.
+# On Ubuntu the default pgdata directory is /var/lib/postgresql/{{ postgresql_version }}/main, while the config files are in /etc/postgresql/{{ postgresql_version }}/main.
 #
-# Ubuntu 14.04  uses Upstart as init system, it works both on Docker and VMs. We keep the default behaviour.
-# The service is started by default on VMs and we keep it running.
-# We start the service on docker containers. It is stopped in the galaxy-startup recipe.
+# Ubuntu 14.04  uses Upstart as init system, it works both on Docker and VMs. 
+# The service is started by default on VMs and we keep it running. We start the service on docker containers. It is stopped in the galaxy-startup recipe.
 #
-# Ubuntu 14.04 uses Systemd as init system
+# Ubuntu 16.04 uses Systemd as init system.
 
-#______________________________________
-# Ubuntu 16.04
+- name: '[Ubuntu] Include vars'
+  include_vars: postgresql_ubuntu.yml
 
-- name: '[Ubuntu 16.04] Install postgresql'
+- name: '[Ubuntu] Install pgdg package signing key'
+  apt_key: keyserver=pgp.mit.edu id=ACCC4CF8
+
+- name: '[Ubuntu] Install repository'
+  apt_repository:
+    repo: 'deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main'
+    update_cache: yes
+
+- name: '[Ubuntu] Install postgresql {{ postgresql_version }}'
   apt:
-    name: '{{ item }}'
-    state: present
-  with_items:
-    - postgresql
-    - postgresql-contrib
-    - python-psycopg2
-  become_user: root
-  become_method: sudo
-  when: ansible_distribution_version == '16.04'
+    name: "postgresql{{ '-' ~ postgresql_version if postgresql_version is defined else '' }}"
 
-- name: '[Ubuntu 16.04] Set pg_ctl path'
-  set_fact:
-    pg_ctl_path: '/usr/lib/postgresql/9.5/bin/'
-  when: ansible_distribution_version == '16.04'
-
-#______________________________________
-# Ubuntu 14.04
-
-- name: '[Ubuntu 14.04] Install postgresql'
-  apt:
-    name: '{{ item }}'
-    state: present
-  with_items:
-    - postgresql-9.3
-    - postgresql-contrib-9.3
-    - python-psycopg2
-  become_user: root
-  become_method: sudo
-  when: ansible_distribution_version == '14.04'
-
-- name: '[Ubuntu 14.04] Set pg_ctl path'
-  set_fact:
-    pg_ctl_path: '/usr/lib/postgresql/9.3/bin/'
-  when: ansible_distribution_version == '14.04'
-
-- name: '[Ubuntu 14.04] Start PostgreSQL server on Ubuntu'
-  service:
-    name: 'postgresql'
-    state: started
-    enabled: no
-  become_user: root
-  become_method: sudo
-  when: ansible_distribution_version == '14.04'
+- name: '[Ubuntu] Start PostgreSQL server'
+  shell: '/etc/init.d/postgresql start'

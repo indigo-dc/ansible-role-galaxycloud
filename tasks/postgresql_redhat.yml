@@ -1,49 +1,47 @@
 ---
 # CentOS 7:
-# On CentOS 7 the default pgdata directory is /var/lib/pgsql/data. CentOS 7 uses Systemd as init system.
+# On CentOS 7 the default pgdata directory is /var/lib/pgsql/{{ postgresql_version }}/data. CentOS 7 uses Systemd as init system.
 # But it works only on VMs, therefore we use pg_ctl to start it on docker containers.
 # The database cluster needs to be created via initdb command and started. The database configuration has to be modified, too.
 # We use pg_ctl command to init and start the service. PostgreSQl will be stopped in the galaxy-startup recipe.
 
-- name: '[EL] Install postgresql'
-  yum:
-    name: '{{ item }}'
-    state: present
-  with_items:
-    - postgresql-server
-    - postgresql-contrib
-    - python-psycopg2
-  become_user: root
-  become_method: sudo
+- name: '[EL] Include vars'
+  include_vars: postgresql_redhat.yml
 
-- name: '[EL] Set pg_ctl path'
-  set_fact:
-    pg_ctl_path: '/usr/bin'
+- name: '[EL] Install repository'
+  yum:
+    name: '{{ postgresql_yum_repository_url }}'
+    state: present
+
+- name: '[EL] Install postgresql {{ postgresql_version }}'
+  yum:
+    name: 'postgresql{{ postgresql_version_terse }}-server'
+    state: present
+
+- name: '[EL] Ensure pgdata directory not exists'
+  stat: path={{ postgresql_pgdata }}/base
+  register: pgdata_stat
+  failed_when: false
 
 - name: '[EL] PostgreSQL initdb creates a new database cluster'
-  shell: "{{ pg_ctl_path }}/pg_ctl -D {{ pgsql_pgdata }} initdb"
-  args:
-    creates: "{{pgsql_pgdata}}/pg_hba.conf"
-  become: True
+  shell: "/usr/pgsql-{{ postgresql_version }}/bin/pg_ctl -D {{ postgresql_pgdata }} initdb"
+  become: yes
   become_user: postgres
+  when: pgdata_stat.stat.isdir is not defined or not pgdata_stat.stat.isdir
 
 - name: '[EL] Edit pg_hba.conf IPv4 local connections'
   replace:
-    dest: '/var/lib/pgsql/data/pg_hba.conf'
+    dest: '{{ postgresql_pgdata }}/pg_hba.conf'
     regexp: 'host    all             all             127.0.0.1/32            ident'
     replace: 'host    all             all             127.0.0.1/32            md5'
-  become_user: root
-  become_method: sudo
 
 - name: '[EL] Edit pg_hba.conf IPv6 local connections'
   replace:
-    dest: '/var/lib/pgsql/data/pg_hba.conf'
+    dest: '{{ postgresql_pgdata }}/pg_hba.conf'
     regexp: 'host    all             all             ::1/128                 ident'
     replace: 'host    all             all             ::1/128                 md5'
-  become_user: root
-  become_method: sudo
 
-- name: '[EL] Start PostgreSQL server on CentOS'
-  shell: "{{ pg_ctl_path }}/pg_ctl -D {{ pgsql_pgdata }} -w start"
-  become: True
+- name: '[EL] Start PostgreSQL server'
+  shell: '/usr/pgsql-{{ postgresql_version }}/bin/pg_ctl -D {{ postgresql_pgdata }} -w start'
+  become: yes
   become_user: postgres

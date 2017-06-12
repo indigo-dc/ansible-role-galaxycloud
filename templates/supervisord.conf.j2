@@ -10,9 +10,9 @@ command         = /bin/bash -c "install -d -m 2775 -o postgres -g postgres /var/
 [program:postgresql]
 user            = postgres
 {% if ansible_os_family == "Debian" %}
-command         = /usr/lib/postgresql/9.3/bin/postgres -D /etc/postgresql/9.3/main
+command         = /usr/lib/postgresql/{{ posgresql_version }}/bin/postgres -D /var/lib/postgresql/{{ postgresql_version }}/main -c config_file=/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf
 {% else %}
-command         = /usr/bin/postgres -D {{pgsql_pgdata}}
+command         = /usr/bin/postgres -D {{ postgresql_pgdata }}
 {% endif %}
 process_name    = %(program_name)s
 stopsignal      = INT
