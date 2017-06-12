@@ -38,7 +38,7 @@
 
 - name: '[VM] Enable and start PostgreSQL server'
   service:
-    name: {{ postgresql_service_name }}
+    name: '{{ postgresql_service_name }}'
     enabled: yes
     state: started
   become_user: root
