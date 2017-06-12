@@ -1,4 +1,0 @@
----
-# Postgresql vars (docker)
-pgsql_pgdata: '/var/lib/pgsql/data'
-pgsql_pgport: '{{ galaxy_db_port }}'
