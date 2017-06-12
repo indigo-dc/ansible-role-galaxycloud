@@ -85,7 +85,7 @@ use_pbkdf2: true
 
 #______________________________________
 # Postgres database details
-postgres_version: '9.6'
+postgresql_version: '9.6'
 galaxy_db_dir: "{{export_dir}}/galaxy/database"
 galaxy_db_port: 5432
 
