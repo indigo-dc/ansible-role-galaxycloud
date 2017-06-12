@@ -19,7 +19,11 @@
 
 - name: '[Ubuntu] Install postgresql {{ postgresql_version }}'
   apt:
-    name: "postgresql{{ '-' ~ postgresql_version if postgresql_version is defined else '' }}"
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - "postgresql{{ '-' ~ postgresql_version if postgresql_version is defined else '' }}"
+    - python-psycopg2
 
 - name: '[Ubuntu] Start PostgreSQL server'
   shell: '/etc/init.d/postgresql start'
