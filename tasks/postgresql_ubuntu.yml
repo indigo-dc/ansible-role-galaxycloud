@@ -10,7 +10,9 @@
   include_vars: postgresql_ubuntu.yml
 
 - name: '[Ubuntu] Install pgdg package signing key'
-  apt_key: keyserver=pgp.mit.edu id=ACCC4CF8
+  apt_key:
+    keyserver: pgp.mit.edu
+    id: ACCC4CF8
 
 - name: '[Ubuntu] Install repository'
   apt_repository:
@@ -26,7 +28,7 @@
     - python-psycopg2
 
 - name: '[Ubuntu] Start PostgreSQL server'
-  shell: '/etc/init.d/postgresql start'
+  command: '/etc/init.d/postgresql start'
 
 - name: '[Ubuntu] Wait postgresql'
   wait_for:
