@@ -28,8 +28,6 @@
 - name: '[Ubuntu] Start PostgreSQL server'
   shell: '/etc/init.d/postgresql start'
 
-- wait_for:
-    host: 127.0.0.1
-    port: '{{ galaxy_db_port }}'
-    delay: 10
-    state: drained
+- name: '[Ubuntu] Wait postgresql'
+  wait_for:
+    path: '/var/run/postgresql/{{ postgresql_version}}.pid'
