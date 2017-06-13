@@ -28,8 +28,4 @@
     - python-psycopg2
 
 - name: '[Ubuntu] Start PostgreSQL server'
-  command: '/etc/init.d/postgresql start'
-
-- name: '[Ubuntu] Wait postgresql'
-  wait_for:
-    path: '/var/run/postgresql/{{ postgresql_version}}.pid'
+  command: '/usr/lib/postgresql/{{ postgresql_version }}/bin/postgres -D /var/lib/postgresql/{{ postgresql_version }}/main -c config_file=/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf'
