@@ -26,5 +26,5 @@
     insertafter: EOF
     state: present
     content: |
-      #source Galaxy virutalenv
+      # Source Galaxy virutalenv
       source {{ galaxy_venv_path }}/bin/activate
