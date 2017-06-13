@@ -20,7 +20,11 @@
     chdir: '{{ galaxy_install_path }}'
 
 - name: Set Virtualenv
-  lineinfile:
-    dest: '/home/{{galaxy_user}}/.bashrc'
-    line: '\n#source Virutalenv\nsource {{galaxy_venv_path}}/bin/activate'
+  blockinfile:
+    dest: '/home/{{ galaxy_user }}/.bashrc'
+    marker: ''
+    insertafter: EOF
     state: present
+    content: |
+      #source Galaxy virutalenv
+      source {{ galaxy_venv_path }}/bin/activate
