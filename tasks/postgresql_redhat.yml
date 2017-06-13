@@ -8,9 +8,19 @@
 - name: '[EL] Include vars'
   include_vars: postgresql_redhat.yml
 
+- name: '[EL] Copy parse_repo script'
+  template:
+    src: 'parse_repo.py.j2'
+    dest: '/tmp/parse_repo.py'
+    mode: a+x
+
+- name: '[EL] Search centos {{ postgresql_version }} repository release'
+  command: 'python /tmp/parse_repo.py -v {{ postgresql_version }} -u {{ postgresql_yum_repository_url }} -d {{ postgresql_pgdg_dist }}'
+  register: postgresql_yum_repository_name
+
 - name: '[EL] Install repository'
   yum:
-    name: '{{ postgresql_yum_repository_url }}'
+    name: '{{ postgresql_yum_repository_url }}/{{ postgresql_yum_repository_name.stdout }}'
     state: present
 
 - name: '[EL] Install postgresql {{ postgresql_version }}'
