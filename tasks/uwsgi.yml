@@ -64,17 +64,17 @@
 - name: if proc==1
   ini_file:
     dest: '{{ galaxy_config_file }}'
-    section: uwsgi
-    option: processes
-    value: 1
+    section: 'uwsgi'
+    option: 'processes'
+    value: '1'
   when: ansible_processor_vcpus == '1'
 
 - name: if proc>8
   ini_file:
     dest: '{{ galaxy_config_file }}'
-    section: uwsgi
-    option: processes
-    value: 8
+    section: 'uwsgi'
+    option: 'processes'
+    value: '8'
   when: ansible_processor_vcpus > '8'
 
 #______________________________________
