@@ -12,7 +12,7 @@ user            = postgres
 {% if ansible_os_family == "Debian" %}
 command         = /usr/lib/postgresql/{{ postgresql_version }}/bin/postgres -D /var/lib/postgresql/{{ postgresql_version }}/main -c config_file=/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf
 {% else %}
-command         = /usr/bin/postgres -D {{ postgresql_pgdata }}
+command         = /usr/pgsql-{{ postgresql_version }}/bin/postgres -D {{ postgresql_pgdata }}
 {% endif %}
 process_name    = %(program_name)s
 stopsignal      = INT
