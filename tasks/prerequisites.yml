@@ -64,7 +64,6 @@
   command: 'pip --version'
   ignore_errors: true
   changed_when: false # read-only task
-  check_mode: no
   register: pip_is_installed
 
 - name: '[EL] install pip'
