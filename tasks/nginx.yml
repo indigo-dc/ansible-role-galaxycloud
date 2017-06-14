@@ -36,10 +36,11 @@
 
 - name: '[Ubuntu] Prevent nginx update from Ubuntu repository'
   blockinfile:
-    dest: '/etc/apt/preferences'
+    dest: '/etc/apt/preferences.d/galaxyproject-nginx-pin-600'
     marker: '' # keep markers empty to work!
     insertafter: EOF
     state: present
+    create: yes
     content: |
       Package: nginx*
       Pin: release o=LP-PPA-galaxyproject-nginx
