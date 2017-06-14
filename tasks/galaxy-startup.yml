@@ -63,7 +63,7 @@
   when: supervisor_manage_proftpd == "False"
 
 - name: '[VM] Start Galaxy'
-  command: "/usr/bin/galaxy-startup"
+  command: "/usr/local/bin/galaxy-startup"
   become_user: root
   become_method: sudo
   when: ansible_virtualization_type != "docker"
