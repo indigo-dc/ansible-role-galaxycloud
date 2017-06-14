@@ -29,7 +29,7 @@
 
 - name: '[Ubuntu] Add NGINX repository'
   apt_repository:
-    repo: 'ppa:galaxyproject/nginx'
+    repo: 'LP-PPA-galaxyproject-nginx'
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
