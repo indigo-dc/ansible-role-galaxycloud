@@ -35,16 +35,10 @@
   when: ansible_os_family == "Debian"
 
 - name: '[Ubuntu] Prevent nginx update from Ubuntu repository'
-  blockinfile:
-    dest: '/etc/apt/preferences.d/galaxyproject-nginx-pin-600'
-    marker: '' # keep markers empty to work!
-    insertafter: EOF
-    state: present
-    create: yes
-    content: |
-      Package: nginx*
-      Pin: release o=LP-PPA-galaxyproject-nginx
-      Pin-Priority: 600
+  copy:
+    src: 'galaxyproject-nginx-pin-700'
+    dest: '/etc/apt/preferences.d/'
+    remote_src: yes
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
