@@ -67,7 +67,7 @@
     section: 'uwsgi'
     option: 'processes'
     value: '1'
-  when: ansible_processor_vcpus == '1'
+  when: ansible_processor_vcpus == 1
 
 - name: if proc>8
   ini_file:
@@ -75,7 +75,7 @@
     section: 'uwsgi'
     option: 'processes'
     value: '8'
-  when: ansible_processor_vcpus > '8'
+  when: ansible_processor_vcpus > 8
 
 #______________________________________
 # Edit galaxy.ini file
