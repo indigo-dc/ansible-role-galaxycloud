@@ -29,3 +29,5 @@
 
 - name: '[Ubuntu] Start PostgreSQL server'
   command: '/usr/lib/postgresql/{{ postgresql_version }}/bin/postgres -D /var/lib/postgresql/{{ postgresql_version }}/main -c config_file=/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf'
+  become: yes
+  become_user: postgres
