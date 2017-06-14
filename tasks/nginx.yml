@@ -46,8 +46,8 @@
 - name: '[Ubuntu] Install NGINX'
   apt:
     name: '{{ item }}'
-    default_release: 'LP-PPA-galaxyproject-nginx'
     state: present
+    update_cache: yes
   with_items:
     - nginx
     - nginx-extras
