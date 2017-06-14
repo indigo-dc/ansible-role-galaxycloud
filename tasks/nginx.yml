@@ -38,7 +38,6 @@
   copy:
     src: 'galaxyproject-nginx-pin-700'
     dest: '/etc/apt/preferences.d/'
-    remote_src: yes
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
