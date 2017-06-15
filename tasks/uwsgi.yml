@@ -46,10 +46,10 @@
 - name: Copy uwsgi section to galaxy.ini
   template:
     src: 'uwsgi.ini.j2'
-    dest: '/tmp/uwsgi.ini'
+    dest: '/tmp/uwsgi.ini.sample'
 
 - name: Copy uwsgi section to galaxy.ini
-  shell: 'cat /tmp/uwsgi.ini >> {{ galaxy_config_file }}'
+  shell: 'cat /tmp/uwsgi.ini.sample >> {{ galaxy_config_file }}'
 
 - name: uWSGI section config
   ini_file:
