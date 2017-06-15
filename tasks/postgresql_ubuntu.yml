@@ -27,7 +27,12 @@
     - "postgresql{{ '-' ~ postgresql_version if postgresql_version is defined else '' }}"
     - python-psycopg2
 
-- name: '[Ubuntu] Start PostgreSQL server'
+- name: '[Ubuntu 16.04] Start PostgreSQL server'
   shell: '/usr/lib/postgresql/{{ postgresql_version }}/bin/pg_ctl -D /etc/postgresql/{{ postgresql_version }}/main -w start'
   become: yes
   become_user: postgres
+  when: ansible_distribution_version == "16.04"
+
+- name: '[Ubuntu 14.04] Start PostgreSQL server'
+  shell: '/etc/init.d/postgresql start'
+  when: ansible_distribution_version == "14.04" 

@@ -20,17 +20,21 @@
 #______________________________________
 # Stop services
 
-- name: '[EL] Stop PostgreSQL server on CentOS'
+- name: '[EL] Stop PostgreSQL server'
   shell: '/usr/pgsql-{{ postgresql_version }}/bin/pg_ctl -D {{ postgresql_pgdata }} stop'
   become: yes
   become_user: postgres
   when: ansible_os_family == "RedHat"
 
-- name: '[Ubuntu] Stop PostgreSQL server on Ubuntu'
+- name: '[Ubuntu 16.04] Stop PostgreSQL server'
   shell: '/usr/lib/postgresql/{{ postgresql_version }}/bin/pg_ctl -D /etc/postgresql/{{ postgresql_version }}/main stop'
   become: yes
   become_user: postgres
-  when: ansible_os_family == "Debian"
+  when: ansible_os_family == "Debian" and ansible_distribution_version == "16.04"
+
+- name: '[Ubuntu 14.04] Stop PostgreSQL server'
+  shell: '/etc/init.d/postgresql stop'
+  when: ansible_os_family == "Debian" and ansible_distribution_version == "14.04" 
 
 #______________________________________
 # Start Galaxy on VM
