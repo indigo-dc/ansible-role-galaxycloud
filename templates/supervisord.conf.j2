@@ -51,7 +51,7 @@ umask           = 022
 autostart       = true
 autorestart     = true
 startsecs       = 20
-user            = {{galaxy_user}}
+user            = {{ galaxy_user }}
 {%if galaxy_lrms == "slurm"%}
 environment     = PATH="{{ galaxy_venv_path }}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",DRMAA_LIBRARY_PATH="/usr/local/lib/libdrmaa.so"
 {% else %}
@@ -63,14 +63,14 @@ startretries    = 15
 
 [program:handler]
 command         = {{ galaxy_venv_path }}/bin/python ./lib/galaxy/main.py -c {{ galaxy_config_file }} --server-name=handler%(process_num)s --log-file={{ galaxy_log_path }}/handler%(process_num)s.log
-directory       = {{galaxy_install_path}}
+directory       = {{ galaxy_install_path }}
 process_name    = handler%(process_num)s
-numprocs        = 6
+numprocs        = 4
 umask           = 022
 autostart       = true
 autorestart     = true
 startsecs       = 20
-user            = {{galaxy_user}}
+user            = {{ galaxy_user }}
 {%if galaxy_lrms == "slurm"%}
 environment     = DRMAA_LIBRARY_PATH="/usr/local/lib/libdrmaa.so"
 {% endif %}
