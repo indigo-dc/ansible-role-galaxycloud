@@ -1,5 +1,8 @@
 ---
-# CentOS 7:
+# CentOS 7
+#
+# https://wiki.postgresql.org/wiki/YUM_Installation
+#
 # On CentOS 7 the default pgdata directory is /var/lib/pgsql/{{ postgresql_version }}/data. CentOS 7 uses Systemd as init system.
 # But it works only on VMs, therefore we use pg_ctl to start it on docker containers.
 # The database cluster needs to be created via initdb command and started. The database configuration has to be modified, too.
@@ -7,6 +10,16 @@
 
 - name: '[EL] Include vars'
   include_vars: postgresql_redhat.yml
+
+- name: '[EL] exclude CentOS base and updates repo for postgresql, otherwise dependencies might resolve to the postgresql supplied by the base repository'
+  ini_file:
+    dest: '/etc/yum.repos.d/CentOS-Base.repo'
+    section: '{{ item.section }}'
+    option: '{{ item.option }}'
+    value: '{{ item.value }}'
+  with_items:
+    - { section: 'base', option: 'exclude', value: 'postgresql*' }
+    - { section: 'updates', option: 'exclude', value: 'postgresql*' }
 
 - name: '[EL] Copy parse_repo script'
   template:

@@ -1,7 +1,11 @@
 ---
+# Ubuntu
+#
+# https://wiki.postgresql.org/wiki/Apt
+#
 # On Ubuntu the default pgdata directory is /var/lib/postgresql/{{ postgresql_version }}/main, while the config files are in /etc/postgresql/{{ postgresql_version }}/main.
 #
-# Ubuntu 14.04  uses Upstart as init system, it works both on Docker and VMs. 
+# Ubuntu 14.04:  uses Upstart as init system, it works both on Docker and VMs. 
 # The service is started by default on VMs and we keep it running. We start the service on docker containers. It is stopped in the galaxy-startup recipe.
 #
 # Ubuntu 16.04 uses Systemd as init system.
