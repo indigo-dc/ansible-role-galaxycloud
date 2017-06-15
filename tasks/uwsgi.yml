@@ -43,6 +43,14 @@
 #______________________________________
 # Add uWSGI section to galaxy.ini file
 
+- name: Copy uwsgi section to galaxy.ini
+  template:
+    src: 'uwsgi.ini.j2'
+    dest: '/tmp/uwsgi.ini'
+
+- name: Copy uwsgi section to galaxy.ini
+  shell: 'cat /tmp/uwsgi.ini >> {{ galaxy_config_file }}'
+
 - name: uWSGI section config
   ini_file:
     dest: '{{ galaxy_config_file }}'
@@ -105,7 +113,7 @@
 - name: if proc==8
   set_fact: 
     galaxy_workers: "8"
-    galaxy_local_slos: "4"
+    galaxy_local_slos: "2"
     galaxy_registered_concurrent_jobs: "2"
   when: ansible_processor_vcpus == "8"
 
@@ -113,81 +121,24 @@
   set_fact: 
     galaxy_workers: "16"
     galaxy_local_slos: "4"
-    galaxy_registered_concurrent_jobs: "4"
+    galaxy_registered_concurrent_jobs: "2"
   when: ansible_processor_vcpus == "16"
 
 - name: if proc==32
   set_fact: 
     galaxy_workers: "32"
-    galaxy_local_slos: "8"
+    galaxy_local_slos: "4"
     galaxy_registered_concurrent_jobs: "4"
   when: ansible_processor_vcpus == "32"
 
 - name: if proc==64
   set_fact: 
     galaxy_workers: "64"
-    galaxy_local_slos: "8"
-    galaxy_registered_concurrent_jobs: "8"
+    galaxy_local_slos: "4"
+    galaxy_registered_concurrent_jobs: "4"
   when: ansible_processor_vcpus == "64"
 
 - name: Copy job_conf configration file
   template:
     src: 'job_conf.xml.j2'
     dest: '{{ galaxy_config_path }}/job_conf.xml'
-
-#______________________________________
-# Job configuration - 6 job handlers
-
-- name: Add server handler 0
-  ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
-  with_items: 
-    - { section: 'server:handler0', option: 'use', value: 'egg:Paste@http' }
-    - { section: 'server:handler0', option: 'port', value: '8090' }
-    - { section: 'server:handler0', option: 'host', value: '127.0.0.1' }
-    - { section: 'server:handler0', option: 'use_threadpool', value: 'true' }
-    - { section: 'server:handler0', option: 'threadpool_workers', value: '5' }
-#---
-- name: Add server handler 1
-  ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
-  with_items: 
-    - { section: 'server:handler1', option: 'use', value: 'egg:Paste@http' }
-    - { section: 'server:handler1', option: 'port', value: '8091' }
-    - { section: 'server:handler1', option: 'host', value: '127.0.0.1' }
-    - { section: 'server:handler1', option: 'use_threadpool', value: 'true' }
-    - { section: 'server:handler1', option: 'threadpool_workers', value: '5' }
-#---
-- name: Add server handler 2
-  ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
-  with_items: 
-    - { section: 'server:handler2', option: 'use', value: 'egg:Paste@http' }
-    - { section: 'server:handler2', option: 'port', value: '8092' }
-    - { section: 'server:handler2', option: 'host', value: '127.0.0.1' }
-    - { section: 'server:handler2', option: 'use_threadpool', value: 'true' }
-    - { section: 'server:handler2', option: 'threadpool_workers', value: '5' }
-#---
-- name: Add server handler 3
-  ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
-  with_items: 
-    - { section: 'server:handler3', option: 'use', value: 'egg:Paste@http' }
-    - { section: 'server:handler3', option: 'port', value: '8093' }
-    - { section: 'server:handler3', option: 'host', value: '127.0.0.1' }
-    - { section: 'server:handler3', option: 'use_threadpool', value: 'true' }
-    - { section: 'server:handler3', option: 'threadpool_workers', value: '5' }
-#---
-- name: Add server handler 4
-  ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
-  with_items: 
-    - { section: 'server:handler4', option: 'use', value: 'egg:Paste@http' }
-    - { section: 'server:handler4', option: 'port', value: '8094' }
-    - { section: 'server:handler4', option: 'host', value: '127.0.0.1' }
-    - { section: 'server:handler4', option: 'use_threadpool', value: 'true' }
-    - { section: 'server:handler4', option: 'threadpool_workers', value: '5' }
-#---
-- name: Add server handler 5
-  ini_file: dest={{galaxy_config_file}} section={{item.section}} option={{item.option}} value={{item.value}}
-  with_items: 
-    - { section: 'server:handler5', option: 'use', value: 'egg:Paste@http' }
-    - { section: 'server:handler5', option: 'port', value: '8095' }
-    - { section: 'server:handler5', option: 'host', value: '127.0.0.1' }
-    - { section: 'server:handler5', option: 'use_threadpool', value: 'true' }
-    - { section: 'server:handler5', option: 'threadpool_workers', value: '5' }
