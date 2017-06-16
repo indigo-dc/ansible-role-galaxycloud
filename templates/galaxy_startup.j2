@@ -18,6 +18,7 @@ cd {{galaxy_install_path}}
 # (supervisord or systemd/upstart)
 
 function start_galaxy {
+
   echo "Starting the Galaxy production environment"
 {% if ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord") %}
   supervisord -c {{ supervisord_conf_path }}/supervisord.conf
