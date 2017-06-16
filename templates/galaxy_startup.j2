@@ -19,18 +19,15 @@ cd {{galaxy_install_path}}
 
 function start_galaxy {
   echo "Starting the Galaxy production environment"
-
-  {% if ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord") %}
+{% if ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord") %}
   supervisord -c {{ supervisord_conf_path }}/supervisord.conf
-  {% else %}
-
-  {% if ansible_os_family == "Debian" and ansible_distribution_version == "14.04" %}
+{% else %}
+{% if ansible_os_family == "Debian" and ansible_distribution_version == "14.04" %}
   service galaxy start
-  {% else %}
+{% else %}
   systemctl start galaxy.service
-  {% endif %}
-
-  {% endif %}
+{% endif %}
+{% endif %}
 
 }
 
