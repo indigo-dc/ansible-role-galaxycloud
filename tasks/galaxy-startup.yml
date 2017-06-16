@@ -1,21 +1,34 @@
 ---
 # Galaxy startup recipe
 
-- name: Copy the startup script
+- name: Copy Galaxy management script
   template:
-    src: 'galaxy_startup.j2'
-    dest: '/usr/local/bin/galaxy-startup'
-    mode: a+x
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+    mode: '{{ item.mode }}'
+  with_items:
+    - { src: 'galaxy_startup.j2', dest: '/usr/local/bin/galaxy-startup', mode: 'a+x' }
+    - { src: 'galaxy_restart.j2', dest: '/usr/local/bin/galaxy-restart', mode: 'a+x' }
   become_user: root
   become_method: sudo
 
-- name: Copy Galaxy restart script
+- name: '[EL/Ubuntu 16.04] Copy systemd scripts'
   template:
-    src: 'galaxy_service.j2'
-    dest: '/usr/local/bin/galaxy-restart'
-    mode: a+x
+    src: 'galaxy.service.j2'
+    dest: '/etc/systemd/system/galaxy.service'
+  when: ansible_os_family == "RedHat" or (ansible_os_family == "Debian" and ansible_distribution_version == "16.04")
   become_user: root
   become_method: sudo
+
+- name: '[Ubuntu 14.04] Copy init.d scripts'
+  template:
+    src: 'galaxy.init.j2'
+    dest: '/etc/init.d/galaxy'
+    mode: a+x
+  when: ansible_os_family == "Debian" and ansible_distribution_version == "14.04"
+  become_user: root
+  become_method: sudo
+
 
 #______________________________________
 # Stop services

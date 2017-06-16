@@ -8,18 +8,24 @@
 #
 ################################################
 
-# Load Galaxy environment
-#echo "Loading Galaxy environment"
-#cd {{galaxy_install_path}}
-#. {{galaxy_venv_path}}/bin/activate
+#______________________________________
+# Define restart function
+# (supervisord or systemd/upstart)
 
-# Define supervisord restart function
 function restart_galaxy {
 
   echo "Restarting the Galaxy production environment"
 
   echo "1. Stop galaxy from supervisord"
+  {% if ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord") %}
   supervisorctl stop galaxy:
+  {% else %}
+  {% if ansible_os_family == "Debian" and ansible_distribution_version == "14.04" %}
+  service galaxy stop
+  {% else %}
+  systemctl stop galaxy.service
+  {% endif %}
+  {% endif %}
 
   echo "2. uWSGI nodes check"
   if [ "$(pidof uwsgi)" ]
@@ -33,10 +39,17 @@ function restart_galaxy {
   fi
 
   echo "3. Start Galaxy"
+  {% if ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord") %}
   supervisorctl start galaxy:
-
+  {% else %}
+  {% if ansible_os_family == "Debian" and ansible_distribution_version == "14.04" %}
+  service galaxy start
+  {% else %}
+  systemctl start galaxy.service
+  {% endif %}
+  {% endif %}
 }
 
-# Start supervisord
+#______________________________________
+# Restart Galaxy production environmen
 restart_galaxy
-

@@ -108,7 +108,12 @@ proftpd_passive_port_low: 30000
 proftpd_passive_port_high: 40000
 
 #______________________________________
-# Supervisord
+# Init system
+# Supported: supervisord, init
+# supervisord ---> Current default, it is mandatory for docker container, since there's no systemd.
+# init ----------> CentOS 7 and Ubuntu 16.04 use systemd, Ubuntu 14.04 is using upstart.
+init_type: 'supervisord'
+
 supervisor_manage_postgres: "False"
 supervisor_manage_nginx: "False"
 supervisor_manage_proftpd: "False"
