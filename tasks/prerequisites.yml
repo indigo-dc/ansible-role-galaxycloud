@@ -28,13 +28,13 @@
     update_cache: yes
   become_user: root
   become_method: sudo
-  when: ansible_os_family == "RedHat" and ansible_version >= "2.3.0.0"
+  when: ansible_os_family == "RedHat" and ansible_version.full >= "2.3.0.0"
 
 -  name: '[EL] Install Development tools group' # This solve broken dependencies on docker indigodatacloud/centos-sshd
    command: 'yum groupinstall -y "Development tools" --skip-broken'
    become_user: root
    become_method: sudo
-   when: ansible_os_family == "RedHat" and ansible_version < "2.3.0.0"
+   when: ansible_os_family == "RedHat" and ansible_version.full < "2.3.0.0"
 
 #______________________________________
 # Ubuntu 14.04 and 16.04
