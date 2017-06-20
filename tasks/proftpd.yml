@@ -1,12 +1,13 @@
 ---
 # Proftpd installation and configuration recipe
 
-#---
+#______________________________________-
 # CentOS 7
 
-- name: Install proftpd
-  yum: name={{item}}
-       state=present
+- name: '[EL] Install proftpd'
+  yum:
+    name: '{{ item }}'
+    state: present
   with_items:
     - proftpd
     - proftpd-postgresql
@@ -14,13 +15,14 @@
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
-#---
-# Ubuntu 14.04
+#______________________________________
+# Ubuntu
 # On Ubuntu Proftpd service is started by default after installation. It needs to be restarted after the configuration.
 
-- name: Install proftpd
-  apt: name={{item}}
-       state=present
+- name: '[Ubuntu] Install proftpd'
+  apt:
+    name: '{{ item }}'
+    state: present
   with_items:
     - proftpd
     - proftpd-mod-pgsql
@@ -28,42 +30,58 @@
   become_method: sudo
   when: ansible_os_family == "Debian"
 
-#---
+#______________________________________
 # Stop service before configuration
+
 - name: Stop Proftpd server
-  service: name=proftpd state=stopped enabled=no
+  service:
+    name: proftpd
+    state: stopped
+    enabled: no
   become_user: root
   become_method: sudo
   ignore_errors: yes
 
-#########################################################
-# Install and configure Proftpd
+#______________________________________
+# Cconfigure Proftpd
 
 - name: Create proftpd db random passwd
   command: "/usr/local/bin/pwd-generator -l 20"
   register: proftpd_db_passwd
 
 - name: Set proftpd configuration file path on Ubuntu
-  set_fact: proftpd_conf_path="/etc/proftpd/proftpd.conf"
+  set_fact:
+    proftpd_conf_path: '/etc/proftpd/proftpd.conf'
   when: ansible_os_family == "Debian"
 
 - name: Copy the proftpd configuration file
-  template: src=proftpd.conf.j2 dest={{proftpd_conf_path}}
+  template:
+    src: 'proftpd.conf.j2'
+    dest: '{{ proftpd_conf_path }}'
   become_user: root
   become_method: sudo
 
 - name: Create proftpd db user
-  postgresql_user: db=galaxy
-                   name={{proftpd_db_user}}
-                   password={{proftpd_db_passwd.stdout}}
-                   priv=galaxy_user:ALL
+  postgresql_user:
+    db: 'galaxy'
+    name: '{{ proftpd_db_user }}'
+    password: '{{ proftpd_db_passwd.stdout }}'
+    priv: galaxy_user:ALL
   become_user: postgres
   become_method: sudo
 
 - name: Set ip address | vm
-  ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_site value="{{ ansible_default_ipv4.address }}"
+  ini_file:
+    dest: '{{ galaxy_config_file }}'
+    section: 'app:main'
+    option: 'ftp_upload_site'
+    value: '{{ ansible_default_ipv4.address }}'
   when: ansible_virtualization_type != "docker"
 
 - name: Set ip address | docker
-  ini_file: dest={{galaxy_config_file}} section="app:main" option=ftp_upload_site value="indigo-dc.galaxycloud docker by elixir-italy.org"
+  ini_file:
+    dest: '{{ galaxy_config_file }}'
+    section: 'app:main'
+    option: ftp_upload_site
+    value: "indigo-dc.galaxycloud docker by elixir-italy.org"
   when: ansible_virtualization_type == "docker"

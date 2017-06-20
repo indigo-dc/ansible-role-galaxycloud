@@ -1,60 +1,88 @@
 ---
 # Galaxy startup recipe
 
-- name: Copy the startup script
-  template: src=galaxy_startup.j2 dest=/usr/bin/galaxy-startup mode=a+x
+- name: Copy Galaxy management script
+  template:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+    mode: '{{ item.mode }}'
+  with_items:
+    - { src: 'galaxy_startup.j2', dest: '/usr/local/bin/galaxy-startup', mode: 'a+x' }
+    - { src: 'galaxy_restart.j2', dest: '/usr/local/bin/galaxy-restart', mode: 'a+x' }
   become_user: root
   become_method: sudo
 
-- name: Copy Galaxy restart script
-  template: src=galaxy_service.j2 dest=/usr/bin/galaxy-restart mode=a+x
+- name: '[EL/Ubuntu 16.04] Copy systemd scripts'
+  template:
+    src: 'galaxy.service.j2'
+    dest: '/etc/systemd/system/galaxy.service'
+  when: ansible_os_family == "RedHat" or (ansible_os_family == "Debian" and ansible_distribution_version == "16.04")
   become_user: root
   become_method: sudo
 
-#########################################################
+- name: '[Ubuntu 14.04] Copy init.d scripts'
+  template:
+    src: 'galaxy.init.j2'
+    dest: '/etc/init.d/galaxy'
+    mode: a+x
+  when: ansible_os_family == "Debian" and ansible_distribution_version == "14.04"
+  become_user: root
+  become_method: sudo
+
+
+#______________________________________
 # Stop services
 
-#---
-# CentOs 7
-
-- name: Stop PostgreSQL server on CentOS
-  shell: "{{pg_ctl_path}}/pg_ctl -D {{pgsql_pgdata}} stop" # the pg_ctl_path variable is defined in task/postgresql.yml
-  become: True
+- name: '[EL] Stop PostgreSQL server'
+  shell: '/usr/pgsql-{{ postgresql_version }}/bin/pg_ctl -D {{ postgresql_pgdata }} stop'
+  become: yes
   become_user: postgres
   when: ansible_os_family == "RedHat"
 
-#---
-# Ubuntu 14.04
+- name: '[Ubuntu 16.04] Stop PostgreSQL server'
+  shell: '/usr/lib/postgresql/{{ postgresql_version }}/bin/pg_ctl -D /etc/postgresql/{{ postgresql_version }}/main stop'
+  become: yes
+  become_user: postgres
+  when: ansible_os_family == "Debian" and ansible_distribution_version == "16.04"
 
-- name: Stop PostgreSQL server on Ubuntu
-  service: name=postgresql state=stopped enabled=no
+- name: '[Ubuntu 14.04] Stop PostgreSQL server'
+  shell: '/etc/init.d/postgresql stop'
   become_user: root
   become_method: sudo
-  when: ansible_os_family == "Debian"
+  when: ansible_os_family == "Debian" and ansible_distribution_version == "14.04" 
 
-#########################################################
+#______________________________________
 # Start Galaxy on VM
 
-- name: Enable and start PostgreSQL server | vm
-  service: name=postgresql enabled=yes state=started
+- name: '[VM] Enable and start PostgreSQL server'
+  service:
+    name: '{{ postgresql_service_name }}'
+    enabled: yes
+    state: started
   become_user: root
   become_method: sudo
   when: supervisor_manage_postgres == "False"
 
-- name: Enable and start NGINX server | vm
-  service: name=nginx state=started enabled=yes
+- name: '[VM] Enable and start NGINX server'
+  service:
+    name: nginx
+    state: started
+    enabled: yes
   become_user: root
   become_method: sudo
   when: supervisor_manage_nginx == "False"
 
-- name: Enable and start the proftpd server | vm
-  service: name=proftpd enabled=yes state=started
+- name: '[VM] Enable and start the proftpd server'
+  service:
+    name: proftpd
+    enabled: yes
+    state: started
   become_user: root
   become_method: sudo
   when: supervisor_manage_proftpd == "False"
 
-- name: Start Galaxy | vm
-  command: "/usr/bin/galaxy-startup"
+- name: '[VM] Start Galaxy'
+  command: "/usr/local/bin/galaxy-startup"
   become_user: root
   become_method: sudo
   when: ansible_virtualization_type != "docker"

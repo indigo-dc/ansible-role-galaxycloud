@@ -1,12 +1,12 @@
 ---
 # Prerequisites installation recipe
 # Install OS dependencies, create directories, logrotate and password generator installation.
-# Compatible with CentOS 7, Ubuntu 14.04
+# Compatible with CentOS 7, Ubuntu 16.04 and 14.04
 
 #______________________________________
 # CentOS 7
 
-- name: Install CentOS7 packages
+- name: '[EL] Install packages'
   yum:
     name: '{{ item }}'
     state: present
@@ -20,7 +20,7 @@
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
-- name: Install the 'Development tools' package group
+- name: '[EL] Install the Development tools package group'
   yum:
     name: "@Development tools"
     state: latest
@@ -28,18 +28,18 @@
     update_cache: yes
   become_user: root
   become_method: sudo
-  when: ansible_os_family == "RedHat" and ansible_version >= "2.3.0.0"
+  when: ansible_os_family == "RedHat" and ansible_version.full >= "2.3.0.0"
 
--  name: Install Development tools group # This solve broken dependencies on docker indigodatacloud/centos-sshd
+-  name: '[EL] Install Development tools group' # This solve broken dependencies on docker indigodatacloud/centos-sshd
    command: 'yum groupinstall -y "Development tools" --skip-broken'
    become_user: root
    become_method: sudo
-   when: ansible_os_family == "RedHat" and ansible_version < "2.3.0.0"
+   when: ansible_os_family == "RedHat" and ansible_version.full < "2.3.0.0"
 
 #______________________________________
-# Ubuntu 14.04
+# Ubuntu 14.04 and 16.04
 
-- name: Install Ubuntu packages
+- name: '[Ubuntu] Install packages'
   apt:
     name: '{{ item }}'
     state: present
@@ -64,17 +64,18 @@
   command: 'pip --version'
   ignore_errors: true
   changed_when: false # read-only task
-  check_mode: no
   register: pip_is_installed
 
-- yum:
+- name: '[EL] install pip'
+  yum:
     name: 'python-pip'
     state: present
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat" and pip_is_installed.rc != 0
 
-- apt:
+- name: '[Ubuntu] Install pip'
+  apt:
     name: 'python-pip'
     state: present
   become_user: root

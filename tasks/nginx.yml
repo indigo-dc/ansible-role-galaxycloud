@@ -1,20 +1,19 @@
 ---
 # NGINX installation and configuration recipe
 
-#---
+#______________________________________
 # CentOS 7
-# Modifications to the EPEL (CentOS7) nginx package to add the upload (and possibly other) module(s).
-# The package is built for CentOS 7.
 
-- name: Add NGINX centos repository
+- name: '[EL] Add NGINX repository'
   command: 'yum-config-manager --add-repo https://depot.galaxyproject.org/yum/galaxy.repo'
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
-- name: Install NGINX on centos
-  yum: name={{ item }}
-       state=present
+- name: '[EL] Install NGINX'
+  yum:
+    name: '{{ item }}'
+    state: present
   with_items:
     - openssl-devel
     - pcre-devel
@@ -23,35 +22,51 @@
   become_method: sudo
   when: ansible_os_family == "RedHat"
 
-#---
-# Ubuntu 14.04
-# On Ubuntu NGINX service is started by default after installation. It needs to be restarted after the configuration.
+#______________________________________
+# Ubuntu
+# On Ubuntu NGINX service is started by default after installation.
+# It needs to be restarted after the configuration.
 
-- name: Add NGINX Ubuntu repository
-  apt_repository: repo='ppa:galaxyproject/nginx'
+- name: '[Ubuntu] Add NGINX repository'
+  apt_repository:
+    repo: 'ppa:galaxyproject/nginx'
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
 
-- name: Install NGINX on Ubuntu
-  apt: name={{item}}
-       state=present
+- name: '[Ubuntu] Prevent nginx update from Ubuntu repository'
+  copy:
+    src: 'galaxyproject-nginx-pin-700'
+    dest: '/etc/apt/preferences.d/'
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "Debian"
+
+- name: '[Ubuntu] Install NGINX'
+  apt:
+    name: '{{ item }}'
+    state: present
+    update_cache: yes
   with_items:
-    - nginx-extras=1.4.6-1ubuntu3.4ppa1
-    - nginx-common=1.4.6-1ubuntu3.4ppa1
+    - nginx
+    - nginx-extras
+    #- nginx-extras=1.4.6-1ubuntu3.4ppa1
+    #- nginx-common=1.4.6-1ubuntu3.4ppa1
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
 
-#---
 # Stop NGINX before configuration
 - name: Stop NGINX server
-  service: name=nginx state=stopped enabled=no
+  service:
+    name: 'nginx'
+    state: stopped
+    enabled: no
   become_user: root
   become_method: sudo
   ignore_errors: yes
 
-#########################################################
+#______________________________________
 # NGINX configuration
 
 # /etc/nginx/nginx.conf configuration
@@ -60,21 +75,30 @@
   include_vars: nginx_vars.yml
 
 - name: Copy the NGINX configuration file
-  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
+  template:
+    src: 'nginx.conf.j2'
+    dest: '/etc/nginx/nginx.conf'
   become_user: root
   become_method: sudo
 
+#______________________________________
 # NGINX configuration in galaxy.ini
 
 - name: Edit galaxy.ini
-  ini_file: dest={{galaxy_config_file}} section={{ item.section }} option={{ item.option }} value="{{ item.value }}"
+  ini_file:
+    dest: '{{ galaxy_config_file }}'
+    section: '{{ item.section }}'
+    option: '{{ item.option }}'
+    value: '{{ item.value }}'
   with_items:
     - { section: 'app:main', option: 'filter-with', value: "proxy-prefix" }
     - { section: 'app:main', option: 'cookie_path', value: "/galaxy" }
-    - { section: 'app:main', option: 'nginx_upload_store', value: "{{nginx_upload_store_path}}" }
+    - { section: 'app:main', option: 'nginx_upload_store', value: "{{ nginx_upload_store_path }}" }
     - { section: 'app:main', option: 'nginx_upload_path', value: "/galaxy/_upload" }
     - { section: 'app:main', option: 'nginx_x_accel_redirect_base', value: "/_x_accel_redirect" }
     - { section: 'app:main', option: 'nginx_x_archive_files_base', value: "/_x_accel_redirect" }
 
 - name: Create NGINX upload_store dir
-  file: state=directory path={{nginx_upload_store_path}}
+  file:
+    path: '{{ nginx_upload_store_path }}'
+    state: directory

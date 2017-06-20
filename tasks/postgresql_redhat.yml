@@ -1,0 +1,73 @@
+---
+# CentOS 7
+#
+# https://wiki.postgresql.org/wiki/YUM_Installation
+#
+# On CentOS 7 the default pgdata directory is /var/lib/pgsql/{{ postgresql_version }}/data. CentOS 7 uses Systemd as init system.
+# But it works only on VMs, therefore we use pg_ctl to start it on docker containers.
+# The database cluster needs to be created via initdb command and started. The database configuration has to be modified, too.
+# We use pg_ctl command to init and start the service. PostgreSQl will be stopped in the galaxy-startup recipe.
+
+- name: '[EL] Include vars'
+  include_vars: postgresql_redhat.yml
+
+- name: '[EL] exclude CentOS base and updates repo for postgresql, otherwise dependencies might resolve to the postgresql supplied by the base repository'
+  ini_file:
+    dest: '/etc/yum.repos.d/CentOS-Base.repo'
+    section: '{{ item.section }}'
+    option: '{{ item.option }}'
+    value: '{{ item.value }}'
+  with_items:
+    - { section: 'base', option: 'exclude', value: 'postgresql*' }
+    - { section: 'updates', option: 'exclude', value: 'postgresql*' }
+
+- name: '[EL] Copy parse_repo script'
+  template:
+    src: 'parse_repo.py.j2'
+    dest: '/tmp/parse_repo.py'
+    mode: a+x
+
+- name: '[EL] Search centos {{ postgresql_version }} repository release'
+  command: 'python /tmp/parse_repo.py -v {{ postgresql_version }} -u {{ postgresql_yum_repository_url }} -d {{ postgresql_pgdg_dist }}'
+  register: postgresql_yum_repository_name
+
+- name: '[EL] Install repository'
+  yum:
+    name: '{{ postgresql_yum_repository_url }}/{{ postgresql_yum_repository_name.stdout }}'
+    state: present
+
+- name: '[EL] Install postgresql {{ postgresql_version }}'
+  yum:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - 'postgresql{{ postgresql_version_terse }}-server'
+    - python-psycopg2
+
+- name: '[EL] Ensure pgdata directory not exists'
+  stat: path={{ postgresql_pgdata }}/base
+  register: pgdata_stat
+  failed_when: false
+
+- name: '[EL] PostgreSQL initdb creates a new database cluster'
+  shell: "/usr/pgsql-{{ postgresql_version }}/bin/pg_ctl -D {{ postgresql_pgdata }} initdb"
+  become: yes
+  become_user: postgres
+  when: pgdata_stat.stat.isdir is not defined or not pgdata_stat.stat.isdir
+
+- name: '[EL] Edit pg_hba.conf IPv4 local connections'
+  replace:
+    dest: '{{ postgresql_pgdata }}/pg_hba.conf'
+    regexp: 'host    all             all             127.0.0.1/32            ident'
+    replace: 'host    all             all             127.0.0.1/32            md5'
+
+- name: '[EL] Edit pg_hba.conf IPv6 local connections'
+  replace:
+    dest: '{{ postgresql_pgdata }}/pg_hba.conf'
+    regexp: 'host    all             all             ::1/128                 ident'
+    replace: 'host    all             all             ::1/128                 md5'
+
+- name: '[EL] Start PostgreSQL server'
+  shell: '/usr/pgsql-{{ postgresql_version }}/bin/pg_ctl -D {{ postgresql_pgdata }} -w start'
+  become: yes
+  become_user: postgres
