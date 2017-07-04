@@ -15,8 +15,9 @@
 
 - name: '[Ubuntu] Install pgdg package signing key'
   apt_key:
-    keyserver: pgp.mit.edu
+    url: 'https://www.postgresql.org/media/keys/ACCC4CF8.asc'
     id: ACCC4CF8
+    state: present
 
 - name: '[Ubuntu] Install repository'
   apt_repository:
