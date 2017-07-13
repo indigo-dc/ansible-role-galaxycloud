@@ -137,8 +137,8 @@ class UwsgiStatsServer:
       workers_id = workers.get('id')
       workers_status = workers.get('accepting')
       workers_pid = workers.get('pid')
-      #print workers_pid
-      #print workers_status
+      print workers_pid
+      print workers_status
       if workers_status == 1:
         return True
       

@@ -13,6 +13,7 @@
 ## Uncomment and edit this line to refer to galaxy's path:
 GALAXY='{{ galaxy_install_path }}'
 GALAXYCTL='/usr/local/bin'
+timeout=600
 
 #______________________________________
 # Load Galaxy environment
@@ -42,7 +43,7 @@ function start_galaxy {
 
   # Check if galaxy is started and wait for uwsgi workers accepting requests.
   echo "Galaxy is starting"
-  python $GALAXYCTL/galaxyctl galaxy-startup -c $GALAXY/config/galaxy.ini -t 300
+  python $GALAXYCTL/galaxyctl galaxy-startup -c $GALAXY/config/galaxy.ini -t 600
 }
 
 #______________________________________
