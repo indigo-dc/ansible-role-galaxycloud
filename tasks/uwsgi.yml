@@ -71,13 +71,13 @@
     - { section: 'uwsgi', option: 'harakiri', value: '{{ uwsgi_harakiri_value }}' }
     - { section: 'uwsgi', option: 'buffer-size', value: '{{ uwsgi_buffer_size }}' }
 
-- name: if proc<=2
+- name: if proc==1
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: 'uwsgi'
     option: 'processes'
-    value: '2'
-  when: ansible_processor_vcpus <= 2
+    value: '1'
+  when: ansible_processor_vcpus == 1
 
 - name: if proc>8
   ini_file:
