@@ -42,7 +42,7 @@ function start_galaxy {
 
   # Check if galaxy is started and wait for uwsgi workers accepting requests.
   echo "Galaxy is starting"
-  python $GALAXYCTL/galaxyctl.py galaxy-startup -c $GALAXY/config/galaxy.ini -t 300
+  python $GALAXYCTL/galaxyctl galaxy-startup -c $GALAXY/config/galaxy.ini -t 300
 }
 
 #______________________________________
