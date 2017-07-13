@@ -10,7 +10,7 @@
     - { src: 'galaxy_startup.j2', dest: '/usr/local/bin/galaxy-startup', mode: 'a+x' }
     - { src: 'galaxy_restart.j2', dest: '/usr/local/bin/galaxy-restart', mode: 'a+x' }
     - { src: 'galaxyctl.py.j2', dest: '/usr/local/bin/galaxyctl', mode: 'a+x' }
-    - { src: 'galaxyctl_libs.j2', dest: '/usr/local/bin/galaxyctl_libs.py', mode: 'a+x' }
+    - { src: 'galaxyctl_libs.py.j2', dest: '/usr/local/bin/galaxyctl_libs.py', mode: 'a+x' }
   become_user: root
   become_method: sudo
 
