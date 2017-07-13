@@ -23,6 +23,9 @@ try:
 except ImportError:
   import configparser
 
+import logging
+logging.basicConfig(filename='{{ galaxy_log_path }}/galaxyctl.log', format='%(levelname)s %(asctime)s %(message)s', level=logging.DEBUG)
+
 
 ####################################
 
@@ -63,11 +66,18 @@ class UwsgiStatsServer:
         self.par = configParser.get(section , option)
         self.server = self.par.split(':')[0]
         self.port = int(self.par.split(':')[1])
+      else:
+        raise Exception('No [uwsgi] section in %s' % fname)
 
   #______________________________________
   def GetUwsgiStatsServer(self):
 
+    logging.debug('galaxy_libs.GetUwsgiStatsServer()')
+    logging.debug('Waiting Galaxy stats server')
+    logging.debug('Timeout: %s' % self.timeout)
+
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
     if self.timeout:
         from time import time as now
         # time module is needed to calc timeout shared between two exceptions
@@ -95,7 +105,7 @@ class UwsgiStatsServer:
         if type(err.args) != tuple or err[0] != errno.ETIMEDOUT:
           pass
       else:
-        #self.socket = s
+        logging.debug('Stats server enabled on: %s:%s' % (self.server, self.port))
         return s
 
   #______________________________________
@@ -115,8 +125,8 @@ class UwsgiStatsServer:
     if configParser.has_option(section, option):
       self.par = configParser.get(section , option)
     else:
-      print 'Section [' + section + '] not enabled!'
-      return
+      logging.debug('No [%s] section in %s' % (section, fname))
+      return False
 
     return self.par
 
@@ -127,21 +137,29 @@ class UwsgiStatsServer:
     if fname is not None:
       self.fname = fname
 
+    logging.debug('galaxyctl_libs.CheckUwsgiWorkers(fname=%s)' % fname)
+
     uwsgi_processes = self.ReadUwsgiIniFile(fname, 'uwsgi', 'processes')
-    #print 'uwsgi processes: ' + str(uwsgi_processes)
+    if uwsgi_processes is False:
+      return False
+    else:
+      logging.debug('uWSGI processes: %s' % uwsgi_processes)
 
     stats_json = self.GetStatsJson()
     stats_dictionary = json.loads(stats_json)
+
+    logging.debug('Check uWSGI workers status')
 
     for workers in stats_dictionary['workers']:
       workers_id = workers.get('id')
       workers_status = workers.get('accepting')
       workers_pid = workers.get('pid')
-      print workers_pid
-      print workers_status
+      logging.debug('Worker pid: %s' % workers_pid)
+      logging.debug('Worker status: %s' %workers_status)
       if workers_status == 1:
         return True
-      
+
+    logging.debug('No uWSGI workers accepting requests')
     return False
 
   #______________________________________
@@ -150,11 +168,14 @@ class UwsgiStatsServer:
     if fname is not None:
       self.fname = fname
 
+    logging.debug('galaxyctl_libs.GetBusyList(fname=%s)' % fname)
+
     busy_list = []
 
     # Get uwsgi workers number
     uwsgi_processes = self.ReadUwsgiIniFile(self.fname, 'uwsgi', 'processes')
 
+    logging.debug('Wait Galaxy stats server on %s:%s' % (self.server, self.port))
     stats = self.GetUwsgiStatsServer()
 
     if stats:
@@ -168,4 +189,5 @@ class UwsgiStatsServer:
         if workers_status == 0:
           busy_list.append(workers_pid)
 
+      logging.debug('Busy list: %s' % busy_list)
       return busy_list
