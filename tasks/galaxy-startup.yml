@@ -104,7 +104,7 @@
   when: ansible_virtualization_type != "docker"
 
 - name: '[VM] Start Galaxy'
-  command: "/usr/local/bin/galaxy-startup"
+  shell: "/usr/local/bin/galaxy-startup >> /tmp/galaxy-startup.log"
   become_user: root
   become_method: sudo
   when: ansible_virtualization_type != "docker"
