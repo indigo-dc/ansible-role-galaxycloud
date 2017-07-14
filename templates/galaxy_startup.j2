@@ -28,7 +28,7 @@ cd ${GALAXY}
 function start_galaxy {
   
   echo "Starting the Galaxy production environment"
-  python $GALAXYCTL/galaxyctl galaxy-startup -c {{ galaxy_config_file }} -t 600
+  python $GALAXYCTL/galaxyctl startup galaxy -c {{ galaxy_config_file }} -t 600
 
 }
 
