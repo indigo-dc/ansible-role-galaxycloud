@@ -2,7 +2,7 @@
 # Create directories
 
 - set_fact:
-    export_dir: /home/galaxy
+    export_dir: '/home/export'
   when: galaxy_lrms == "slurm"
 
 - name: Create directories
