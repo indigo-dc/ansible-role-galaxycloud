@@ -29,4 +29,3 @@ nginx_default_vhost_path: /etc/nginx/conf.d/default.conf
 
 nginx_proxy_read_timeout: '600'
 nginx_uwsgi_read_timeout: '300'
-

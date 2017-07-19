@@ -66,7 +66,10 @@
     - { section: 'uwsgi', option: 'pythonhome', value: '{{ galaxy_venv_path }}' }
     - { section: 'uwsgi', option: 'threads', value: '{{ uwsgi_threads }}' }
     - { section: 'uwsgi', option: 'logto', value: '{{ uwsgi_errorlog }}' }
+    - { section: 'uwsgi', option: 'single-interpreter', value: '{{ uwsgi_single_interpreter }}' }
+    - { section: 'uwsgi', option: 'thunder-lock', value: '{{ uwsgi_thunder_lock }}' }
     - { section: 'uwsgi', option: 'harakiri', value: '{{ uwsgi_harakiri_value }}' }
+    - { section: 'uwsgi', option: 'buffer-size', value: '{{ uwsgi_buffer_size }}' }
 
 - name: if proc==1
   ini_file:

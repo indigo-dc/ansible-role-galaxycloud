@@ -63,17 +63,13 @@ GALAXY_ADMIN_EMAIL: "admin@server.com"
 # Galaxy userdata are stored here
 export_dir: "/export"
 
-# Galaxy reference data are stored here
-#refdata_dir: "/refdata" # FIXME This is our default. The commit should be reverted and the path should be fixed for SLURM clusters.
-refdata_dir: "/refdata"
-
 # Tool dependency directory
 tool_deps_path: "{{ export_dir }}/tool_deps"
 
 # Enable Conda
 use_conda: true
 job_work_dir: "{{ export_dir }}/job_work_dir" # From galaxy.ini: IMPORTANT: Due to a current limitation in conda, the total length of the conda_prefix and the job_working_directory path should be less than 50 characters!
-conda_prefix: "{{ tool_deps_path }}/_conda"
+conda_prefix: "{{ export_dir }}/_conda"
 conda_channels: "defaults,conda-forge,r,bioconda,iuc"
 
 # Update UCSC genome database

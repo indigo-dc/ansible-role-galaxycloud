@@ -19,4 +19,7 @@ galaxy_unregistered_concurrent_jobs: 0
 
 #---
 # uwsgi performance/robustness features
+uwsgi_single_interpreter: true
+uwsgi_thunder_lock: true
 uwsgi_harakiri_value: 600
+uwsgi_buffer_size: 16384

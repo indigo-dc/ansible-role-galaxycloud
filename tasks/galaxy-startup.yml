@@ -9,6 +9,8 @@
   with_items:
     - { src: 'galaxy_startup.j2', dest: '/usr/local/bin/galaxy-startup', mode: 'a+x' }
     - { src: 'galaxy_restart.j2', dest: '/usr/local/bin/galaxy-restart', mode: 'a+x' }
+    - { src: 'galaxyctl.py.j2', dest: '/usr/local/bin/galaxyctl', mode: 'a+x' }
+    - { src: 'galaxyctl_libs.py.j2', dest: '/usr/local/bin/galaxyctl_libs.py', mode: 'a+x' }
   become_user: root
   become_method: sudo
 
@@ -28,7 +30,6 @@
   when: ansible_os_family == "Debian" and ansible_distribution_version == "14.04"
   become_user: root
   become_method: sudo
-
 
 #______________________________________
 # Stop services
@@ -63,6 +64,13 @@
   become_method: sudo
   when: supervisor_manage_postgres == "False"
 
+- name: '[VM] Wait PostgreSQL is up'
+  wait_for:
+    host: 0.0.0.0
+    port: '{{ galaxy_db_port }}'
+    timeout: 10
+  when: ansible_virtualization_type != "docker"
+
 - name: '[VM] Enable and start NGINX server'
   service:
     name: nginx
@@ -71,6 +79,13 @@
   become_user: root
   become_method: sudo
   when: supervisor_manage_nginx == "False"
+
+- name: '[VM] Wait NGINX is up'
+  wait_for:
+    host: 0.0.0.0
+    port: 80
+    timeout: 10
+  when: ansible_virtualization_type != "docker"
 
 - name: '[VM] Enable and start the proftpd server'
   service:
@@ -81,8 +96,15 @@
   become_method: sudo
   when: supervisor_manage_proftpd == "False"
 
+- name: '[VM] Wait proftpd is up'
+  wait_for:
+    host: 0.0.0.0
+    port: '{{ proftpd_ftp_port }}'
+    timeout: 10
+  when: ansible_virtualization_type != "docker"
+
 - name: '[VM] Start Galaxy'
-  command: "/usr/local/bin/galaxy-startup"
+  shell: "/usr/local/bin/galaxy-startup >> /tmp/galaxy-startup.log"
   become_user: root
   become_method: sudo
   when: ansible_virtualization_type != "docker"
