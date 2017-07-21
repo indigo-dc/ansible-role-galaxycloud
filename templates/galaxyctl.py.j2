@@ -87,7 +87,7 @@ def stop_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini'):
     kill_command = 'kill -9 %s' % (' '.join( repr(e) for e in busy_list))
     os.system(kill_command)
 
-  print bcolors.status_ok
+  print 'Galaxy stop: ' + bcolors.status_ok
 
 #______________________________________
 def start_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=300, force_start=False):
@@ -156,7 +156,7 @@ def galaxy_workers_check(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_
 #______________________________________
 def galaxy_startup_check(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=300):
   
-  logging.debug('[galaxyctl] Galaxy wokers check with forced restart if all workers busy.')
+  logging.debug('[galaxyctl] Galaxy workers check with forced restart if all workers busy.')
 
   stats = UwsgiStatsServer(timeout=wait_time, fname=ini_file)
   server = stats.GetUwsgiStatsServer()
