@@ -20,6 +20,9 @@ from galaxyctl_libs import bcolors
 
 galaxy_config_file = '{{ galaxy_config_file }}'
 
+import logging
+logging.basicConfig(filename='/var/log/galaxy/galaxyctl.log', format='%(levelname)s %(asctime)s %(message)s', level=logging.DEBUG)
+
 #______________________________________
 def cli_options():
   parser = argparse.ArgumentParser(description='Onedata connection script')
@@ -50,18 +53,34 @@ def startup_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=6
   time.sleep(10)
 
   # Check uWSGI workers
-  galaxy_workers_check(ini_file, wait_time)
+  workers_check = galaxy_workers_check(ini_file, wait_time)
 
   # Force restart if all workers busy
-  galaxy_startup_check(ini_file, wait_time)
+  if workers_check is True:
+    print 'Galaxy start: ' + bcolors.status_ok
+    return
+  elif workers_check is False:
+    galaxy_startup_check(ini_file, wait_time)
+  else:
+    sys.exit('[Error] Start failed. Check log files!')
 
 #______________________________________
 def stop_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini'):
 
+  logging.debug('[galaxyctl] Stop Galaxy')
+
   stats = UwsgiStatsServer(timeout=5, fname=ini_file)
   busy_list = stats.GetBusyList()
 
+{% if ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord") %}
   os.system('supervisorctl stop galaxy:')
+{% else %}
+{% if ansible_os_family == "Debian" and ansible_distribution_version == "14.04" %}
+  os.system('service galaxy stop')
+{% else %}
+  os.system('systemctl stop galaxy.service')
+{% endif %}
+{% endif %}
 
   if busy_list:
     print busy_list
@@ -73,26 +92,42 @@ def stop_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini'):
 #______________________________________
 def start_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=300, force_start=False):
 
+  logging.debug('[galaxyctl] Start Galaxy')
+
+{% if ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord") %}
   os.system('supervisorctl start galaxy:')
+{% else %}
+{% if ansible_os_family == "Debian" and ansible_distribution_version == "14.04" %}
+  os.system('service galaxy start')
+{% else %}
+  os.system('systemctl start galaxy.service')
+{% endif %}
+{% endif %}
 
   # Wait Galaxy start
-  galaxy_workers_check(ini_file, wait_time)
+  workers_check = galaxy_workers_check(ini_file, wait_time)
 
-  # Try to restart Galaxy 5 times before error
-  if force_start is True:
+  if workers_check is True:
+    print 'Galaxy start: ' + bcolors.status_ok
+    return
+  elif workers_check is False and force_start is True:
+    # Try to restart Galaxy 5 times before error
     galaxy_startup_check(ini_file, wait_time)
+  else:
+    sys.exit('[Error] Start failed. Check log files!')
 
 #______________________________________
 # Check uWSGI workers 5 times before error
 
 def galaxy_workers_check(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=300):
 
+  logging.debug('[galaxyctl] UWSGI workers check')
+
   # Wait Galaxy start
   stats = UwsgiStatsServer(timeout=wait_time, fname=ini_file)
   socket = stats.GetUwsgiStatsServer()
   if socket is False:
-    print bcolors.status_fail
-    return
+    return False
   else:
     socket.close()
 
@@ -103,26 +138,26 @@ def galaxy_workers_check(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_
   status = stats.CheckUwsgiWorkers(ini_file)
 
   if status is True:
-    print bcolors.status_ok
-    return
+    return True
 
   # check workers 5 times before raise error
   retries = 0
   while status is False:
+    logging.debug('[galaxyctl] UWSGI workers retry: %s' % str(retries))
     time.sleep(2)
     status = stats.CheckUwsgiWorkers(ini_file)
     retries += 1
     if status is True:
       print bcolors.status_ok
-      break
+      return True
     if retries == 5:
-      sys.exit('[Error] Start failed. Check log files!')
-      print bcolors.status_fail
-      break
+      return False
 
 #______________________________________
 def galaxy_startup_check(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=300):
   
+  logging.debug('[galaxyctl] Galaxy wokers check with forced restart if all workers busy.')
+
   stats = UwsgiStatsServer(timeout=wait_time, fname=ini_file)
   server = stats.GetUwsgiStatsServer()
 
@@ -131,19 +166,20 @@ def galaxy_startup_check(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_
   status = stats.CheckUwsgiWorkers(ini_file)
   while status is False:
     time.sleep(5) # pause to let workers accept requests
+    logging.debug('[galaxyctl] Galaxy restart retry: %s' % str(retries))
     restart_galaxy()
     status = stats.CheckUwsgiWorkers(ini_file)
     retries += 1
     if status is True:
-      print 'Workers check: ' + bcolors.status_ok
       break
     if retries == 5:
       sys.exit('[Error] Start failed. Check log files!')
-      print bcolors.status_fail
-      break
 
 #______________________________________
 def restart_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=300, force_start=False):
+  
+  logging.debug('[galaxyctl] Restart Galaxy')
+
   stop_galaxy(ini_file)
 
   # Try to restart Galaxy 5 times before error
