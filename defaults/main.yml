@@ -81,9 +81,14 @@ use_pbkdf2: true
 
 #______________________________________
 # Postgres database details
+skip_postgresql: false
 postgresql_version: '9.6'
 galaxy_db_dir: "{{export_dir}}/galaxy/database"
 galaxy_db_port: 5432
+galaxy_db_passwd: 'galaxy'
+galaxy_database_connection: 'postgresql://{{ galaxy_user }}:{{ galaxy_db_passwd.stdout }}@localhost:{{ galaxy_db_port }}/{{ galaxy_user }}'
+galaxy_install_database_connection: 'postgresql://{{ galaxy_user }}:{{ galaxy_db_passwd.stdout }}@localhost:{{ galaxy_db_port }}/galaxy_tools'
+set_pgsql_random_password: true
 
 #______________________________________
 # NGINX
