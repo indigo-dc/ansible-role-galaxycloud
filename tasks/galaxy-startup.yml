@@ -55,56 +55,56 @@
 #______________________________________
 # Start Galaxy on VM
 
-- name: '[VM] Enable and start PostgreSQL server'
-  service:
-    name: '{{ postgresql_service_name }}'
-    enabled: yes
-    state: started
-  become_user: root
-  become_method: sudo
-  when: supervisor_manage_postgres == "False"
+#- name: '[VM] Enable and start PostgreSQL server'
+#  service:
+#    name: '{{ postgresql_service_name }}'
+#    enabled: yes
+#    state: started
+#  become_user: root
+#  become_method: sudo
+#  when: supervisor_manage_postgres == "False"
 
-- name: '[VM] Wait PostgreSQL is up'
-  wait_for:
-    host: 0.0.0.0
-    port: '{{ galaxy_db_port }}'
-    timeout: 10
-  when: ansible_virtualization_type != "docker"
+#- name: '[VM] Wait PostgreSQL is up'
+#  wait_for:
+#    host: 0.0.0.0
+#    port: '{{ galaxy_db_port }}'
+#    timeout: 10
+#  when: ansible_virtualization_type != "docker"
 
-- name: '[VM] Enable and start NGINX server'
-  service:
-    name: nginx
-    state: started
-    enabled: yes
-  become_user: root
-  become_method: sudo
-  when: supervisor_manage_nginx == "False"
+#- name: '[VM] Enable and start NGINX server'
+#  service:
+#    name: nginx
+#    state: started
+#    enabled: yes
+#  become_user: root
+#  become_method: sudo
+#  when: supervisor_manage_nginx == "False"
 
-- name: '[VM] Wait NGINX is up'
-  wait_for:
-    host: 0.0.0.0
-    port: 80
-    timeout: 10
-  when: ansible_virtualization_type != "docker"
+#- name: '[VM] Wait NGINX is up'
+#  wait_for:
+#    host: 0.0.0.0
+#    port: 80
+#    timeout: 10
+#  when: ansible_virtualization_type != "docker"
 
-- name: '[VM] Enable and start the proftpd server'
-  service:
-    name: proftpd
-    enabled: yes
-    state: started
-  become_user: root
-  become_method: sudo
-  when: supervisor_manage_proftpd == "False"
+#- name: '[VM] Enable and start the proftpd server'
+#  service:
+#    name: proftpd
+#    enabled: yes
+#    state: started
+#  become_user: root
+#  become_method: sudo
+#  when: supervisor_manage_proftpd == "False"
 
-- name: '[VM] Wait proftpd is up'
-  wait_for:
-    host: 0.0.0.0
-    port: '{{ proftpd_ftp_port }}'
-    timeout: 10
-  when: ansible_virtualization_type != "docker"
+#- name: '[VM] Wait proftpd is up'
+#  wait_for:
+#    host: 0.0.0.0
+#    port: '{{ proftpd_ftp_port }}'
+#    timeout: 10
+#  when: ansible_virtualization_type != "docker"
 
-- name: '[VM] Start Galaxy'
-  shell: "/usr/local/bin/galaxy-startup >> /tmp/galaxy-startup.log"
-  become_user: root
-  become_method: sudo
-  when: ansible_virtualization_type != "docker"
+#- name: '[VM] Start Galaxy'
+#  shell: "/usr/local/bin/galaxy-startup >> /tmp/galaxy-startup.log"
+#  become_user: root
+#  become_method: sudo
+#  when: ansible_virtualization_type != "docker"
