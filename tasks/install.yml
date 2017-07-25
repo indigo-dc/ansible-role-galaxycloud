@@ -28,22 +28,25 @@
 - include: nginx.yml
   become_user: '{{ galaxy_user }}'
   become: true
+  when: not skip_nginx|bool
 
 # Configure uWSGI and job_conf
 - include: uwsgi.yml
   become_user: '{{ galaxy_user }}'
   become: true
+  when: not skip_uwsgi|bool
 
 # Configure Proftpd
 - include: proftpd.yml
   become_user: '{{ galaxy_user }}'
   become: true
+  when: not skip_proftpd|bool
 
 # Configure supervisor
 - include: supervisor.yml
-  when: ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord")
   become_user: '{{ galaxy_user }}'
   become: true
+  when: ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord")
 
 # Galaxy customization
 - include: galaxy-custom.yml

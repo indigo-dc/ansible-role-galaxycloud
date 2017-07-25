@@ -92,6 +92,7 @@ set_pgsql_random_password: true
 
 #______________________________________
 # NGINX
+skip_nginx: false
 nginx_upload_store_path: "{{galaxy_db_dir}}/tmp/nginx_upload_store"
 nginx_https: false
 ssl_cert: /etc/certs/cert.pem
@@ -100,6 +101,7 @@ ssl_dhparam: /etc/certs/dhparam.pem
 
 #______________________________________
 # PROFTPD
+skip_proftpd: false
 proftpd_welcome: "galaxy ftp server"
 proftpd_conf_path: "/etc/proftpd.conf"
 proftpd_db_user: "galaxyftp"
@@ -107,6 +109,10 @@ proftpd_files_path: "{{galaxy_db_dir}}/ftp"
 proftpd_ftp_port: 21
 proftpd_passive_port_low: 30000
 proftpd_passive_port_high: 40000
+
+#______________________________________
+# uWSGI
+skip_uwsgi: false
 
 #______________________________________
 # Init system
