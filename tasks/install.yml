@@ -22,6 +22,7 @@
 - include: postgresql.yml
   become_user: '{{ galaxy_user }}'
   become: true
+  when: not skip_postgresql|bool
 
 # Configure NGINX
 - include: nginx.yml
