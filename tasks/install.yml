@@ -22,25 +22,21 @@
 - include: postgresql.yml
   become_user: '{{ galaxy_user }}'
   become: true
-  when: not skip_postgresql|bool
 
 # Configure NGINX
 - include: nginx.yml
   become_user: '{{ galaxy_user }}'
   become: true
-  when: not skip_nginx|bool
 
 # Configure uWSGI and job_conf
 - include: uwsgi.yml
   become_user: '{{ galaxy_user }}'
   become: true
-  when: not skip_uwsgi|bool
 
 # Configure Proftpd
 - include: proftpd.yml
   become_user: '{{ galaxy_user }}'
   become: true
-  when: not skip_proftpd|bool
 
 # Configure supervisor
 - include: supervisor.yml
