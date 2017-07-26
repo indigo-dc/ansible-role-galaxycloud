@@ -38,6 +38,7 @@
 #  become_user: postgres
 #  when: ansible_distribution_version == "16.04"
 
-- name: '[Ubuntu] [Docker] Start PostgreSQL server'
+- name: '[Ubuntu] Start PostgreSQL server'
   shell: '/etc/init.d/postgresql start'
-  when: ansible_virtualization_type == "docker" 
+  become_user: root
+  become_method: sudo
