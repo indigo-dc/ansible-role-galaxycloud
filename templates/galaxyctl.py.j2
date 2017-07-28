@@ -38,7 +38,7 @@ def cli_options():
 
 #______________________________________
 # Galaxy startup: Wait galaxy to start and restart Galaxy 5 times before error.
-def startup_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=600):
+def startup_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=600, n_retries=5):
 
 {% if ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord") %}
   os.system('supervisord -c {{ supervisord_conf_path }}/supervisord.conf')
@@ -61,7 +61,7 @@ def startup_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=6
     print 'Galaxy start: ' + bcolors.status_ok
     return
   elif workers_check is False:
-    galaxy_startup_check(ini_file, wait_time)
+    galaxy_startup_check(ini_file, wait_time, n_retries)
   else:
     sys.exit('[Error] Start failed. Check log files:' + bcolors.status_fail)
 
@@ -189,7 +189,6 @@ def galaxy_startup_check(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_
       break
     if retries == n_retries:
       sys.exit('[Error] Start failed. Check log files: %s' % bcolors.status_fail)
-
 
 #______________________________________
 def galaxy_startup_check_restart(busy_list):
