@@ -60,8 +60,8 @@ environment     = PATH="{{ galaxy_venv_path }}/bin:/usr/local/sbin:/usr/local/bi
 numprocs        = 1
 stopsignal      = INT
 startretries    = 15
-stopasgroup     = true # If true, the flag causes supervisor to send the stop signal to the whole process group and implies killasgroup is true. This is useful for programs, that do not propagate stop signals to their children, leaving them orphaned.
-killasgroup     = true # If true, when resorting to send SIGKILL to the program to terminate it send it to its whole process group instead, taking care of its children as well, useful e.g with Python programs using multiprocessing.
+stopasgroup     = true
+killasgroup     = true
 
 [program:handler]
 command         = {{ galaxy_venv_path }}/bin/python ./lib/galaxy/main.py -c {{ galaxy_config_file }} --server-name=handler%(process_num)s --log-file={{ galaxy_log_path }}/handler%(process_num)s.log
