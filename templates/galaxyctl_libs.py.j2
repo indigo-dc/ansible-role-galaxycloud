@@ -1,30 +1,32 @@
 #!/usr/bin/env python
+# ELIXIR-ITALY
+# INDIGO-DataCloud
+# IBIOM-CNR
+#
+# Contributors:
+# author: Tangaro Marco
+# email: ma.tangaro@ibiom.cnr.it
 
-'''
-ELIXIR-ITALY
-INDIGO-DataCloud
-IBIOM-CNR
+__version__ = "0.0.1"
 
-Contributors:
-author: Tangaro Marco
-email: ma.tangaro@ibbe.cnr.it
-'''
-
+# Imports
 import socket
 import errno
 import json
-
 import os
 import signal
 import time
+import subprocess
+import platform
 
 try:
   import ConfigParser
 except ImportError:
   import configparser
 
+# Log config
 import logging
-logging.basicConfig(filename='{{ galaxy_log_path }}/galaxyctl.log', format='%(levelname)s %(asctime)s %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='/var/log/galaxy/galaxyctl.log', format='%(levelname)s %(asctime)s %(message)s', level=logging.DEBUG)
 
 
 ####################################
@@ -43,6 +45,59 @@ class bcolors:
   status_stop = '[ STOP ]'
   status_fail = '[ ' + FAIL + 'FAIL' + ENDC + ' ]'
 
+
+####################################
+
+class DetectGalaxyCommands:
+  def __init__(self,init_system):
+    self.init = init_system
+    self.os, self.version, self.codename = platform.dist()
+
+  #______________________________________
+  def get_startup_command(self):
+    if self.init == 'supervisord':
+      if self.os == 'centos': return 'supervisord -c /etc/supervisord.conf'
+      if self.os == 'ubuntu': return 'supervisord -c /etc/supervisor/supervisord.conf'
+    elif self.init == 'init':
+      if self.os == 'centos': return 'systemctl start galaxy.service'
+      if self.os == 'ubuntu' and self.codename == 'xenial': return 'systemctl start galaxy.service'
+      if self.os == 'ubuntu' and self.codename == 'trusty': return 'service galaxy start'
+
+  #______________________________________
+  def get_stop_command(self):
+    if self.init == 'supervisord': return 'supervisorctl stop galaxy:'
+    elif self.init == 'init':
+      if self.os == 'centos': return 'systemctl stop galaxy.service'
+      if self.os == 'ubuntu' and self.codename == 'xenial': return 'systemctl stop galaxy.service'
+      if self.os == 'ubuntu' and self.codename == 'trusty': return 'service galaxy stop'
+
+  #______________________________________
+  def get_start_command(self):
+    if self.init == 'supervisord': return 'supervisorctl start galaxy:'
+    elif self.init == 'init':
+      if self.os == 'centos': return 'systemctl start galaxy.service'
+      if self.os == 'ubuntu' and self.codename == 'xenial': return 'systemctl start galaxy.service'
+      if self.os == 'ubuntu' and self.codename == 'trusty': return 'service galaxy start'
+
+  #______________________________________
+  def get_status_command(self):
+    if self.init == 'supervisord': return 'supervisorctl status galaxy:'
+    elif self.init == 'init':
+      if self.os == 'centos': return 'systemctl status galaxy.service'
+      if self.os == 'ubuntu' and self.codename == 'xenial': return 'systemctl status galaxy.service'
+      if self.os == 'ubuntu' and self.codename == 'trusty': return 'service galaxy status'
+
+  #______________________________________
+  def get_init(self): return self.init
+  def get_os(self): return self.os
+  def get_version(self): return self.version
+  def get_codename(self): return self.codename
+
+  #______________________________________
+  def set_init(self, init): self.init = init
+  def set_os(self, os): self.os = os
+  def set_version(self, version): self.version = version
+  def set_codename(self, codename): self.codename = codename
 
 ####################################
 
@@ -191,3 +246,129 @@ class UwsgiStatsServer:
 
       logging.debug('[galaxyctl_libs UwsgiStatsServer] Busy list: %s' % busy_list)
       return busy_list
+
+
+####################################
+# This class reads luksctl config file
+
+class LUKSCtl:
+  def __init__(self, fname):
+
+    self.fname = fname
+
+    configParser = ConfigParser.RawConfigParser()
+    configParser.readfp(open(fname))
+    configParser.read(fname)
+
+    self.cipher_algorithm = configParser.get('luks', 'cipher_algorithm')
+    self.hash_algorithm = configParser.get('luks', 'hash_algorithm')
+    self.keysize = configParser.get('luks', 'keysize')
+    self.device = configParser.get('luks', 'device')
+    self.uuid = configParser.get('luks', 'uuid')
+    self.cryptdev = configParser.get('luks', 'cryptdev')
+    self.mapper = configParser.get('luks', 'mapper')
+    self.mountpoint = configParser.get('luks', 'mountpoint')
+    self.filesystem = configParser.get('luks', 'filesystem')
+
+  #______________________________________
+  # getter
+  def get_cipher_algorithm(self): return self.cipher_algorithm
+  def get_hash_algorithm(self): return self.hash_algorithm
+  def get_keysize(self): return self.keysize
+  def get_device(self): return self.device
+  def get_uuid(self): return self.uuid
+  def get_cryptdev(self): return self.cryptdev
+  def get_mapper(self): return self.mapper
+  def get_mountpoint(self): return self.mountpoint
+  def get_filesystem(self): return self.filesystem
+
+  #______________________________________
+  # setter
+  def set_cipher_algorithm(self, cipher_algorithm): self.cipher_algorithm = cipher_algorithm
+  def set_hash_algorithm(self, hash_algorithm): self.hash_algorithm = hash_algorithm
+  def set_keysize(self, keysize): keysize = keysize
+  def set_device(self, device): self.device = device
+  def set_uuid(self, uuid): self.uuid = uuid
+  def set_cryptdev(self, cryptdev): self.cryptdev = cryptdev
+  def set_mapper(self, mapper): self.mapper = mapper
+  def set_mountpoint(self, mountpoint): self.mountpoint = mountpoint
+  def set_filesystem(self, filesystem): self.filesystem = filesystem
+
+
+####################################
+# This class reads onedatactl config file
+
+class OneDataCtl:
+  def __init__(self, fname, section):
+
+    self.fname = fname
+    self.section = section
+    self.mountpoint = None
+    self.provider = None
+    self.token = None
+    self.insecure = False
+    self.nonempty = False
+
+    configParser = ConfigParser.RawConfigParser()
+    configParser.readfp(open(fname))
+    configParser.read(fname)
+
+    # mountpoint
+    if configParser.has_option(self.section, 'mountpoint'):
+      self.mountpoint = configParser.get(self.section, 'mountpoint')
+    else:
+      logging.error('[galaxyctl_libs OneDataCtl] No mountpoint in section %s.' % section)
+      raise Exception('[galaxyctl_libs OneDataCtl] No mounpoint in section %s.' % section)
+
+    # provider
+    if configParser.has_option(self.section, 'provider'):
+      self.provider = configParser.get(self.section, 'provider')
+    else:
+      logging.error('[galaxyctl_libs OneDataCtl] No provider specified section in %s.' % section)
+      raise Exception('[galaxyctl_libs OneDataCtl] No provider in section %s.' % section)
+
+    # token
+    if configParser.has_option(self.section, 'token'):
+      self.token = configParser.get(self.section, 'token')
+    else:
+      logging.error('[galaxyctl_libs OneDataCtl] No token specified section in %s.' % section)
+      raise Exception('[galaxyctl_libs OneDataCtl] No token in section %s.' % section)
+
+    if configParser.has_option(self.section, 'insecure'): self.insecure = configParser.get(self.section, 'insecure')
+    if configParser.has_option(self.section, 'nonempty'): self.nonempty = configParser.get(self.section, 'nonempty')
+
+  #______________________________________
+  # getter
+  def get_mountpoint(self): return self.mountpoint
+  def get_provider(self): return self.provider
+  def get_token(self): return self.token
+  def get_insecure(self): return self.insecure
+  def get_nonempty(self): return self.nonempty
+
+  #______________________________________
+  # setter
+  def set_mountpoint(self, mountpoint): self.mountpoint = mountpoint
+  def set_provider(self, provider): self.provider = provider
+  def set_token(self, token): self.token = token
+  def set_insecure(self, insecure): self.insecure = insecure
+  def set_nonempty(self, nonempty): self.nonempty = nonempty
+
+  #______________________________________
+  # Mount space
+  def mount_space(self):
+    command = 'oneclient -H %s -t %s %s' % ( self.provider, self.token, self.mountpoint)
+    if self.insecure == 'True': command += ' --insecure'
+    if self.nonempty == 'True': command += ' -o nonempty'
+
+    logging.debug('[galaxyctl_libs OneDataCtl] %s' % str(command))
+
+    subprocess.call( command, shell=True )
+
+  #______________________________________
+  # Umount space
+  def umount_space(self):
+    command = 'fusermount -u %s' % (self.mountpoint)
+    logging.debug('[galaxyctl_libs OneDataCtl] %s' % str(command))
+    subprocess.call( command, shell=True )
+
+

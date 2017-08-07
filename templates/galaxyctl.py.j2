@@ -1,55 +1,71 @@
 #!/usr/bin/env python
+# ELIXIR-ITALY
+# INDIGO-DataCloud
+# IBIOM-CNR
+#
+# Contributors:
+# author: Tangaro Marco
+# email: ma.tangaro@ibiom.cnr.it
 
-'''
-ELIXIR-ITALY
-INDIGO-DataCloud
-IBIOM-CNR
-
-Contributors:
-author: Tangaro Marco
-email: ma.tangaro@ibiom.cnr.it
-'''
-
+# Imports
 import sys, os
 import time
 import argparse
 
 # Custom libraries
+from galaxyctl_libs import __version__
+from galaxyctl_libs import DetectGalaxyCommands
 from galaxyctl_libs import UwsgiStatsServer
 from galaxyctl_libs import bcolors
+from galaxyctl_libs import LUKSCtl
+from galaxyctl_libs import OneDataCtl
 
-galaxy_config_file = '{{ galaxy_config_file }}'
-
+# Logging
 import logging
 logging.basicConfig(filename='/var/log/galaxy/galaxyctl.log', format='%(levelname)s %(asctime)s %(message)s', level=logging.DEBUG)
+
+# Init system
+# Supported: supervisord, init
+# supervisord ---> Current default, it is mandatory for docker container, since there's no systemd.
+# init ----------> CentOS 7 and Ubuntu 16.04 use systemd, Ubuntu 14.04 is using upstart.
+init_system = '{{ init_type }}'
+
+# Supervisord config file:
+# centos: /etc/supervisord.conf
+# ubuntu: /etc/supervisor/supervisord.conf
+supervisord_conf_file = '{{ supervisord_conf_path }}/supervisord.conf'
+
+# Config files
+galaxy_config_file = '{{ galaxy_config_file }}'
+uwsgi_pid_file = '{{ galaxy_log_path }}/uwsgi.pid' # this file is not in galaxy.ini file, but loaded at run-time using the uwsgi command in galaxy_web.ini file in supervisor directory.
+luks_config_file = '/etc/galaxy/luks-cryptdev.ini'
+luksctl_path = '/usr/local/bin'
+onedatactl_config_file = '/etc/galaxy/onedatactl.ini'
+onedatactl_path = '/usr/local/bin'
 
 #______________________________________
 def cli_options():
   parser = argparse.ArgumentParser(description='Onedata connection script')
-  parser.add_argument('action', choices=['start','stop','restart','startup','status'], help='Action')
-  parser.add_argument('module', choices=['galaxy'], help='Module')
+  parser.add_argument('action', choices=['start','stop','restart','startup','status','open','close','mount','umount'], nargs='?', help='Action')
+  parser.add_argument('module', choices=['galaxy','luks','onedata'], nargs='?', help='Load module')
   parser.add_argument('-f', '--force', action='store_true', dest='force', default=False, help='Force Galaxy to start')
   parser.add_argument('-r', '--retry', dest='n_retries', default=5, type=int, help='Number of retries restart')
   parser.add_argument('-c', '--config-file', dest='config_file', help='uWSGI ini file')
-  parser.add_argument('-s', '--server', dest='server', type=str, help='Server address')
-  parser.add_argument('-p', '--port', dest='port', type=int, help='Server port')
   parser.add_argument('-t', '--timeout', dest='timeout', default=300, help='Wait timeout')
+  group = parser.add_mutually_exclusive_group()
+  group.add_argument('--userdata', action='store_true', dest='userdata', default=False, help='Load User data configuration for onedata')
+  group.add_argument('--refdata', action='store_true', dest='refdata', default=False, help='Load Reference data configuration for onedata')
+  parser.add_argument('-V', '--version', action='store_true', dest='version', default=False, help='Print galaxyctl_libs version')
   return parser.parse_args()
 
 #______________________________________
 # Galaxy startup: Wait galaxy to start and restart Galaxy 5 times before error.
 def startup_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=600, n_retries=5):
-
-{% if ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord") %}
-  os.system('supervisord -c {{ supervisord_conf_path }}/supervisord.conf')
-{% else %}
-{% if ansible_os_family == "Debian" and ansible_distribution_version == "14.04" %}
-  os.system('service galaxy start')
-{% else %}
-  os.system('systemctl start galaxy.service')
-{% endif %}
-{% endif %}
-  
+ 
+  cmd = DetectGalaxyCommands(init_system)
+  logging.debug('[galaxyctl] %s' % cmd.get_startup_command())
+  os.system(cmd.get_startup_command())
+ 
   # Wait supervisord start
   time.sleep(10)
 
@@ -66,23 +82,18 @@ def startup_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=6
     sys.exit('[Error] Start failed. Check log files:' + bcolors.status_fail)
 
 #______________________________________
-def stop_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini'):
+def stop_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', force_proc=False):
 
   logging.debug('[galaxyctl] Stop Galaxy')
 
   stats = UwsgiStatsServer(timeout=5, fname=ini_file)
   busy_list = stats.GetBusyList()
 
-{% if ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord") %}
-  os.system('supervisorctl stop galaxy:')
-{% else %}
-{% if ansible_os_family == "Debian" and ansible_distribution_version == "14.04" %}
-  os.system('service galaxy stop')
-{% else %}
-  os.system('systemctl stop galaxy.service')
-{% endif %}
-{% endif %}
+  cmd = DetectGalaxyCommands(init_system)
+  logging.debug('[galaxyctl] %s' % cmd.get_stop_command())
+  os.system(cmd.get_stop_command())
 
+  # kill workers if still alive
   if busy_list:
     logging.debug('[galaxyctl] Busy list: %s' % str(busy_list))
     for pid in busy_list:
@@ -90,11 +101,28 @@ def stop_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini'):
         logging.debug('[galaxyctl] Killing workers: %s' % str(pid))
         os.kill(pid,9)
 
+  if force_proc is True:
+    kill_uwsgi_master()
+
   print 'Galaxy stop: ' + bcolors.status_ok
+
+#______________________________________
+  # kill uWSGI master process if still alive
+  # solve uWSGI abnormal termination and fatal error
+def kill_uwsgi_master():
+  logging.debug('[galaxyctl] Check uWSGI master process.')
+  master_pid = check_proc(uwsgi_pid_file)
+  if master_pid is not False:
+    logging.debug('[galaxyctl] uWSGI still alive. Killing...')
+    os.kill(master_pid,9)
+  else:
+    logging.debug('[galaxyctl] uWSGI master process already closed.')
 
 #______________________________________
 # Check For the existence of a unix pid.
 def check_pid(pid):
+    if pid < 0:
+      return False
     try:
         os.kill(pid, 0)
     except OSError:
@@ -102,20 +130,35 @@ def check_pid(pid):
     else:
         return True
 
-#______________________________________
-def start_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=300, force_start=False, n_retries=5):
+#_____________________________________
+# Check if uWSGI master process exists
+def check_proc(pidfile):
+  if os.path.isfile(pidfile):
+    stats_pid = open(pidfile)
+    pid = int(stats_pid.read())
+    if pid > 0:
+      if check_pid(pid):
+        stats_pid.close()
+        return pid
+      else:
+        return False
+    return False
+  return False
+
+#_____________________________________
+# Start Galaxy
+# ini_file: path to galaxy.ini file
+# wait_time: uWSGI stats server waiting time. Currently the script wait the stats server for 300 secs.
+# force_proc: if forced to start the script restart galaxy until at least 1 uwgi worker is accepting requests
+# n_retries: number of tentative restart.
+
+def start_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=300, force_proc=False, n_retries=5):
 
   logging.debug('[galaxyctl] Start Galaxy')
 
-{% if ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord") %}
-  os.system('supervisorctl start galaxy:')
-{% else %}
-{% if ansible_os_family == "Debian" and ansible_distribution_version == "14.04" %}
-  os.system('service galaxy start')
-{% else %}
-  os.system('systemctl start galaxy.service')
-{% endif %}
-{% endif %}
+  cmd = DetectGalaxyCommands(init_system)
+  logging.debug('[galaxyctl] %s' % cmd.get_start_command())
+  os.system(cmd.get_start_command())
 
   # Wait Galaxy start
   workers_check = galaxy_workers_check(ini_file, wait_time)
@@ -123,7 +166,7 @@ def start_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=300
   if workers_check is True:
     print 'Galaxy start: ' + bcolors.status_ok
     return
-  elif workers_check is False and force_start is True:
+  elif workers_check is False and force_proc is True:
     # Try to restart Galaxy 5 times before error
     galaxy_startup_check(ini_file, wait_time, n_retries)
   else:
@@ -167,6 +210,7 @@ def galaxy_workers_check(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_
       return False
 
 #______________________________________
+# This function check if uWSGI workers are accepting requests, otherwise restart Galaxy 
 def galaxy_startup_check(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=300, n_retries=5):
 
   logging.debug('[galaxyctl] Galaxy workers check with forced restart if all workers busy.')
@@ -191,17 +235,16 @@ def galaxy_startup_check(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_
       sys.exit('[Error] Start failed. Check log files: %s' % bcolors.status_fail)
 
 #______________________________________
+# Restart command for galaxy startup.
+# It is used also when galaxy is forced to start using '--force' option.
+# uWSGI not-accepting workers are killed
+# if not correctly closed, the uwsgi master process is killed, too.
 def galaxy_startup_check_restart(busy_list):
 
-{% if ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord") %}
-  os.system('supervisord -c {{ supervisord_conf_path }}/supervisord.conf')
-{% else %}
-{% if ansible_os_family == "Debian" and ansible_distribution_version == "14.04" %}
-  os.system('service galaxy start')
-{% else %}
-  os.system('systemctl start galaxy.service')
-{% endif %}
-{% endif %}
+  cmd = DetectGalaxyCommands(init_system)
+
+  logging.debug('[galaxyctl] %s' % cmd.get_stop_command())
+  os.system(cmd.get_stop_command())
 
   if busy_list:
     print busy_list
@@ -209,31 +252,32 @@ def galaxy_startup_check_restart(busy_list):
       if check_pid(pid) is True:
         os.kill(pid,9)
 
-{% if ansible_virtualization_role == "docker" or (ansible_virtualization_role != "docker" and init_type == "supervisord") %}
-  os.system('supervisorctl start galaxy:')
-{% else %}
-{% if ansible_os_family == "Debian" and ansible_distribution_version == "14.04" %}
-  os.system('service galaxy start')
-{% else %}
-  os.system('systemctl start galaxy.service')
-{% endif %}
-{% endif %}
+  # kill uwsgi master process if still alive
+  kill_uwsgi_master()
+
+  logging.debug('[galaxyctl] %s' % cmd.get_start_command())
+  os.system(cmd.get_start_command())
 
 #______________________________________
-def restart_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=300, force_start=False, n_retries=5):
+def restart_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', wait_time=300, force_proc=False, n_retries=5):
   
   logging.debug('[galaxyctl] Restart Galaxy')
 
-  stop_galaxy(ini_file)
+  stop_galaxy(ini_file, force_proc)
 
-  start_galaxy(ini_file, wait_time, force_start, n_retries)
+  start_galaxy(ini_file, wait_time, force_proc, n_retries)
 
 #______________________________________
 def status_galaxy():
-  os.system('supervisorctl status galaxy:')
+  cmd = DetectGalaxyCommands(init_system)
+  logging.debug('[galaxyctl] %s' % cmd.get_status_command())
+  os.system(cmd.get_status_command())
 
 #______________________________________
 def galaxyctl():
+
+  if not os.geteuid() == 0:
+    sys.exit('[Error] Script must be run as root.')
 
   options = cli_options()
 
@@ -249,23 +293,85 @@ def galaxyctl():
 
   if options.module == 'galaxy': 
 
+    # check optionals inputs
+    input_list = sys.argv[1:]
+    for val in input_list:
+      if val in {'--userdata', '--refdata'}:
+        argparse.ArgumentParser().error("invalid argumets: --userdata, --refdata")
+
     if options.action == 'startup':
       startup_galaxy(galaxy_config_file, options.timeout)
 
-    if options.action == 'stop':
+    elif options.action == 'stop':
       print 'Stopping Galaxy: '
-      stop_galaxy(galaxy_config_file)
+      stop_galaxy(galaxy_config_file, options.force)
 
-    if options.action == 'start':
+    elif options.action == 'start':
       print 'Starting Galaxy: '
       start_galaxy( galaxy_config_file, options.timeout, options.force, options.n_retries )
 
-    if options.action == 'restart':
+    elif options.action == 'restart':
       print 'Restarting Galaxy:'
       restart_galaxy( galaxy_config_file, options.timeout, options.force, options.n_retries )
 
-    if options.action == 'status':
+    elif options.action == 'status':
       status_galaxy()
+
+    else:
+      argparse.ArgumentParser().error("argument action: invalid choice (choose from 'start', 'stop', 'restart', 'startup', 'status')")
+
+  # luks module
+  if options.module == 'luks':
+
+    # check optionals inputs
+    input_list = sys.argv[1:]
+    for val in input_list:
+      if val in {'--force', '--timeout', '--retry', '--userdata', '--refdata'}:
+        argparse.ArgumentParser().error("invalid argumets: --force, --retry, --timeout, --userdata, --refdata")
+
+    luksctl_script = '%s/luksctl' % luksctl_path
+    if os.path.isfile(luksctl_script) is not True:
+      raise Exception('No luksctl script in %s' % luksctl_path)
+
+    import imp
+    os.chdir(luksctl_path)
+    luksctl = imp.load_source('luksctl', 'luksctl')
+
+    luks = LUKSCtl(luks_config_file)
+
+    if options.action == "status": luksctl.display_dmsetup_info(luks.get_cryptdev())
+    elif options.action == "open": luksctl.luksopen_device(luks.get_uuid(), luks.get_cryptdev(), luks.get_mountpoint())
+    elif options.action == "close": luksctl.luksclose_device(luks.get_mountpoint(), luks.get_cryptdev())
+    else: argparse.ArgumentParser().error("argument action: invalid choice (choose from 'status', 'open', 'close')")
+
+  # onedatactl module
+  if options.module == 'onedata':
+
+    # check optionals inputs
+    input_list = sys.argv[1:]
+    for val in input_list:
+      if val in {'--force', '--timeout', '--retry'}:
+        argparse.ArgumentParser().error("invalid argumets: --force, --retry, --timeout")
+
+    onedatactl_script = '%s/onedatactl' % onedatactl_path
+    if os.path.isfile(onedatactl_script) is not True:
+      raise Exception('No onedatactl script in %s' % luksctl_path)
+
+    import imp
+    os.chdir(onedatactl_path)
+    onedatactl = imp.load_source('onedatactl', 'onedatactl')
+
+    data_space=None
+    if options.userdata is True: data_space = 'userdata'
+    elif options.refdata is True: data_space = 'refdata'
+    else: argparse.ArgumentParser().error("argument action: invaid choice (choose from 'userdata' or 'refdata')")
+
+    onedata = OneDataCtl(onedatactl_config_file, data_space)
+
+    if options.action == 'status': onedatactl.check_mountpoint(data_space, onedata.get_mountpoint())
+    elif options.action == 'mount': onedata.mount_space()
+    elif options.action == 'umount': onedata.umount_space()
+    else: argparse.ArgumentParser().error("argument action: invalid choice (choose from 'status', 'mount', 'umount')")
 
 #______________________________________
 if __name__ == '__main__':
