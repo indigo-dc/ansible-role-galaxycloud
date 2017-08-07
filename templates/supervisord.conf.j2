@@ -60,6 +60,8 @@ environment     = PATH="{{ galaxy_venv_path }}/bin:/usr/local/sbin:/usr/local/bi
 numprocs        = 1
 stopsignal      = INT
 startretries    = 15
+stopasgroup     = true
+killasgroup     = true
 
 [program:handler]
 command         = {{ galaxy_venv_path }}/bin/python ./lib/galaxy/main.py -c {{ galaxy_config_file }} --server-name=handler%(process_num)s --log-file={{ galaxy_log_path }}/handler%(process_num)s.log

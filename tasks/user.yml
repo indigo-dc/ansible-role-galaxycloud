@@ -39,7 +39,7 @@
     uid: '{{ GALAXY_UID }}'
   when: ansible_os_family == "RedHat"
 
-- name: '[Ubuntu] Create user {{galaxy_user}} on the server'
+- name: '[Ubuntu] Create user {{ galaxy_user }} on the server'
   user:
     name: '{{ galaxy_user }}'
     shell: '/bin/bash'
