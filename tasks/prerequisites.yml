@@ -116,10 +116,10 @@
 
 #______________________________________
 # Add python random password generator
-- name: Copy pwd-generator.py to /usr/local/bin
+- name: 'Copy pwd-generator.py to {{ galaxy_custom_script_path }}'
   template:
     src: 'pwd_generator.j2'
-    dest: '/usr/local/bin/pwd-generator'
+    dest: '{{ galaxy_custom_script_path }}/pwd-generator'
     mode: a+x
   become_user: root
   become_method: sudo

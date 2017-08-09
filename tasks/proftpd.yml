@@ -46,7 +46,7 @@
 # Cconfigure Proftpd
 
 - name: Create proftpd db random passwd
-  command: "/usr/local/bin/pwd-generator -l 20"
+  command: "{{ galaxy_custom_script_path }}/pwd-generator -l 20"
   register: proftpd_db_passwd
 
 - name: Set proftpd configuration file path on Ubuntu

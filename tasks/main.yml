@@ -1,5 +1,5 @@
 # Add a fast check to speed reconfiguration
-- stat: path=/usr/local/bin/galaxy-startup
+- stat: path='{{ galaxy_custom_script_path }}/galaxy-startup'
   register: galaxy_installed
 
 - include: install.yml

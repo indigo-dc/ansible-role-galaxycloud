@@ -27,6 +27,10 @@ GALAXY_VERSION: "master"
 # Virtualenv directory
 galaxy_venv_path: "{{galaxy_install_path}}/.venv"
 
+# Galaxy custom configuration files and script path
+galaxy_custom_config_path: '/etc/galaxy'
+galaxy_custom_script_path: '/usr/local/bin'
+
 # Log directory
 galaxy_log_path: "/var/log/galaxy"
 

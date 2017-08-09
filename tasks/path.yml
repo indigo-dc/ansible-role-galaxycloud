@@ -10,7 +10,7 @@
   with_items:
     - '{{ export_dir }}'
     - '{{ galaxy_log_path }}'
-    - '/etc/galaxy'
+    - '{{ galaxy_custom_config_path }}'
     - '{{ tool_deps_path }}'
   become_user: root
   become_method: sudo

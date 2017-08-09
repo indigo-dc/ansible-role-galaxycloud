@@ -41,15 +41,15 @@
 # Galaxy administrator: email. username, password and api_key
 # IMPORTANT: start Galaxy database postgresql to setup the galaxy administrator credentials
 
-- name: Copy create_galaxy_user.py to /usr/local/bin/
+- name: 'Copy create_galaxy_user.py to {{ galaxy_custom_script_path }}'
   template:
     src: 'create_galaxy_user.py.j2'
-    dest: '/usr/local/bin/create_galaxy_user.py'
+    dest: '{{ galaxy_custom_script_path }}/create_galaxy_user.py'
   become_user: root
   become_method: sudo
 
 - name: Setup Galaxy administrator
-  command: "{{ galaxy_venv_path }}/bin/python /usr/local/bin/create_galaxy_user.py --user {{ GALAXY_ADMIN_EMAIL }} --password {{ GALAXY_ADMIN_PASSWORD }} --username {{ GALAXY_ADMIN_USERNAME }} -c {{ galaxy_config_file }} --key {{ GALAXY_ADMIN_API_KEY }}"
+  command: "{{ galaxy_venv_path }}/bin/python {{ galaxy_custom_script_path }}/create_galaxy_user.py --user {{ GALAXY_ADMIN_EMAIL }} --password {{ GALAXY_ADMIN_PASSWORD }} --username {{ GALAXY_ADMIN_USERNAME }} -c {{ galaxy_config_file }} --key {{ GALAXY_ADMIN_API_KEY }}"
   args:
     chdir: '{{ galaxy_install_path }}/'
   environment:
@@ -60,7 +60,7 @@
 # id_secret configuration
 
 - name: Generate random id_secret key
-  command: "/usr/local/bin/pwd-generator -l 32"
+  command: "{{ galaxy_custom_script_path }}/pwd-generator -l 32"
   register: galaxy_id_secret
 
 - name: Galaxy id_secret key configuration
