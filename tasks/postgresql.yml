@@ -40,7 +40,7 @@
 # Galaxy database configuration
 
 - name: Create galaxy db random passwd
-  command: "/usr/local/bin/pwd-generator -l 20"
+  command: "{{ galaxy_custom_script_path }}/pwd-generator -l 20"
   register: random_pwd	
   when: set_pgsql_random_password|bool
 

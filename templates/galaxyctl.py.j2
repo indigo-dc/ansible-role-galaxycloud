@@ -15,6 +15,7 @@ import argparse
 # Custom libraries
 from galaxyctl_libs import __version__
 from galaxyctl_libs import DetectGalaxyCommands
+from galaxyctl_libs import UwsgiSocket
 from galaxyctl_libs import UwsgiStatsServer
 from galaxyctl_libs import bcolors
 from galaxyctl_libs import LUKSCtl
@@ -22,7 +23,7 @@ from galaxyctl_libs import OneDataCtl
 
 # Logging
 import logging
-logging.basicConfig(filename='/var/log/galaxy/galaxyctl.log', format='%(levelname)s %(asctime)s %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='{{ galaxy_log_path }}/galaxyctl.log', format='%(levelname)s %(asctime)s %(message)s', level=logging.DEBUG)
 
 # Init system
 # Supported: supervisord, init
@@ -38,10 +39,10 @@ supervisord_conf_file = '{{ supervisord_conf_path }}/supervisord.conf'
 # Config files
 galaxy_config_file = '{{ galaxy_config_file }}'
 uwsgi_pid_file = '{{ galaxy_log_path }}/uwsgi.pid' # this file is not in galaxy.ini file, but loaded at run-time using the uwsgi command in galaxy_web.ini file in supervisor directory.
-luks_config_file = '/etc/galaxy/luks-cryptdev.ini'
-luksctl_path = '/usr/local/bin'
-onedatactl_config_file = '/etc/galaxy/onedatactl.ini'
-onedatactl_path = '/usr/local/bin'
+luks_config_file = '{{ galaxy_custom_config_path }}/luks-cryptdev.ini'
+luksctl_path = '{{ galaxy_custom_script_path }}'
+onedatactl_config_file = '{{ galaxy_custom_config_path }}/onedatactl.ini'
+onedatactl_path = '{{ galaxy_custom_script_path }}'
 
 #______________________________________
 def cli_options():
@@ -107,14 +108,16 @@ def stop_galaxy(ini_file='/home/galaxy/galaxy/config/galaxy.ini', force_proc=Fal
   print 'Galaxy stop: ' + bcolors.status_ok
 
 #______________________________________
-  # kill uWSGI master process if still alive
-  # solve uWSGI abnormal termination and fatal error
+# kill uWSGI master process if still alive
+# solve uWSGI abnormal termination and fatal error
 def kill_uwsgi_master():
   logging.debug('[galaxyctl] Check uWSGI master process.')
-  master_pid = check_proc(uwsgi_pid_file)
-  if master_pid is not False:
+
+  master_pid, stderr, status = UwsgiSocket(fname=galaxy_config_file).get_uwsgi_master_pid()
+
+  if status == 0:
     logging.debug('[galaxyctl] uWSGI still alive. Killing...')
-    os.kill(master_pid,9)
+    os.kill(int(master_pid),9)
   else:
     logging.debug('[galaxyctl] uWSGI master process already closed.')
 
@@ -131,7 +134,7 @@ def check_pid(pid):
         return True
 
 #_____________________________________
-# Check if uWSGI master process exists
+# Check if pid file exists
 def check_proc(pidfile):
   if os.path.isfile(pidfile):
     stats_pid = open(pidfile)

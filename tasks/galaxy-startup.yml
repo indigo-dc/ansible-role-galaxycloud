@@ -7,10 +7,10 @@
     dest: '{{ item.dest }}'
     mode: '{{ item.mode }}'
   with_items:
-    - { src: 'galaxy_startup.j2', dest: '/usr/local/bin/galaxy-startup', mode: 'a+x' }
-    - { src: 'galaxy_restart.j2', dest: '/usr/local/bin/galaxy-restart', mode: 'a+x' }
-    - { src: 'galaxyctl.py.j2', dest: '/usr/local/bin/galaxyctl', mode: 'a+x' }
-    - { src: 'galaxyctl_libs.py.j2', dest: '/usr/local/bin/galaxyctl_libs.py', mode: 'a+x' }
+    - { src: 'galaxy_startup.j2', dest: '{{ galaxy_custom_script_path }}/galaxy-startup', mode: 'a+x' }
+    - { src: 'galaxy_restart.j2', dest: '{{ galaxy_custom_script_path }}/galaxy-restart', mode: 'a+x' }
+    - { src: 'galaxyctl_libs.py.j2', dest: '{{ galaxy_custom_script_path }}/galaxyctl_libs.py', mode: 'a+x' }
+    - { src: 'galaxyctl.py.j2', dest: '{{ galaxy_custom_script_path }}/galaxyctl', mode: 'a+x' }
   become_user: root
   become_method: sudo
 
@@ -98,7 +98,7 @@
   when: ansible_virtualization_type != "docker"
 
 - name: '[VM] Start Galaxy'
-  shell: "/usr/local/bin/galaxy-startup >> /tmp/galaxy-startup.log"
+  shell: "{{ galaxy_custom_script_path }}/galaxy-startup >> /tmp/galaxy-startup.log"
   become_user: root
   become_method: sudo
   when: ansible_virtualization_type != "docker"
