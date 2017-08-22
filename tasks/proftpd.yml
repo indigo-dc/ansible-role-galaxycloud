@@ -47,7 +47,13 @@
 
 - name: Create proftpd db random passwd
   command: "{{ galaxy_custom_script_path }}/pwd-generator -l 20"
-  register: proftpd_db_passwd
+  register: proftpd_random_pwd
+  when: set_proftpd_random_password|bool
+
+- name: Set random password as proftpd_db_password
+  set_fact:
+    proftpd_db_passwd: '{{ proftpd_random_pwd.stdout }}'
+  when: set_proftpd_random_password|bool
 
 - name: Set proftpd configuration file path on Ubuntu
   set_fact:
@@ -65,7 +71,7 @@
   postgresql_user:
     db: 'galaxy'
     name: '{{ proftpd_db_user }}'
-    password: '{{ proftpd_db_passwd.stdout }}'
+    password: '{{ proftpd_db_passwd }}'
     priv: galaxy_user:ALL
   become_user: postgres
   become_method: sudo
