@@ -106,7 +106,7 @@ ssl_dhparam: /etc/certs/dhparam.pem
 proftpd_welcome: "galaxy ftp server"
 proftpd_conf_path: "/etc/proftpd.conf"
 proftpd_db_user: "galaxyftp"
-proftpd_db_password: 'galaxy'
+proftpd_db_passwd: 'galaxy'
 proftpd_files_path: "{{galaxy_db_dir}}/ftp"
 proftpd_ftp_port: 21
 proftpd_passive_port_low: 30000

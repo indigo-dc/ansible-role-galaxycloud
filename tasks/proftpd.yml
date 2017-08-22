@@ -50,7 +50,7 @@
   register: proftpd_random_pwd
   when: set_proftpd_random_password|bool
 
-- name: Set random password as proftpd_db_password
+- name: Set random password as proftpd_db_passwd
   set_fact:
     proftpd_db_passwd: '{{ proftpd_random_pwd.stdout }}'
   when: set_proftpd_random_password|bool
