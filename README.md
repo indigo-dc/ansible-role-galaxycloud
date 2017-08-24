@@ -13,6 +13,38 @@ Minimum ansible version: 2.1.2.0
 Role Variables
 --------------
 
+### Path ###
+
+`galaxy_instance_description`: set Galaxy brand
+
+`galaxy_user`: set linux user to launch the Galaxy portal (default: ``galaxy``).
+
+`GALAXY_UID`: set user UID (default: ``4001``).
+
+`galaxy_FS_path`: path to install Galaxy (default: ``/home/galaxy``).
+
+`galaxy_directory`: Galaxy directory (usually galaxy or galaxy-dist, default ``galaxy``).
+
+`galaxy_install_path`: Galaxy installation directory (default: ``/home/galaxy/galaxy``).
+
+`galaxy_config_path`: Galaxy config pat location.
+
+`galaxy_config_file`: Galaxy primary configuration file.
+
+`galaxy_venv_path`:  Galaxy virtual environment directory (usually located to ``<galaxy_install_path>/.venv``).
+
+`galaxy_custom_config_path`: Galaxy custom configuration files path (default: ``/etc/galaxy``).
+
+`galaxy_custom_script_path`: Galaxy custom script path (defautl: ``/usr/local/bin``).
+
+`galaxy_log_path`: log file directory (default: ``/var/log/galaxy``).
+
+`galaxy_instance_url`: instance url (default:  ``http://<ipv4_address>/galaxy/``).
+
+`galaxy_instance_key_pub`: instance ssh public key to configure <galaxy_user> access.
+
+`galaxy_lrms`: enable  Galaxy virtual elastic cluster support. Currently supported local and slurm (default: ``local``, possible values: ``local, slurm``).
+
 
 ### https mode ###
 
