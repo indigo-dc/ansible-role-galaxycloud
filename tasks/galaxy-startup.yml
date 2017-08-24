@@ -65,11 +65,8 @@
     timeout: 10
   when: ansible_virtualization_type != "docker"
 
-- name: '[VM] Enable and start NGINX server'
-  service:
-    name: nginx
-    state: started
-    enabled: yes
+- name: '[VM] Start NGINX server'
+  command: '/usr/sbin/nginx'
   become_user: root
   become_method: sudo
   when: supervisor_manage_nginx == "False"
