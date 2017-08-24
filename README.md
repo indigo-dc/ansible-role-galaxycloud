@@ -14,7 +14,7 @@ Role Variables
 --------------
 
 
-*** NGINX https mode ***
+### https mode ###
 
 The Galaxy portal runs through an `nginx` http proxy by default. The following
 variables enable you to set nginx in https mode:
