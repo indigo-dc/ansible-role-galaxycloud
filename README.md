@@ -15,50 +15,50 @@ Role Variables
 
 ### Path ###
 
-`galaxy_instance_description`: set Galaxy brand
+``galaxy_instance_description``: set Galaxy brand
 
-`galaxy_user`: set linux user to launch the Galaxy portal (default: ``galaxy``).
+``galaxy_user``: set linux user to launch the Galaxy portal (default: ``galaxy``).
 
-`GALAXY_UID`: set user UID (default: ``4001``).
+``GALAXY_UID``: set user UID (default: ``4001``).
 
-`galaxy_FS_path`: path to install Galaxy (default: ``/home/galaxy``).
+``galaxy_FS_path``: path to install Galaxy (default: ``/home/galaxy``).
 
-`galaxy_directory`: Galaxy directory (usually galaxy or galaxy-dist, default ``galaxy``).
+``galaxy_directory``: Galaxy directory (usually galaxy or galaxy-dist, default ``galaxy``).
 
-`galaxy_install_path`: Galaxy installation directory (default: ``/home/galaxy/galaxy``).
+``galaxy_install_path``: Galaxy installation directory (default: ``/home/galaxy/galaxy``).
 
-`galaxy_config_path`: Galaxy config pat location.
+``galaxy_config_path``: Galaxy config pat location.
 
-`galaxy_config_file`: Galaxy primary configuration file.
+``galaxy_config_file``: Galaxy primary configuration file.
 
-`galaxy_venv_path`:  Galaxy virtual environment directory (usually located to ``<galaxy_install_path>/.venv``).
+``galaxy_venv_path``:  Galaxy virtual environment directory (usually located to ``<galaxy_install_path>/.venv``).
 
-`galaxy_custom_config_path`: Galaxy custom configuration files path (default: ``/etc/galaxy``).
+``galaxy_custom_config_path``: Galaxy custom configuration files path (default: ``/etc/galaxy``).
 
-`galaxy_custom_script_path`: Galaxy custom script path (defautl: ``/usr/local/bin``).
+``galaxy_custom_script_path``: Galaxy custom script path (defautl: ``/usr/local/bin``).
 
-`galaxy_log_path`: log file directory (default: ``/var/log/galaxy``).
+``galaxy_log_path``: log file directory (default: ``/var/log/galaxy``).
 
-`galaxy_instance_url`: instance url (default:  ``http://<ipv4_address>/galaxy/``).
+``galaxy_instance_url``: instance url (default:  ``http://<ipv4_address>/galaxy/``).
 
-`galaxy_instance_key_pub`: instance ssh public key to configure <galaxy_user> access.
+``galaxy_instance_key_pub``: instance ssh public key to configure <galaxy_user> access.
 
-`galaxy_lrms`: enable  Galaxy virtual elastic cluster support. Currently supported local and slurm (default: ``local``, possible values: ``local, slurm``).
+``galaxy_lrms``: enable  Galaxy virtual elastic cluster support. Currently supported local and slurm (default: ``local``, possible values: ``local, slurm``).
 
 ### main options ###
 
-`GALAXY_VERSION`: set Galaxy version (e.g. ``master``, ``release_17.01``, ``release_17.05``...).
+``GALAXY_VERSION``: set Galaxy version (e.g. ``master``, ``release_17.01``, ``release_17.05``...).
 
-`GALAXY_ADMIN_USERNAME`: Galaxy administrator username.
+``GALAXY_ADMIN_USERNAME``: Galaxy administrator username.
 
-`GALAXY_ADMIN_PASSWORD`: Galaxy administrator password.
+``GALAXY_ADMIN_PASSWORD``: Galaxy administrator password.
 
-`GALAXY_ADMIN_API_KEY`: Galaxy administrator API_KEY. https://wiki.galaxyproject.org/Admin/API. Please note that this key acts as an alternate means to access your account, and should be treated with the same care as your login password. To be changed by the administrator.(default value: ``GALAXY_ADMIN_API_KEY``)
+``GALAXY_ADMIN_API_KEY``: Galaxy administrator API_KEY. https://wiki.galaxyproject.org/Admin/API. Please note that this key acts as an alternate means to access your account, and should be treated with the same care as your login password. To be changed by the administrator.(default value: ``GALAXY_ADMIN_API_KEY``)
 
-`GALAXY_ADMIN_EMAIL`: Galaxy administrator e-mail address
+``GALAXY_ADMIN_EMAIL``: Galaxy administrator e-mail address
 
-Galaxy configuration
-********************
+### Galaxy configuration ###
+
 ``export_dir``: Galaxy userdata are stored here (defatult: ``/export``).
 
 ``tool_deps_path``: change tool dependency directory (default: ``{{ export_dir }}/tool_deps``)
@@ -77,8 +77,8 @@ Galaxy configuration
 
 ``use_pbkdf2``: enable pbkdf2 cryptograpy (default: ``true``).
 
-Postgres database details
-*************************
+### Postgres database details ###
+
 ``postgresql_version``: set postgres version to be installed (current default: ``9.6``).
 
 ``galaxy_db_dir``: change galaxy database directory to store jobs results  (default: ``{{export_dir}}/galaxy/database``).
@@ -89,12 +89,9 @@ Postgres database details
 
 ``set_pgsql_random_password``: if set to ``false`` the role takes the password specified through ``galaxy_db_passwd`` variable (default: ``true``).
 
-NGINX
-*****
+### NGINX ###
+
 ``nginx_upload_store_path``: set nginx upload dataset directory (default: ``{{galaxy_db_dir}}/tmp/nginx_upload_store``).
-
-
-
 
 ### https mode ###
 
