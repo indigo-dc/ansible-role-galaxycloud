@@ -1,23 +1,20 @@
 Galaxy Cloud Role Name
 ======================
 
-Install Galaxy Production environment [1].
+Install Galaxy Production environment.
 This role has been specifically developed to be used in the INDIGO project.
 
 Requirements
 ------------
+This ansible role supports CentOS 7, Ubuntu 14.04 Trusty and Ubuntu 16.04 Xenial
 
-Min ansible version: 2.0
-Platforms: CentOS 7 (cloud image with Ansible Hook enabled)
-
-```
-AGENT_ELEMENTS="os-collect-config os-refresh-config os-apply-config"
-DEPLOYMENT_BASE_ELEMENTS="heat-config heat-config-script"
-DEPLOYMENT_TOOL="heat-config-ansible heat-config-cfn-init heat-config-puppet heat-config-salt heat-config-docker-compose”
-```
+Minimum ansible version: 2.1.2.0
 
 Role Variables
 --------------
+
+
+*** NGINX https mode ***
 
 The Galaxy portal runs through an `nginx` http proxy by default. The following
 variables enable you to set nginx in https mode:
