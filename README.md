@@ -1,5 +1,5 @@
-Galaxy Cloud Role Name
-======================
+indigo-dc.galaxycloud
+=====================
 
 Install Galaxy Production environment.
 This role has been specifically developed to be used in the INDIGO project.
