@@ -151,9 +151,49 @@ Example Playbook
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
+```yaml
     - hosts: servers
       roles:
-         - { role: galaxycloud }
+         - role: indigo-dc.galaxycloud
+           GALAXY_ADMIN_EMAIL: "admin@elixir-italy.org"
+           GALAXY_ADMIN_USERNAME: "admin"
+           GALAXY_VERSION: "release_17.05"
+           galaxy_instance_key_pub: "your_public_key"
+           galaxy_instance_description: "INDIGO-CNR test"
+```
+
+Install Galaxy setting postgresql passwords:
+
+```yaml
+    - hosts: servers
+      roles:
+         - role: indigo-dc.galaxycloud
+           GALAXY_ADMIN_EMAIL: "admin@elixir-italy.org"
+           GALAXY_ADMIN_USERNAME: "admin"
+           GALAXY_VERSION: "release_17.05"
+           galaxy_instance_key_pub: "your_public_key"
+           galaxy_instance_description: "INDIGO-CNR test"
+           set_pgsql_random_password: false
+           galaxy_db_passwd: 'galaxy'
+           set_proftpd_random_password: false
+           proftpd_db_passwd: 'galaxy'
+```
+
+Setup Galaxy Docker container. The role, using ansible, automatically recognize the virtual platform (virtual machine or Docker contanier).
+
+```yaml
+    - hosts: servers
+      roles:
+         - role: indigo-dc.galaxycloud
+           GALAXY_ADMIN_EMAIL: "admin@elixir-italy.org"
+           GALAXY_ADMIN_USERNAME: "admin"
+           GALAXY_VERSION: "release_17.05"
+           galaxy_instance_key_pub: "your_public_key"
+           galaxy_instance_description: "INDIGO-CNR test"
+           supervisor_manage_postgres: "True"
+           supervisor_manage_nginx: "True"
+           supervisor_manage_proftpd: "True"
+```
 
 License
 -------
