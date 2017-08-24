@@ -45,6 +45,56 @@ Role Variables
 
 `galaxy_lrms`: enable  Galaxy virtual elastic cluster support. Currently supported local and slurm (default: ``local``, possible values: ``local, slurm``).
 
+### main options ###
+
+`GALAXY_VERSION`: set Galaxy version (e.g. ``master``, ``release_17.01``, ``release_17.05``...).
+
+`GALAXY_ADMIN_USERNAME`: Galaxy administrator username.
+
+`GALAXY_ADMIN_PASSWORD`: Galaxy administrator password.
+
+`GALAXY_ADMIN_API_KEY`: Galaxy administrator API_KEY. https://wiki.galaxyproject.org/Admin/API. Please note that this key acts as an alternate means to access your account, and should be treated with the same care as your login password. To be changed by the administrator.(default value: ``GALAXY_ADMIN_API_KEY``)
+
+`GALAXY_ADMIN_EMAIL`: Galaxy administrator e-mail address
+
+Galaxy configuration
+********************
+``export_dir``: Galaxy userdata are stored here (defatult: ``/export``).
+
+``tool_deps_path``: change tool dependency directory (default: ``{{ export_dir }}/tool_deps``)
+
+``use_conda``: enable Conda (default: ``true``).
+
+``job_work_dir``: change job_working_dir path. Due to a current limitation in conda, the total length of the conda_prefix and the job_working_directory path should be less than 50 characters! (default: ``{{ export_dir }}/job_work_dir``).
+
+``conda_prefix``: change conda prefix directory (default: ``{{ export_dir }}/_conda``).
+
+``conda_channels``: change conda channels (default: ``iuc,bioconda,r,defaults,conda-forge``).
+
+``update_ucsc: update UCSC genome database (default: ``true``). A monthly cron job is added to keep update ucsc genome db.
+
+``fast_update``: force database update by copying cached files (default: ``true``).
+
+``use_pbkdf2``: enable pbkdf2 cryptograpy (default: ``true``).
+
+Postgres database details
+*************************
+``postgresql_version``: set postgres version to be installed (current default: ``9.6``).
+
+``galaxy_db_dir``: change galaxy database directory to store jobs results  (default: ``{{export_dir}}/galaxy/database``).
+
+``galaxy_db_port``: set postgres port (default: ``5432``).
+
+``galaxy_db_passwd``: set database password. By default it is generated a random password 20 characters long.
+
+``set_pgsql_random_password``: if set to ``false`` the role takes the password specified through ``galaxy_db_passwd`` variable (default: ``true``).
+
+NGINX
+*****
+``nginx_upload_store_path``: set nginx upload dataset directory (default: ``{{galaxy_db_dir}}/tmp/nginx_upload_store``).
+
+
+
 
 ### https mode ###
 
