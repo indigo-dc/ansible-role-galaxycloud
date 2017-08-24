@@ -110,41 +110,41 @@ You can either request a signed trusted certificate or generated self-signed
 certificate. An ansible role to generate self-signed certificate can be found
 in https://galaxy.ansible.com/LIP-Computing/ssl-certs/
 
-```
-# Galaxy administrator username
-GALAXY_ADMIN_USERNAME: "{{galaxy_admin_username}}"
+### PROFTPD ###
 
-# Galaxy administrator password.
-# It is hard coded. To be changed by the administrator.
-GALAXY_ADMIN_PASSWORD: "galaxy_admin_password"
+``proftpd_welcome``: set proftpd welcome message (default: ``galaxy ftp server``).
 
-# Galaxy administrator API_KEY. https://wiki.galaxyproject.org/Admin/API
-# Please note that this key acts as an alternate means to access your account, and should be treated with the same care as your login password. To be changed by the administrator.
-GALAXY_ADMIN_API_KEY: "GALAXY_ADMIN_API_KEY"
+``proftpd_conf_path``: set proftpd configuration file path.
 
-# Galaxy administrator e-mail address
-GALAXY_ADMIN_EMAIL: "{{galaxy_admin_mail}}"
-```
+``proftpd_db_user``: set proftpd database user (default: ``galaxyftp``).
 
-```
-galaxycloud/              # this hierarchy represents a "role"
-        tasks/            #
-            main.yml      #  <-- tasks file can include smaller files if warranted
-        handlers/         #
-            main.yml      #  <-- handlers file
-        templates/        #  <-- files for use with the template resource
-            ntp.conf.j2   #  <------- templates end in .j2
-        files/            #
-            bar.txt       #  <-- files for use with the copy resource
-            foo.sh        #  <-- script files for use with the script resource
-        vars/             #
-            main.yml      #  <-- variables associated with this role
-        defaults/         #
-            main.yml      #  <-- default lower priority variables for this role
-        meta/             #
-            main.yml      #  <-- role dependencies
+``proftpd_db_passwd``: set postgresql database password. By default it is generated a random password 20 characters long.
 
-```
+``proftpd_files_path``: set proftpd upload directory (default: ``{{galaxy_db_dir}}/ftp``).
+
+``proftpd_ftp_port``: set proftpd port (default: ``21``).
+
+``proftpd_passive_port_low``: set passive port range minimum (default: ``30000``).
+
+``proftpd_passive_port_high``: set passive port reng maximum (default:``40000``).
+
+``set_proftpd_random_password``: if set to ``false`` the role takes the password specified through ``proftpd_db_passwd`` variable (default: ``true``).
+
+### Init system ###
+
+Currently this role support supervisord and systemd/upstart to start Galaxy services.
+``init_type``: if set to ``supervisord``, it use to manage Galaxy. If set to ``init`` systemd/upstart is used to start Galaxy.
+
+It is possible to exploit supervisord to manage postegreSQL, NGINX and proftpd setting to ``true`` the following variables. To run this role on docker container you have to set them to ``true``.
+``supervisor_manage_postgres``: enable supervisord postgresql management (default: ``false``).
+
+``supervisor_manage_nginx``: enable supervisord nginx management (default: ``false``).
+
+``supervisor_manage_proftpd``: enable supervisord proftpd management (default: ``false``).
+
+### Advanced storage configuration ###
+
+``enable_storage_advanced_options``: this option, ``false`` by the default, has to be set to ``true`` only if you run the ansible role indigo-dc.galaxycloud-os, for advanced path configuration, onedata and filesystem encryption support. More details here: :doc:`ansible_galaxycloud-os` (default: ``false``).
 
 Example Playbook
 ----------------
