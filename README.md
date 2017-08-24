@@ -198,14 +198,11 @@ Setup Galaxy Docker container. The role, using ansible, automatically recognize 
 License
 -------
 
-Apache Licence v2 [2]
+Apache Licence v2
 
 References
--------
+----------
 
-[1] https://galaxyproject.org/
+Galaxy: https://galaxyproject.org/
 
-[2] http://www.apache.org/licenses/LICENSE-2.0
-
-
-
+Apache licence: http://www.apache.org/licenses/LICENSE-2.0
