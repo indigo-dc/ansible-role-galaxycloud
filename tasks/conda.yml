@@ -23,4 +23,4 @@
     section: 'app:main'
     option: 'conda_prefix'
     value: '{{ conda_prefix }}'
-  when: conda_prefix != "{{ tool_deps_path }}/_conda"
+  when: conda_prefix != "<tool_dependency_dir>/_conda"
