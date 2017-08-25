@@ -55,7 +55,7 @@
     proftpd_db_passwd: '{{ proftpd_random_pwd.stdout }}'
   when: set_proftpd_random_password|bool
 
-- name: Set proftpd configuration file path on Ubuntu
+- name: '[Ubuntu] Set proftpd configuration file path'
   set_fact:
     proftpd_conf_path: '/etc/proftpd/proftpd.conf'
   when: ansible_os_family == "Debian"
@@ -76,7 +76,7 @@
   become_user: postgres
   become_method: sudo
 
-- name: Set ip address | vm
+- name: '[VM] Set ip address'
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: 'app:main'
@@ -84,7 +84,7 @@
     value: '{{ ansible_default_ipv4.address }}'
   when: ansible_virtualization_type != "docker"
 
-- name: Set ip address | docker
+- name: '[Docker] Set ip address'
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: 'app:main'
