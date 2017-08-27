@@ -49,23 +49,11 @@
   register: pgdata_stat
   failed_when: false
 
-- name: '[EL] PostgreSQL initdb creates a new database cluster'
-  shell: "/usr/pgsql-{{ postgresql_version }}/bin/pg_ctl -D {{ postgresql_pgdata }} -o '--auth-host=md5' initdb"
+- name: '[EL] PostgreSQL initdb creates a new database cluster with right auth policies'
+  shell: "/usr/pgsql-{{ postgresql_version }}/bin/pg_ctl -D {{ postgresql_pgdata }} -o '--auth-host=md5 --auth-local=peer' initdb"
   become: yes
   become_user: postgres
   when: pgdata_stat.stat.isdir is not defined or not pgdata_stat.stat.isdir
-
-- name: '[EL] Edit pg_hba.conf IPv4 local connections'
-  replace:
-    dest: '{{ postgresql_pgdata }}/pg_hba.conf'
-    regexp: 'host    all             all             127.0.0.1/32            ident'
-    replace: 'host    all             all             127.0.0.1/32            md5'
-
-- name: '[EL] Edit pg_hba.conf IPv6 local connections'
-  replace:
-    dest: '{{ postgresql_pgdata }}/pg_hba.conf'
-    regexp: 'host    all             all             ::1/128                 ident'
-    replace: 'host    all             all             ::1/128                 md5'
 
 - name: '[EL] Start PostgreSQL server'
   shell: '/usr/pgsql-{{ postgresql_version }}/bin/pg_ctl -D {{ postgresql_pgdata }} -w start'
