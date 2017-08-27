@@ -3,13 +3,13 @@ LoadModule mod_sql_passwd.c
 LoadModule mod_sql_postgres.c
 
 # Basics, some site-specific
-ServerName                      "{{proftpd_welcome}}"
+ServerName                      "{{ proftpd_welcome }}"
 ServerType                      standalone
 DefaultServer                   on
 {% if ansible_virtualization_type != "docker" %}
-DefaultAddress                  {{ansible_default_ipv4.address}}
+DefaultAddress                  {{ ansible_default_ipv4.address }}
 {% endif %}
-Port                            {{proftpd_ftp_port}}
+Port                            {{ proftpd_ftp_port }}
 Umask                           077
 {% if ansible_virtualization_type != "docker" %}
 SyslogFacility                  DAEMON
@@ -19,12 +19,12 @@ SyslogLevel                     debug
 #SyslogLevel                    debug
 {% endif %}
 MaxInstances                    30
-User                            {{galaxy_user}}
-Group                           {{galaxy_user}}
+User                            {{ galaxy_user }}
+Group                           {{ galaxy_user }}
 DisplayConnect                  /etc/opt/local/proftpd_welcome.txt
 
 # Passive port range for the firewall
-PassivePorts                    {{proftpd_passive_port_low}} {{proftpd_passive_port_high}}
+PassivePorts                    {{ proftpd_passive_port_low }} {{ proftpd_passive_port_high }}
 
 # Cause every FTP user to be "jailed" (chrooted) into their home directory
 DefaultRoot                     ~
@@ -55,7 +55,7 @@ AuthPAM                         off
 SQLEngine                       on
 SQLPasswordEngine               on
 SQLBackend                      postgres
-SQLConnectInfo                  {{galaxy_user}}@localhost:{{galaxy_db_port}} {{proftpd_db_user}} {{proftpd_db_passwd.stdout}}
+SQLConnectInfo                  {{ galaxy_user }}@localhost:{{ galaxy_db_port }} {{ proftpd_db_user }} {{ proftpd_db_passwd }}
 SQLAuthenticate                 users
 
 # Configuration that handles PBKDF2 encryption

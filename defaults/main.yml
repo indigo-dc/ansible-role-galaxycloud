@@ -40,9 +40,6 @@ galaxy_instance_url: "http://{{ansible_default_ipv4.address}}/galaxy/"
 # Galaxy instance ssh public key
 galaxy_instance_key_pub: ""
 
-# Galaxy flavor
-galaxy_flavor: "galaxy-no-tools"
-
 # Galaxy virtual elastic cluster support: Currently supported local and slurm
 galaxy_lrms: local
 
@@ -74,7 +71,7 @@ tool_deps_path: "{{ export_dir }}/tool_deps"
 use_conda: true
 job_work_dir: "{{ export_dir }}/job_work_dir" # From galaxy.ini: IMPORTANT: Due to a current limitation in conda, the total length of the conda_prefix and the job_working_directory path should be less than 50 characters!
 conda_prefix: "{{ export_dir }}/_conda"
-conda_channels: "defaults,conda-forge,r,bioconda,iuc"
+conda_channels: "iuc,bioconda,r,defaults,conda-forge"
 
 # Update UCSC genome database
 update_ucsc: true
@@ -106,10 +103,12 @@ ssl_dhparam: /etc/certs/dhparam.pem
 proftpd_welcome: "galaxy ftp server"
 proftpd_conf_path: "/etc/proftpd.conf"
 proftpd_db_user: "galaxyftp"
+proftpd_db_passwd: 'galaxy'
 proftpd_files_path: "{{galaxy_db_dir}}/ftp"
 proftpd_ftp_port: 21
 proftpd_passive_port_low: 30000
 proftpd_passive_port_high: 40000
+set_proftpd_random_password: true
 
 #______________________________________
 # Init system

@@ -6,16 +6,21 @@
     option: '{{ item.option }}'
     value: '{{ item.value }}'
   with_items:
-    - { section: 'app:main', option: 'job_working_directory', value: "{{ job_work_dir }}" } # change job working dir only when conda is enabled by default, to workaround current conda limitations.
     - { section: 'app:main', option: 'conda_auto_install', value: "True" }
     - { section: 'app:main', option: 'conda_auto_init', value: "True" }
     #- { section: 'app:main', option: 'conda_ensure_channels', value: "{{ conda_channels }}" }
 
+- name: Change job working dir only when conda is enabled by default, to workaround current conda limitations
+  ini_file:
+    dest: '{{ galaxy_config_file }}'
+    section: 'app:main'
+    option: 'job_working_directory'
+    value: '{{ job_work_dir }}'
+  when: job_work_dir != 'database/jobs_directory' # job_work_dir is changed only if its value is different with resepct to the default one
+
 - ini_file:
     dest: '{{ galaxy_config_file }}'
-    section: '{{ item.section }}'
-    option: '{{ item.option }}'
-    value: '{{ item.value }}'
-  with_items:
-    - { section: 'app:main', option: 'conda_prefix', value: "{{ conda_prefix }}" }
-  when: conda_prefix != "{{ tool_deps_path }}/_conda"
+    section: 'app:main'
+    option: 'conda_prefix'
+    value: '{{ conda_prefix }}'
+  when: conda_prefix != "<tool_dependency_dir>/_conda"

@@ -61,35 +61,35 @@ class DetectGalaxyCommands:
   def get_startup_command(self):
     if self.init == 'supervisord':
       if self.os == 'centos': return 'supervisord -c /etc/supervisord.conf'
-      if self.os == 'ubuntu': return 'supervisord -c /etc/supervisor/supervisord.conf'
+      if self.os == 'Ubuntu': return 'supervisord -c /etc/supervisor/supervisord.conf'
     elif self.init == 'init':
       if self.os == 'centos': return 'systemctl start galaxy.service'
-      if self.os == 'ubuntu' and self.codename == 'xenial': return 'systemctl start galaxy.service'
-      if self.os == 'ubuntu' and self.codename == 'trusty': return 'service galaxy start'
+      if self.os == 'Ubuntu' and self.codename == 'xenial': return 'systemctl start galaxy.service'
+      if self.os == 'Ubuntu' and self.codename == 'trusty': return 'service galaxy start'
 
   #______________________________________
   def get_stop_command(self):
     if self.init == 'supervisord': return 'supervisorctl stop galaxy:'
     elif self.init == 'init':
       if self.os == 'centos': return 'systemctl stop galaxy.service'
-      if self.os == 'ubuntu' and self.codename == 'xenial': return 'systemctl stop galaxy.service'
-      if self.os == 'ubuntu' and self.codename == 'trusty': return 'service galaxy stop'
+      if self.os == 'Ubuntu' and self.codename == 'xenial': return 'systemctl stop galaxy.service'
+      if self.os == 'Ubuntu' and self.codename == 'trusty': return 'service galaxy stop'
 
   #______________________________________
   def get_start_command(self):
     if self.init == 'supervisord': return 'supervisorctl start galaxy:'
     elif self.init == 'init':
       if self.os == 'centos': return 'systemctl start galaxy.service'
-      if self.os == 'ubuntu' and self.codename == 'xenial': return 'systemctl start galaxy.service'
-      if self.os == 'ubuntu' and self.codename == 'trusty': return 'service galaxy start'
+      if self.os == 'Ubuntu' and self.codename == 'xenial': return 'systemctl start galaxy.service'
+      if self.os == 'Ubuntu' and self.codename == 'trusty': return 'service galaxy start'
 
   #______________________________________
   def get_status_command(self):
     if self.init == 'supervisord': return 'supervisorctl status galaxy:'
     elif self.init == 'init':
       if self.os == 'centos': return 'systemctl status galaxy.service'
-      if self.os == 'ubuntu' and self.codename == 'xenial': return 'systemctl status galaxy.service'
-      if self.os == 'ubuntu' and self.codename == 'trusty': return 'service galaxy status'
+      if self.os == 'Ubuntu' and self.codename == 'xenial': return 'systemctl status galaxy.service'
+      if self.os == 'Ubuntu' and self.codename == 'trusty': return 'service galaxy status'
 
   #______________________________________
   def get_init(self): return self.init
