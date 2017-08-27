@@ -50,7 +50,7 @@
   failed_when: false
 
 - name: '[EL] PostgreSQL initdb creates a new database cluster'
-  shell: "/usr/pgsql-{{ postgresql_version }}/bin/pg_ctl -D {{ postgresql_pgdata }} initdb"
+  shell: "/usr/pgsql-{{ postgresql_version }}/bin/pg_ctl -D {{ postgresql_pgdata }} -o '--auth-host=md5' initdb"
   become: yes
   become_user: postgres
   when: pgdata_stat.stat.isdir is not defined or not pgdata_stat.stat.isdir
