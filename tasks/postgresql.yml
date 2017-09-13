@@ -5,8 +5,11 @@
 # The default values of pgdata directory are driven from the -D command-line option or PGDATA environment variable.
 # See detailed description in postgresql_redhat and postgresql_ubuntu recipes
 
-#- name: Include postgresql specific variables.
-#  include_vars: postgresql_vars.yml
+- name: 'Wait PostgreSQL is up'
+  wait_for:
+    host: 0.0.0.0
+    port: '{{ galaxy_db_port }}'
+    timeout: 10
 
 #______________________________________
 # CentOS 7
