@@ -34,4 +34,3 @@
 
 - name: '[Ubuntu] Start PostgreSQL server'
   shell: '/etc/init.d/postgresql start'
-  when: ansible_virtualization_type == "docker"
