@@ -32,6 +32,13 @@
     - "postgresql{{ '-' ~ postgresql_version if postgresql_version is defined else '' }}"
     - python-psycopg2
 
-- name: '[Ubuntu] Start PostgreSQL server'
+- name: '[VM] Ensure PostgreSQL is running'
+  service:
+    name: '{{ postgresql_service_name }}'
+    enabled: yes
+    state: started
+  when: ansible_virtualization_type != "docker"
+
+- name: '[Ubuntu] [Docker] Start PostgreSQL server'
   shell: '/etc/init.d/postgresql start'
   when: ansible_virtualization_type == "docker"

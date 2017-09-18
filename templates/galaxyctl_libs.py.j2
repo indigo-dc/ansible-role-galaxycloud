@@ -354,6 +354,8 @@ class OneDataCtl:
     self.token = None
     self.insecure = False
     self.nonempty = False
+    self.uid = 4001
+    self.gid = 4001
 
     configParser = ConfigParser.RawConfigParser()
     configParser.readfp(open(fname))
@@ -382,6 +384,8 @@ class OneDataCtl:
 
     if configParser.has_option(self.section, 'insecure'): self.insecure = configParser.get(self.section, 'insecure')
     if configParser.has_option(self.section, 'nonempty'): self.nonempty = configParser.get(self.section, 'nonempty')
+    if configParser.has_option(self.section, 'uid'): self.nonempty = configParser.get(self.section, 'uid')
+    if configParser.has_option(self.section, 'gid'): self.nonempty = configParser.get(self.section, 'gid')
 
   #______________________________________
   # getter
@@ -390,6 +394,8 @@ class OneDataCtl:
   def get_token(self): return self.token
   def get_insecure(self): return self.insecure
   def get_nonempty(self): return self.nonempty
+  def get_gid(self): return self.gid
+  def get_uid(self): return self.uid
 
   #______________________________________
   # setter
@@ -398,6 +404,8 @@ class OneDataCtl:
   def set_token(self, token): self.token = token
   def set_insecure(self, insecure): self.insecure = insecure
   def set_nonempty(self, nonempty): self.nonempty = nonempty
+  def set_uid(self, uid): self.uid = uid
+  def set_gid(self, gid): self.gid = gid
 
   #______________________________________
   # Mount space
@@ -407,14 +415,18 @@ class OneDataCtl:
     if self.nonempty == 'True': command += ' -o nonempty'
 
     logging.debug('[galaxyctl_libs OneDataCtl] %s' % str(command))
-
-    subprocess.call( command, shell=True )
+    subprocess.call( command, shell=True, preexec_fn=self.demote(self.uid, self.gid) )
 
   #______________________________________
   # Umount space
   def umount_space(self):
     command = 'fusermount -u %s' % (self.mountpoint)
     logging.debug('[galaxyctl_libs OneDataCtl] %s' % str(command))
-    subprocess.call( command, shell=True )
+    subprocess.call( command, shell=True, preexec_fn=self.demote(self.uid, self.gid) )
 
-
+  #______________________________________
+  def demote(self, user_uid, user_gid):
+     logging.debug('[galaxyctl_libs OneDataCtl] Starting demotion: uid, gid = %d, %d' % (os.getuid(), os.getgid()) )
+     os.setgid(user_gid)
+     os.setuid(user_uid)
+     logging.debug('[galaxyctl_libs OneDataCtl] Finished demotion: uid, gid = %d, %d' % (os.getuid(), os.getgid()) )
