@@ -38,7 +38,7 @@
 
 - name: Create galaxy db random passwd
   command: "{{ galaxy_custom_script_path }}/pwd-generator -l 20"
-  register: random_pwd	
+  register: random_pwd
   when: set_pgsql_random_password|bool
 
 - name: Set random password as galaxy db password
