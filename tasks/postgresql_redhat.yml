@@ -56,7 +56,7 @@
   when: pgdata_stat.stat.isdir is not defined or not pgdata_stat.stat.isdir
 
 - name: '[EL] Start PostgreSQL only if not running'
-  stat: path={{ postgresql_pgdata}}/postmaster.pid
+  stat: path={{ postgresql_pgdata }}/postmaster.pid
   register: pg_pid
 
 - name: '[EL] Start PostgreSQL server'
