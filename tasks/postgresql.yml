@@ -36,43 +36,30 @@
 #______________________________________
 # Galaxy database configuration
 
-- stat:
-    path: '{{galaxy_log_path}}/db_random_pwd'
-  register: db_random_pwd_check
-
 - name: Create galaxy db random passwd
   command: "{{ galaxy_custom_script_path }}/pwd-generator -l 20"
-  args:
-    creates: '{{galaxy_log_path}}/db_random_pwd'
   register: random_pwd
   when: set_pgsql_random_password|bool
 
 - name: Set random password as galaxy db password
   set_fact:
     galaxy_db_passwd: '{{ random_pwd.stdout }}'
-  when:
-    - set_pgsql_random_password|bool
-    - not db_random_pwd_check.stat.exists
+  when: set_pgsql_random_password|bool
 
 - name: Create galaxy_database_connection vars, needed in task/galaxy-custom.yml for create_galaxy_user.py
   set_fact:
     galaxy_database_connection: 'postgresql://{{ galaxy_user }}:{{ galaxy_db_passwd }}@localhost:{{ galaxy_db_port }}/{{ galaxy_user }}'
-  when:
-    - set_pgsql_random_password|bool
-    - not db_random_pwd_check.stat.exists
+  when: set_pgsql_random_password|bool
 
 - name: Create galaxy_install_database_connection vars.
   set_fact:
     galaxy_install_database_connection: 'postgresql://{{ galaxy_user }}:{{ galaxy_db_passwd }}@localhost:{{ galaxy_db_port }}/galaxy_tools'
-  when:
-    - set_pgsql_random_password|bool
-    - not db_random_pwd_check.stat.exists
+  when: set_pgsql_random_password|bool
 
 - name: Create galaxy db user
   postgresql_user:
     name: '{{ galaxy_user }}'
     password: '{{ galaxy_db_passwd }}'
-  when: not db_random_pwd_check.stat.exists
   become_user: postgres
   become_method: sudo
 
@@ -80,7 +67,6 @@
   postgresql_db:
     name: '{{ galaxy_user }}'
     owner: '{{ galaxy_user }}'
-  when: not db_random_pwd_check.stat.exists
   become_user: postgres
   become_method: sudo
 
@@ -88,7 +74,6 @@
   postgresql_db:
     name: 'galaxy_tools'
     owner: '{{ galaxy_user }}'
-  when: not db_random_pwd_check.stat.exists
   become_user: postgres
   become_method: sudo
 
@@ -103,22 +88,18 @@
     - { section: 'app:main', option: 'database_engine_option_server_side_cursors', value: "True" }
     - { section: 'app:main', option: 'install_database_connection', value: "{{ galaxy_install_database_connection }}" }
     - { section: 'app:main', option: 'install_database_engine_option_server_side_cursors', value: "True" }
-  when: not db_random_pwd_check.stat.exists
 
 - name: Create Galaxy DB
   command: "{{ galaxy_venv_path }}/bin/python {{ galaxy_install_path }}/scripts/create_db.py -c {{ galaxy_config_file }}"
   args:
     chdir: '{{ galaxy_install_path }}/'
-    creates: '{{galaxy_log_path}}/create_db'
 
 - name: Create Galaxy install DB
   command: "{{ galaxy_venv_path }}/bin/python {{ galaxy_install_path }}/scripts/create_db.py -c {{ galaxy_config_file }} install"
   args:
     chdir: '{{ galaxy_install_path }}/'
-    creates: '{{galaxy_log_path}}/create_install_db'
 
 - name: Update Galaxy DB
   command: "{{ galaxy_venv_path }}/bin/python {{ galaxy_install_path }}/scripts/manage_db.py -c {{ galaxy_config_file }} upgrade install"
   args:
     chdir: '{{ galaxy_install_path}}/'
-    creates: '{{galaxy_log_path}}/update_db'
