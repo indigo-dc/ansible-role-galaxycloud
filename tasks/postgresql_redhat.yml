@@ -55,7 +55,12 @@
   become_user: postgres
   when: pgdata_stat.stat.isdir is not defined or not pgdata_stat.stat.isdir
 
+- name: '[EL] Start PostgreSQL only if not running'
+  stat: path={{ postgresql_pgdata}}/postmaster.pid
+  register: pg_pid
+
 - name: '[EL] Start PostgreSQL server'
   shell: '/usr/pgsql-{{ postgresql_version }}/bin/pg_ctl -D {{ postgresql_pgdata }} -w start'
+  when: not pg_pid.stat.exists
   become: yes
   become_user: postgres
