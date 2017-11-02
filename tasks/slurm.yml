@@ -6,24 +6,17 @@
        virtualenv="{{galaxy_venv_path}}"
 
 # Install slurm-drmaa
-- apt: name=slurm-drmaa1
-  when: ansible_os_family == "Debian"
-
 - get_url: url=http://apps.man.poznan.pl/trac/slurm-drmaa/downloads/9 dest=/tmp/slurm-drmaa.tar.gz
-  when: ansible_os_family == "RedHat"
+
 - unarchive: src=/tmp/slurm-drmaa.tar.gz dest=/tmp copy=no
-  when: ansible_os_family == "RedHat"
+
 - command: ./configure chdir=/tmp/slurm-drmaa-1.0.7 creates=/tmp/slurm-drmaa-1.0.7/Makefile
-  when: ansible_os_family == "RedHat"
   environment:
    CFLAGS: "-g -O0"
-- command: make chdir=/tmp/slurm-drmaa-1.0.7 creates=/tmp/slurm-drmaa-1.0.7/slurm_drmaa/.libs/libdrmaa.so
-  when: ansible_os_family == "RedHat"
-- command: make install chdir=/tmp/slurm-drmaa-1.0.7 creates=/usr/local/lib/libdrmaa.so
-  when: ansible_os_family == "RedHat"
 
-- file: src=/usr/lib/slurm-drmaa/lib/libdrmaa.so.1 dest=/usr/local/lib/libdrmaa.so state=link
-  when: ansible_os_family == "Debian"
+- command: make chdir=/tmp/slurm-drmaa-1.0.7 creates=/tmp/slurm-drmaa-1.0.7/slurm_drmaa/.libs/libdrmaa.so
+
+- command: make install chdir=/tmp/slurm-drmaa-1.0.7 creates=/usr/local/lib/libdrmaa.so
 
 # Set the databse galaxy path to NFS shared dir
 - file: path={{galaxy_install_path}}/database/slurm state=directory recurse=yes
