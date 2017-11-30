@@ -1,6 +1,11 @@
 ---
 # Galaxy customization recipe
 
+- name: Enable test toolShed
+  copy:
+    src: 'tool_sheds_conf.xml'
+    dest: '{{galaxy_config_path}}'
+
 #______________________________________
 # galaxy.ini configuration
 
