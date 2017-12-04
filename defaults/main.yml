@@ -128,3 +128,9 @@ supervisor_manage_proftpd: "False"
 # Facts needs to be gathered!
 
 enable_storage_advanced_options: false
+
+#______________________________________
+# Inform the role if galaxy tools and reference data will be installed
+# If yes, galaxy is not started
+galaxy_flavor: 'galaxy-no-tools'
+get_refdata: false
