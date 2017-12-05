@@ -46,10 +46,13 @@
 # Galaxy administrator: email. username, password and api_key
 # IMPORTANT: start Galaxy database postgresql to setup the galaxy administrator credentials
 
-- name: 'Copy create_galaxy_user.py to {{ galaxy_custom_script_path }}'
+- name: 'Copy create/delete user script to {{ galaxy_custom_script_path }}'
   template:
-    src: 'create_galaxy_user.py.j2'
-    dest: '{{ galaxy_custom_script_path }}/create_galaxy_user.py'
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+  with_items:
+    - { src: 'create_galaxy_user.py.j2', dest: '{{ galaxy_custom_script_path }}/create_galaxy_user.py' }
+    - { src: 'delete_galaxy_user.py.j2', dest: '{{ galaxy_custom_script_path }}/delete_galaxy_user.py' }
   become_user: root
   become_method: sudo
 
