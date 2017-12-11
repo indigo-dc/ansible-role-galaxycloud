@@ -16,7 +16,6 @@
     option: '{{ item.option }}'
     value: '{{ item.value }}'
   with_items:
-    - { section: 'app:main', option: 'admin_users', value: "{{ GALAXY_ADMIN_EMAIL }}" }
     - { section: 'app:main', option: 'brand', value: "{{ galaxy_instance_description }}" }
     - { section: 'app:main', option: 'tool_dependency_dir', value: "{{ tool_deps_path }}" }
 
@@ -56,6 +55,14 @@
   become_user: root
   become_method: sudo
 
+- name: 'Set Galaxy admin in galaxy.ini file'
+  ini_file:
+    dest: '{{ galaxy_config_file }}'
+    section: 'app:main'
+    option: 'admin_users'
+    value: '{{ GALAXY_ADMIN_EMAIL }}'
+  when: create_galaxy_admin|bool
+
 - name: Setup Galaxy administrator
   command: "{{ galaxy_venv_path }}/bin/python {{ galaxy_custom_script_path }}/create_galaxy_user.py --user {{ GALAXY_ADMIN_EMAIL }} --password {{ GALAXY_ADMIN_PASSWORD }} --username {{ GALAXY_ADMIN_USERNAME }} -c {{ galaxy_config_file }} --key {{ GALAXY_ADMIN_API_KEY }}"
   args:
@@ -63,6 +70,7 @@
   environment:
     PYTHONPATH: "{{ galaxy_install_path }}/lib"
     VIRTUAL_ENV: "{{ galaxy_venv_path }}"
+  when: create_galaxy_admin|bool
 
 #______________________________________
 # id_secret configuration

@@ -44,6 +44,11 @@ galaxy_instance_key_pub: ""
 galaxy_lrms: local
 
 #______________________________________
+# Galaxy administrator
+
+# Enable Galaxy administrator user creation.
+create_galaxy_admin: true
+
 # Galaxy administrator username
 GALAXY_ADMIN_USERNAME: "galaxy_admin_username"
 
