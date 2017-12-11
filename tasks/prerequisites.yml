@@ -4,6 +4,16 @@
 # Compatible with CentOS 7, Ubuntu 16.04 and 14.04
 
 #______________________________________
+# Disable Selinux to have services working
+- name: Disable Selinux
+  selinux:
+    policy: targeted
+    state: permissive
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "RedHat"
+
+#______________________________________
 # CentOS 7
 
 - name: '[EL] Install packages'
