@@ -11,7 +11,7 @@
     state: permissive
   become_user: root
   become_method: sudo
-  when: ansible_os_family == "RedHat" and ansible_virtualization_type |= "docker"
+  when: ansible_os_family == "RedHat" and ansible_virtualization_type != "docker"
 
 #______________________________________
 # CentOS 7
