@@ -1,6 +1,11 @@
 ---
 # Galaxy customization recipe
 
+- name: Enable test toolShed
+  copy:
+    src: 'tool_sheds_conf.xml'
+    dest: '{{galaxy_config_path}}'
+
 #______________________________________
 # galaxy.ini configuration
 
@@ -11,7 +16,6 @@
     option: '{{ item.option }}'
     value: '{{ item.value }}'
   with_items:
-    - { section: 'app:main', option: 'admin_users', value: "{{ GALAXY_ADMIN_EMAIL }}" }
     - { section: 'app:main', option: 'brand', value: "{{ galaxy_instance_description }}" }
     - { section: 'app:main', option: 'tool_dependency_dir', value: "{{ tool_deps_path }}" }
 
@@ -41,12 +45,23 @@
 # Galaxy administrator: email. username, password and api_key
 # IMPORTANT: start Galaxy database postgresql to setup the galaxy administrator credentials
 
-- name: 'Copy create_galaxy_user.py to {{ galaxy_custom_script_path }}'
+- name: 'Copy create/delete user script to {{ galaxy_custom_script_path }}'
   template:
-    src: 'create_galaxy_user.py.j2'
-    dest: '{{ galaxy_custom_script_path }}/create_galaxy_user.py'
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+  with_items:
+    - { src: 'create_galaxy_user.py.j2', dest: '{{ galaxy_custom_script_path }}/create_galaxy_user.py' }
+    - { src: 'delete_galaxy_user.py.j2', dest: '{{ galaxy_custom_script_path }}/delete_galaxy_user.py' }
   become_user: root
   become_method: sudo
+
+- name: 'Set Galaxy admin in galaxy.ini file'
+  ini_file:
+    dest: '{{ galaxy_config_file }}'
+    section: 'app:main'
+    option: 'admin_users'
+    value: '{{ GALAXY_ADMIN_EMAIL }}'
+  when: create_galaxy_admin|bool
 
 - name: Setup Galaxy administrator
   command: "{{ galaxy_venv_path }}/bin/python {{ galaxy_custom_script_path }}/create_galaxy_user.py --user {{ GALAXY_ADMIN_EMAIL }} --password {{ GALAXY_ADMIN_PASSWORD }} --username {{ GALAXY_ADMIN_USERNAME }} -c {{ galaxy_config_file }} --key {{ GALAXY_ADMIN_API_KEY }}"
@@ -55,6 +70,7 @@
   environment:
     PYTHONPATH: "{{ galaxy_install_path }}/lib"
     VIRTUAL_ENV: "{{ galaxy_venv_path }}"
+  when: create_galaxy_admin|bool
 
 #______________________________________
 # id_secret configuration
