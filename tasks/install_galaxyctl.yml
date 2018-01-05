@@ -1,0 +1,13 @@
+---
+- name: 'Clone Galaxy Central Management Tool (galaxyctl)'
+  git:
+    repo: 'https://github.com/mtangaro/galaxyctl.git'
+    clone: yes
+    dest: '{{ galaxy_FS_path }}/galaxyctl'
+
+- name: Install galaxyctl
+  command: 'pip install .'
+  args:
+    chdir: '{{ galaxy_FS_path }}/galaxyctl'
+  become_user: root
+  become_method: sudo
