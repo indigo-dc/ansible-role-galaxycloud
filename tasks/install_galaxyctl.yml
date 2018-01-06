@@ -11,3 +11,16 @@
     chdir: '{{ galaxy_FS_path }}/galaxyctl'
   become_user: root
   become_method: sudo
+
+- name: Edit galaxyctl ini file
+  ini_file:
+    dest: '/etc/galaxyctl/galaxyctl.ini'
+    section: '{{ item.section }}'
+    option: '{{ item.option }}'
+    value: '{{ item.value }}'
+  with_items:
+    - { section: 'galaxy', option: 'init_system', value: '{{ init_type }}' }          
+    - { section: 'galaxy', option: 'supervisord_conf_file', value: '{{ supervisord_conf_path }}/supervisord.conf' }
+    - { section: 'galaxy', option: 'galaxy_config_file', value: '{{ galaxy_config_file }}' }      
+    - { section: 'galaxy', option: 'uwsgi_pid_file', value: '{{ galaxy_log_path }}/uwsgi.pid' }
+    - { section: 'galaxy', option: 'galaxyctl_log_file', value: '{{ galaxy_log_path }}/galaxyctl.log' }
