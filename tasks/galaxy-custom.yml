@@ -20,6 +20,7 @@
     - { section: 'app:main', option: 'require_login', value: "True" }
     - { section: 'app:main', option: 'allow_user_creation', value: "True" }
     - { section: 'app:main', option: 'allow_user_impersonation', value: "True" }
+    - { section: 'app:main', option: 'new_user_dataset_access_role_default_private', value: "True" }
     - { section: 'app:main', option: 'tool_dependency_dir', value: "{{ tool_deps_path }}" }
 
 - name: Database directory configuration
