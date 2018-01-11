@@ -6,9 +6,10 @@
     dest: '{{ galaxy_FS_path }}/galaxyctl'
 
 - name: Install galaxyctl
-  command: 'pip install .'
-  args:
-    chdir: '{{ galaxy_FS_path }}/galaxyctl'
+  pip:
+    name: .
+    chdir: '/home/galaxy/galaxyctl'
+    executable: '/bin/pip'
   become_user: root
   become_method: sudo
 
