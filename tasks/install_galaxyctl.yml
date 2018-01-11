@@ -1,9 +1,18 @@
 ---
+- name: Check galaxyctl
+  command: '/usr/bin/galaxyctl --version'
+  ignore_errors: true
+  changed_when: false # read-only task
+  register: galaxyctl_is_installed
+  become_user: root
+  become_method: sudo
+
 - name: 'Clone Galaxy Central Management Tool (galaxyctl)'
   git:
     repo: 'https://github.com/mtangaro/galaxyctl.git'
     clone: yes
     dest: '{{ galaxy_FS_path }}/galaxyctl'
+  when: galaxyctl_is_installed.rc != 0
 
 - name: Install galaxyctl
   pip:
@@ -12,6 +21,7 @@
     executable: '/bin/pip'
   become_user: root
   become_method: sudo
+  when: galaxyctl_is_installed.rc != 0
 
 - name: Edit galaxyctl ini file
   ini_file:
