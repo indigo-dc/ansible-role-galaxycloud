@@ -14,11 +14,19 @@
     dest: '{{ galaxy_FS_path }}/galaxyctl'
   when: galaxyctl_is_installed.rc != 0
 
+- set_fact:
+    pip_exe: '/usr/bin/pip'
+  when: ansible_os_family == "Debian"
+
+- set_fact:
+    pip_exe: '/bin/pip'
+  when: ansible_os_family == "RedHat"
+
 - name: Install galaxyctl
   pip:
     name: .
     chdir: '/home/galaxy/galaxyctl'
-    executable: '/bin/pip'
+    executable: '{{ pip_exe }}'
   become_user: root
   become_method: sudo
   when: galaxyctl_is_installed.rc != 0
