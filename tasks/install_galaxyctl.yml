@@ -15,12 +15,12 @@
   when: galaxyctl_is_installed.rc != 0
 
 - set_fact:
-    pip_exe: '/usr/bin/pip'
-  when: ansible_os_family == "Debian"
-
-- set_fact:
     pip_exe: '/bin/pip'
   when: ansible_os_family == "RedHat"
+
+- set_fact:
+    pip_exe: '/usr/bin/pip'
+  when: ansible_os_family == "Debian"
 
 - name: Install galaxyctl
   pip:
@@ -43,3 +43,5 @@
     - { section: 'galaxy', option: 'galaxy_config_file', value: '{{ galaxy_config_file }}' }      
     - { section: 'galaxy', option: 'uwsgi_pid_file', value: '{{ galaxy_log_path }}/uwsgi.pid' }
     - { section: 'galaxy', option: 'galaxyctl_log_file', value: '{{ galaxy_log_path }}/galaxyctl.log' }
+  become_user: root
+  become_method: sudo
