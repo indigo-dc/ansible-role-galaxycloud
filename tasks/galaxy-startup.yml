@@ -1,7 +1,9 @@
 ---
 # Galaxy startup recipe
 
-- name: Copy Galaxy management script
+- include: install_galaxyctl.yml
+
+- name: Copy Galaxy startup script
   template:
     src: '{{ item.src }}'
     dest: '{{ item.dest }}'
@@ -9,8 +11,6 @@
   with_items:
     - { src: 'galaxy_startup.j2', dest: '{{ galaxy_custom_script_path }}/galaxy-startup', mode: 'a+x' }
     - { src: 'galaxy_restart.j2', dest: '{{ galaxy_custom_script_path }}/galaxy-restart', mode: 'a+x' }
-    - { src: 'galaxyctl_libs.py.j2', dest: '{{ galaxy_custom_script_path }}/galaxyctl_libs.py', mode: 'a+x' }
-    - { src: 'galaxyctl.py.j2', dest: '{{ galaxy_custom_script_path }}/galaxyctl', mode: 'a+x' }
   become_user: root
   become_method: sudo
 

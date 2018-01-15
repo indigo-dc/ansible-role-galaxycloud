@@ -12,7 +12,6 @@
 
 ## Uncomment and edit this line to refer to galaxy's path:
 GALAXY='{{ galaxy_install_path }}'
-GALAXYCTL_PATH='{{ galaxy_custom_script_path }}'
 timeout=600
 
 #______________________________________
@@ -28,7 +27,7 @@ cd ${GALAXY}
 function start_galaxy {
   
   echo "Starting the Galaxy production environment"
-  python $GALAXYCTL_PATH/galaxyctl startup galaxy -c {{ galaxy_config_file }} -t $timeout
+  /usr/bin/galaxyctl startup galaxy -c {{ galaxy_config_file }} -t $timeout
 
 }
 
