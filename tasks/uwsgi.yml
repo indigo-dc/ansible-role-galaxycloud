@@ -34,11 +34,12 @@
 - name: Include uWSGI specific variables.
   include_vars: uwsgi_vars.yml
 
-- name: Install uWSGI
+- name: Install uWSGI for galaxy
   pip:
     name: uwsgi
     virtualenv: "{{ galaxy_venv_path }}"
     virtualenv_command: "{{ pip_virtualenv_command | default( 'virtualenv' ) }}"
+    extra_args: "--extra-index-url https://wheels.galaxyproject.org/"
 
 #______________________________________
 # Add uWSGI section to galaxy.ini file
