@@ -80,6 +80,16 @@ Role Variables
 
 ``use_pbkdf2``: enable pbkdf2 cryptograpy (default: ``true``).
 
+### Galaxy user login options ### 
+``require_login``: force everyone to log in, i.e. disable anonymous access (default: ``True``).
+
+``allow_user_creation``: allow unregistered users to create new accounts (default: ``True``).
+
+``allow_user_impersonation``: allow administrators to log in as other users (default: ``True``).
+
+``new_user_dataset_access_role_default_private``: by default users data will be public, but setting this to True will cause it to be private (default: ``True``).
+
+
 ### Postgres database details ###
 
 ``postgresql_version``: set postgres version to be installed (current default: ``9.6``).

@@ -85,6 +85,12 @@ fast_update: true # Force database update by copying cached files. Only for test
 # Enable pbkdf2
 use_pbkdf2: true
 
+# Galaxy login
+require_login: "True"
+allow_user_creation: "True"
+allow_user_impersonation: "True"
+new_user_dataset_access_role_default_private: "True"
+
 #______________________________________
 # Postgres database details
 postgresql_version: '9.6'
