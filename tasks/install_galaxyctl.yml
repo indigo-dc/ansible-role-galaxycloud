@@ -7,6 +7,10 @@
   become_user: root
   become_method: sudo
 
+- set_fact:
+    galaxyctl_path: '{{ galaxy_FS_path }}/.galaxyctl'
+  when: galaxyctl_is_installed.rc != 0
+
 - name: 'Clone Galaxy Central Management Tool (galaxyctl)'
   git:
     repo: 'https://github.com/mtangaro/galaxyctl.git'
@@ -21,10 +25,6 @@
 - set_fact:
     pip_exe: '/usr/bin/pip'
   when: ansible_os_family == "Debian"
-
-- set_fact:
-    galaxyctl_path: '{{ galaxy_FS_path }}/.galaxyctl'
-  when: galaxyctl_is_installed.rc != 0
 
 - name: Install galaxyctl
   pip:
