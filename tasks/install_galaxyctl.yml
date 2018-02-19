@@ -25,6 +25,7 @@
   git:
     repo: 'https://github.com/mtangaro/galaxyctl.git'
     clone: yes
+    update: yes
     dest: '{{ galaxyctl_path }}'
   when: galaxyctl_is_installed.rc != 0
 
