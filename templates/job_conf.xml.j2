@@ -3,7 +3,9 @@
     <plugins>
         <plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner" workers="{{galaxy_workers}}"/>
 {%if galaxy_lrms == "slurm"%}
-        <plugin id="slurm" type="runner" load="galaxy.jobs.runners.drmaa:DRMAAJobRunner" workers="100"/>
+        <plugin id="slurm" type="runner" load="galaxy.jobs.runners.drmaa:DRMAAJobRunner" workers="100">
+            <param id="drmaa_library_path">/usr/local/lib/libdrmaa.so</param>
+        <plugin>
 {% endif %}
     </plugins>
     <handlers default="handlers">
