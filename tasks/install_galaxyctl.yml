@@ -1,6 +1,16 @@
 ---
+- set_fact:
+    pip_exe: '/bin/pip'
+    galaxyctl_bin_path: '/usr/bin'
+  when: ansible_os_family == "RedHat"
+
+- set_fact:
+    pip_exe: '/usr/bin/pip'
+    galaxyctl_bin_path: '/usr/local/bin'
+  when: ansible_os_family == "Debian"
+
 - name: Check galaxyctl
-  command: '/usr/bin/galaxyctl --version'
+  command: '{{ galaxyctl_bin_path }}/galaxyctl --version'
   ignore_errors: true
   changed_when: false # read-only task
   register: galaxyctl_is_installed
@@ -15,16 +25,9 @@
   git:
     repo: 'https://github.com/mtangaro/galaxyctl.git'
     clone: yes
+    update: yes
     dest: '{{ galaxyctl_path }}'
   when: galaxyctl_is_installed.rc != 0
-
-- set_fact:
-    pip_exe: '/bin/pip'
-  when: ansible_os_family == "RedHat"
-
-- set_fact:
-    pip_exe: '/usr/bin/pip'
-  when: ansible_os_family == "Debian"
 
 - name: Install galaxyctl
   pip:
