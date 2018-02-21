@@ -5,7 +5,7 @@
 {%if galaxy_lrms == "slurm"%}
         <plugin id="slurm" type="runner" load="galaxy.jobs.runners.drmaa:DRMAAJobRunner" workers="100">
             <param id="drmaa_library_path">/usr/local/lib/libdrmaa.so</param>
-        <plugin>
+        </plugin>
 {% endif %}
     </plugins>
     <handlers default="handlers">
