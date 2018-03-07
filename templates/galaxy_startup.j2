@@ -22,12 +22,47 @@ cd ${GALAXY}
 . ${GALAXY}/.venv/bin/activate
 
 #______________________________________
+# Check if Galaxy is running
+function check_galaxy {
+  echo 'Check if galaxy is up and running, to avoid unuseful restart'
+  if curl -s --head  --request GET {{ galaxy_instance_url }} | grep "200 OK" > /dev/null; then 
+    return 0
+  else
+    return 1
+  fi
+}
+
+#______________________________________
+# CHeck if supervisord is running
+function check_supervisord {
+  echo 'Check is supervisord is running'
+  pgrep 'supervisord' > /dev/null && return 0 || return 1
+}
+
+#______________________________________
 # Define start function
 # (supervisord or systemd/upstart)
 function start_galaxy {
-  
-  echo "Starting the Galaxy production environment"
-  {{galaxyctl_bin_path}}/galaxyctl startup galaxy -c {{ galaxy_config_file }} -t $timeout
+ 
+  check_galaxy
+  ecode=$?
+
+  if [[ $ecode = 0 ]]; then
+      echo 'Galaxy is up and running. Avoid to restart'
+      exit 0
+  else
+     echo 'Galaxy unreachable'
+     check_supervisord
+     scode=$?
+     if [[ $scode = 0 ]]; then
+         echo 'Supervisord already running'
+         echo 'Restarting the Galaxy production environment'
+         {{galaxyctl_bin_path}}/galaxyctl restart galaxy --force -c {{ galaxy_config_file }} -t $timeout
+     else
+         echo "Starting the Galaxy production environment"
+         {{galaxyctl_bin_path}}/galaxyctl startup galaxy -c {{ galaxy_config_file }} -t $timeout
+     fi
+  fi
 
 }
 
