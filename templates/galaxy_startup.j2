@@ -24,7 +24,7 @@ cd ${GALAXY}
 #______________________________________
 # Check if Galaxy is running
 # 200 galaxy is found
-# 302 redirect url is found (when anonymous login is disabled)
+# 302 redirect url is found (when anonymous login is enabled)
 function check_galaxy {
   echo 'Check if galaxy is up and running, to avoid unuseful restart'
   galaxy_status=`curl --write-out "%{http_code}\n" --silent --output /dev/null "{{ galaxy_instance_url }}"`
