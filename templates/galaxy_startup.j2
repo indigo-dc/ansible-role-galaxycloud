@@ -16,10 +16,17 @@ timeout=600
 
 #______________________________________
 # Load Galaxy environment
-
 echo "Loading Galaxy environment"
 cd ${GALAXY}
 . ${GALAXY}/.venv/bin/activate
+
+#______________________________________
+# Add $HOME/bin and /export/bin to PATH
+# Allow to install executable in $HOME/bin exploitable by Galaxy
+# $HOME and /export are shared on cluster between fe and wn.
+echo "Exporting environment variables"
+export PATH=$HOME/bin:$PATH
+export PATH={{export_dir}}/bin:$PATH
 
 #______________________________________
 # Check if Galaxy is running
