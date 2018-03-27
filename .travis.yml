@@ -22,6 +22,8 @@ env:
 before_install:
   # Pull container.
   - 'docker pull grycap/travis:${distro}'
+  # Check Ansible version
+  - ansible --version
 
 script:
   - container_id=$(mktemp)
