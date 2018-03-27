@@ -31,8 +31,7 @@
 
 - name: Install galaxyctl
   pip:
-    name: .
-    chdir: '{{ galaxyctl_path }}'
+    name: '{{ galaxyctl_path }}/.'
     executable: '{{ pip_exe }}'
   become_user: root
   become_method: sudo
