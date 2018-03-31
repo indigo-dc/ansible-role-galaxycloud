@@ -98,6 +98,14 @@
     value: '8'
   when: ansible_processor_vcpus > 8
 
+- name: '[Docker] Force processes to 2 on Docker for automated build' 
+  ini_file:
+    dest: '{{ galaxy_config_file }}'
+    section: 'uwsgi'
+    option: 'processes'
+    value: '2'
+  when: ansible_virtualization_type == "docker"
+
 #______________________________________
 # Edit galaxy.ini file
 
