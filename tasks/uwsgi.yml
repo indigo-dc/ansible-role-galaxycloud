@@ -90,7 +90,7 @@
     value: '2'
   when: ansible_processor_vcpus <= 2
 
-- name: '[VM] Set 8 uWSGI wn if proc>8
+- name: '[VM] Set 8 uWSGI wn if proc>8'
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: 'uwsgi'
