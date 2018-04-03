@@ -82,15 +82,15 @@
     - { section: 'uwsgi', option: 'harakiri', value: '{{ uwsgi_harakiri_value }}' }
   when: enable_robustness_features|bool
 
-- name: if proc<=2
+- name: '[VM] Set at least 2 uWSGI wn if proc<=2'
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: 'uwsgi'
     option: 'processes'
-    value: '{{ ansible_processor_vcpus }}'
+    value: '2'
   when: ansible_processor_vcpus <= 2
 
-- name: if proc>8
+- name: '[VM] Set 8 uWSGI wn if proc>8
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: 'uwsgi'
