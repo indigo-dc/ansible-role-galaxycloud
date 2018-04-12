@@ -73,7 +73,7 @@ export_dir: "/export"
 tool_deps_path: "{{ export_dir }}/tool_deps"
 
 # Conda configuration
-conda_prefix: "{{ export_dir }}/_conda"
+conda_prefix: "{{ tool_deps_path }}/_conda"
 conda_channels: "iuc,bioconda,r,defaults,conda-forge"
 
 # Update UCSC genome database
