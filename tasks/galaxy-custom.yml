@@ -39,7 +39,7 @@
     option: '{{ item.option }}'
     value: '{{ item.value }}'
   with_items:
-    - { section: 'app:main', option: 'job_working_directory', value: "{{ galaxy_db_dir }}/job_working_directory" } # if conda is enabled, this config is further modified later.
+    - { section: 'app:main', option: 'job_working_directory', value: "{{ galaxy_db_dir }}/job_working_directory" }
     - { section: 'app:main', option: 'file_path', value: "{{ galaxy_db_dir }}/files" }
     - { section: 'app:main', option: 'new_file_path', value: "{{ galaxy_db_dir }}/tmp" }
     - { section: 'app:main', option: 'template_cache_path', value: "{{ galaxy_db_dir }}/compiled_templates" }
@@ -51,8 +51,17 @@
     - { section: 'app:main', option: 'ftp_upload_dir', value: "{{ galaxy_db_dir }}/ftp" }
   when: galaxy_db_dir != "{{ galaxy_install_path }}/database"
 
-- include: conda.yml
-  when: use_conda
+- name: Enable and configure Conda
+  ini_file:
+    dest: '{{ galaxy_config_file }}'
+    section: '{{ item.section }}'
+    option: '{{ item.option }}'
+    value: '{{ item.value }}'
+  with_items:
+    - { section: 'app:main', option: 'conda_auto_install', value: "True" }
+    - { section: 'app:main', option: 'conda_auto_init', value: "True" }
+    - { section: 'app:main', option: 'conda_prefix', value: '{{ conda_prefix }}' }
+    #- { section: 'app:main', option: 'conda_ensure_channels', value: "{{ conda_channels }}" }
 
 #______________________________________
 # Galaxy administrator: email. username, password and api_key

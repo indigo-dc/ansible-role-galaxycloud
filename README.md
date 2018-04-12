@@ -66,10 +66,6 @@ Role Variables
 
 ``tool_deps_path``: change tool dependency directory (default: ``{{ export_dir }}/tool_deps``)
 
-``use_conda``: enable Conda (default: ``true``).
-
-``job_work_dir``: change job_working_dir path. Due to a current limitation in conda, the total length of the conda_prefix and the job_working_directory path should be less than 50 characters! (default: ``{{ export_dir }}/job_work_dir``).
-
 ``conda_prefix``: change conda prefix directory (default: ``{{ export_dir }}/_conda``).
 
 ``conda_channels``: change conda channels (default: ``iuc,bioconda,r,defaults,conda-forge``).
