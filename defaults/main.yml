@@ -72,9 +72,7 @@ export_dir: "/export"
 # Tool dependency directory
 tool_deps_path: "{{ export_dir }}/tool_deps"
 
-# Enable Conda
-use_conda: true
-job_work_dir: "{{ export_dir }}/job_work_dir" # From galaxy.ini: IMPORTANT: Due to a current limitation in conda, the total length of the conda_prefix and the job_working_directory path should be less than 50 characters!
+# Conda configuration
 conda_prefix: "{{ export_dir }}/_conda"
 conda_channels: "iuc,bioconda,r,defaults,conda-forge"
 
