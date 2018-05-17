@@ -5,7 +5,7 @@
   when: ansible_os_family == "RedHat"
 
 - set_fact:
-    pip_exe: '/usr/bin/pip'
+    pip_exe: '/usr/local/bin/pip'
     galaxyctl_bin_path: '/usr/local/bin'
   when: ansible_os_family == "Debian"
 
