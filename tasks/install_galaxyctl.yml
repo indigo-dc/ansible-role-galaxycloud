@@ -1,11 +1,9 @@
 ---
 - set_fact:
-    #pip_exe: '/bin/pip'
     galaxyctl_bin_path: '/usr/bin'
   when: ansible_os_family == "RedHat"
 
 - set_fact:
-    #pip_exe: '/usr/bin/pip'
     galaxyctl_bin_path: '/usr/local/bin'
   when: ansible_os_family == "Debian"
 
@@ -32,7 +30,6 @@
 - name: Install galaxyctl
   pip:
     name: '{{ galaxyctl_path }}/.'
-    #executable: '{{ pip_exe }}'
   become_user: root
   become_method: sudo
   when: galaxyctl_is_installed.rc != 0
