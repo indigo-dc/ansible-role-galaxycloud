@@ -33,3 +33,13 @@
     content: |
       # Source Galaxy virutalenv
       source {{ galaxy_venv_path }}/bin/activate
+
+#______________________________________
+# Add python script to edit galaxy yaml configuration file
+- name: Get python script to configure galaxy.yml
+  get_url:
+    url: 'https://raw.githubusercontent.com/galaxycloud-elixir-IT/Scripts/master/python/parse_galaxy_yaml.py'
+    dest: '{{ galaxy_custom_script_path }}'
+    mode: a+x
+  become_user: root
+  become_method: sudo
