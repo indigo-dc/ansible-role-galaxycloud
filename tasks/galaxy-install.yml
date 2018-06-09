@@ -8,10 +8,17 @@
     dest: '{{ galaxy_install_path }}'
     version: '{{ GALAXY_VERSION }}'
 
+#______________________________________
+# support for older galaxy versione (<18.01) when ini file was used
+- name: Get Galaxy version number only for comparison
+  set_fact:
+    galaxy_version_number: "{{ GALAXY_VERSION | replace('release_','') }}"
+  when: (GALAXY_VERSION != 'master') or (GALAXY_VERSION != 'dev')
+
 - name: Support for older version with ini configuration file
   set_fact:
     galaxy_config_file: '{{ galaxy_config_path }}/galaxy.ini'
-  when: galaxy_version_number < 18.01
+  when: (galaxy_version_number is defined) and (galaxy_version_number < 18.01)
 
 - name: Create galaxy configuration file
   copy:
