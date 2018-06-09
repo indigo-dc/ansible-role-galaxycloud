@@ -22,7 +22,8 @@ galaxy_config_path: "{{galaxy_install_path}}/config"
 galaxy_config_file: "{{galaxy_config_path}}/galaxy.yml"
 
 # Galaxy version to install
-GALAXY_VERSION: "release_18.05"
+galaxy_version_number: '18.05'
+GALAXY_VERSION: "release_{{ galaxy_version_number }}"
 
 # Virtualenv directory
 galaxy_venv_path: "{{galaxy_install_path}}/.venv"
