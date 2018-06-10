@@ -88,6 +88,21 @@
     - { section: 'app:main', option: 'database_engine_option_server_side_cursors', value: "True" }
     - { section: 'app:main', option: 'install_database_connection', value: "{{ galaxy_install_database_connection }}" }
     - { section: 'app:main', option: 'install_database_engine_option_server_side_cursors', value: "True" }
+  when: (galaxy_version_number is defined) and (galaxy_version_number < 18.01)
+
+- name: Set DB galaxy.ini values
+  command: '{{ galaxy_venv_path }}/bin/python
+            {{ galaxy_custom_script_path }}/parse_galaxy_yaml.py
+            -c {{ galaxy_config_file }}
+            -s {{ item.section }}
+            -o {{ item.option }}
+            -v {{ item.value }}'
+  with_items:
+    - { section: 'galaxy', option: 'database_connection', value: "{{ galaxy_database_connection }}" }
+    - { section: 'galaxy', option: 'database_engine_option_server_side_cursors', value: "True" }
+    - { section: 'galaxy', option: 'install_database_connection', value: "{{ galaxy_install_database_connection }}" }
+    - { section: 'galaxy', option: 'install_database_engine_option_server_side_cursors', value: "True" }
+  when: (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number >= 18)
 
 - name: Create Galaxy DB
   command: "{{ galaxy_venv_path }}/bin/python {{ galaxy_install_path }}/scripts/create_db.py -c {{ galaxy_config_file }}"
