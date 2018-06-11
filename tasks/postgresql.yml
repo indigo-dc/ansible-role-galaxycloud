@@ -99,9 +99,9 @@
             -v "{{ item.value }}"'
   with_items:
     - { section: 'galaxy', option: 'database_connection', value: "{{ galaxy_database_connection }}" }
-    - { section: 'galaxy', option: 'database_engine_option_server_side_cursors', value: "True" }
+    - { section: 'galaxy', option: 'database_engine_option_server_side_cursors', value: "true" }
     - { section: 'galaxy', option: 'install_database_connection', value: "{{ galaxy_install_database_connection }}" }
-    - { section: 'galaxy', option: 'install_database_engine_option_server_side_cursors', value: "True" }
+    - { section: 'galaxy', option: 'install_database_engine_option_server_side_cursors', value: "true" }
   when: (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number >= 18)
 
 - name: Create Galaxy DB
