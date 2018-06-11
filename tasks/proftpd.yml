@@ -76,18 +76,44 @@
   become_user: postgres
   become_method: sudo
 
-- name: '[VM] Set ip address'
+- name: '[VM] Set ip address in galaxy.ini (Galaxy < 18.01)'
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: 'app:main'
     option: 'ftp_upload_site'
     value: '{{ ansible_default_ipv4.address }}'
-  when: ansible_virtualization_type != "docker"
+  when:
+    - (galaxy_version_number is defined) and (galaxy_version_number < 18.01)
+    - ansible_virtualization_type != "docker"
 
-- name: '[Docker] Set ip address'
+- name: '[Docker] Set ip addressin galaxy.ini (Galaxy < 18.01)'
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: 'app:main'
     option: ftp_upload_site
-    value: "indigo-dc.galaxycloud docker by elixir-italy.org"
-  when: ansible_virtualization_type == "docker"
+    value: "galaxycloud docker by elixir-italy.org"
+  when:
+    - (galaxy_version_number is defined) and (galaxy_version_number < 18.01)
+    - ansible_virtualization_type == "docker"
+
+- name: '[VM] Set ip address in galaxy.yml (Galaxy >= 18.01)'
+  command: '{{ galaxy_venv_path }}/bin/python
+            {{ galaxy_custom_script_path }}/parse_galaxy_yaml.py
+            -c {{ galaxy_config_file }}
+            -s galaxy
+            -o ftp_upload_site
+            -v {{ ansible_default_ipv4.address }}'
+  when: 
+    - (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number >= 18)
+    - ansible_virtualization_type != "docker"
+
+- name: '[Docker] Set ip addressin galaxy.yml (Galaxy >= 18.01)'
+  command: '{{ galaxy_venv_path }}/bin/python
+            {{ galaxy_custom_script_path }}/parse_galaxy_yaml.py
+            -c {{ galaxy_config_file }}
+            -s galaxy
+            -o ftp_upload_site
+            -v galaxycloud docker by elixir-italy.org'
+  when:
+    - (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number >= 18)
+    - ansible_virtualization_type == "docker"

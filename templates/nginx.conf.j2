@@ -16,16 +16,12 @@ events {
 http {
     include       {{ nginx_mime_file_path }};
     default_type  application/octet-stream;
-    uwsgi_read_timeout {{ nginx_uwsgi_read_timeout }};
-
-    uwsgi_buffers 8 16384;
-    uwsgi_buffer_size 16384;
 
     sendfile        on;
 
     keepalive_timeout  {{ nginx_keepalive_timeout }};
-    types_hash_max_size 2048;
 
+    # compress responses whenever possible
     gzip  on;
     gzip_http_version 1.1;
     gzip_vary on;
@@ -33,62 +29,95 @@ http {
     gzip_proxied any;
     gzip_types text/plain text/css application/x-javascript text/xml application/xml text/javascript application/json;
     gzip_buffers 16 8k;
-    gzip_disable "MSIE [1-6].(?!.*SV1)";
+
+    # allow up to 3 minutes for Galaxy to respond to slow requests before timing out
+    uwsgi_read_timeout {{ nginx_uwsgi_read_timeout }};
+
+    # maximum file upload size
+    client_max_body_size 10g;
+
+{% if nginx_https %}
+    # allowable SSL protocols
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+
+    # use secure ciphers
+    ssl_ciphers
+    ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256;
+    ssl_dhparam /etc/nginx/ssl/dhparams.pem;
+    ssl_prefer_server_ciphers on;
+
+    # enable session reuse
+    ssl_session_cache shared:SSL:8m;
+    ssl_session_timeout 5m;
+
+    # cert/key
+    ssl_certificate /etc/nginx/ssl/server.crt;
+    ssl_certificate_key /etc/nginx/ssl/server.key;
+
+    # OCSP stapling
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    ssl_trusted_certificate /etc/nginx/ssl/ca.crt;
+{% endif %}
 
     server {
-{% if nginx_https %}
-        listen 443 http2 ssl;
-        listen [::]:443 http2 ssl;
-        ssl_certificate {{ ssl_cert }};
-        ssl_certificate_key {{ ssl_key }};
-        ssl_dhparam {{ ssl_dhparam }};
-{% endif %}
-        client_max_body_size {{ nginx_client_max_body_size }};
-        listen       {{ nginx_listen_port }};
-        server_name  {{ nginx_server_name }};
 
-        location / {
 {% if nginx_https %}
-            proxy_set_header X-URL-SCHEME https;
+        listen 443 default_server;
+        listen [::]:443 default_server;
+{% else %}
+        listen {{ nginx_listen_port }} default_server;
+        listen [::]:{{ nginx_listen_port }} default_server;
 {% endif %}
+        server_name _;
+
+        # use a variable for convenience
+        set $galaxy_root {{ galaxy_install_path }};
+
+        # Enable HSTS
+        add_header Strict-Transport-Security "max-age=15552000; includeSubdomains";
+
+        # allow only /galaxy browsing
+        location / {
             root   html;
             index  index.html index.htm;
             deny all;
         }
 
+        # proxy all requests not matching other locations to uWSGI
         location /galaxy {
             uwsgi_pass 127.0.0.1:4001;
             uwsgi_param UWSGI_SCHEME $scheme;
             include uwsgi_params;
         }  
 
-        location /galaxy/static {
-            alias {{galaxy_install_path}}/static;
-            expires 24h;
-        }
+        # serve framework static content
         location /galaxy/static/style {
-            alias {{galaxy_install_path}}/static/june_2007_style/blue;
+            alias $galaxy_root/static/style/blue;
             expires 24h;
         }
-        location /galaxy/static/scripts {
-            alias {{galaxy_install_path}}/static/scripts/packed;
+        location /galaxy/static {
+            alias $galaxy_root/static;
+            expires 24h;
         }
         location /galaxy/favicon.ico {
-            alias {{galaxy_install_path}}/static/favicon.ico;
+            alias $galaxy_root/static/favicon.ico;
         }   
         location /galaxy/robots.txt {
-            alias {{galaxy_install_path}}/static/robots.txt;
+            alias $galaxy_root/static/robots.txt;
         }
         location /_x_accel_redirect/ {
             internal;
             alias /;
         }
 
-        # serve static content for visualization plugins
-        location ~ ^/galaxy/plugins/visualizations/(?<vis_name>.+?)/static/(?<static_file>.*?)$ {
-            alias {{galaxy_install_path}}/config/plugins/visualizations/$vis_name/static/$static_file;
+        # serve visualization and interactive environment plugin static content
+        location ~ ^/plugins/(?<plug_type>.+?)/(?<vis_name>.+?)/static/(?<static_file>.*?)$ {
+            alias $galaxy_root/config/plugins/$plug_type/$vis_name/static/$static_file;
+            expires 24;
         }
 
+        # handle file uploads via the upload module
         location /galaxy/_upload {
             upload_store {{nginx_upload_store_path}};
             upload_pass_form_field "";
@@ -99,6 +128,8 @@ http {
             upload_pass_args on;
             upload_pass /_upload_done;
         }
+
+        # once upload is complete, redirect to the proper galaxy path
         location /_upload_done {
             set $dst /galaxy/api/tools;
             if ($args ~ nginx_redir=([^&]+)) {
@@ -117,9 +148,4 @@ http {
 
     # include /etc/nginx/sites-enabled/*;
 
-    client_body_temp_path /tmp 1 2;
-    client_body_buffer_size 256k;
-    client_body_in_file_only off;
-
 } # end http section
-
