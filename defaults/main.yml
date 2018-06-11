@@ -1,6 +1,6 @@
 ---
 # Galaxy instance description
-galaxy_instance_description: "INDIGO-CNR test"
+galaxy_instance_description: "ELIXIR-IT"
 
 # User to launch the Galaxy portal
 galaxy_user: galaxy
