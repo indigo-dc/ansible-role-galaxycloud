@@ -93,7 +93,7 @@
 #______________________________________
 # NGINX configuration in galaxy.ini
 
-- name: 'Edit galaxy.ini (Galaxy < release_18.01)'
+- name: '[release_17.**] Edit galaxy.ini'
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: '{{ item.section }}'
@@ -108,13 +108,13 @@
     - { section: 'app:main', option: 'nginx_x_archive_files_base', value: "/_x_accel_redirect" }
   when: (galaxy_version_number is defined) and (galaxy_version_number < 18.01)
 
-- name: Edit galaxy.yml
+- name: '[release_18.**] Edit galaxy.yml'
   command: '{{ galaxy_venv_path }}/bin/python
             {{ galaxy_custom_script_path }}/parse_galaxy_yaml.py
-            -c {{ galaxy_config_file }}
-            -s {{ item.section }}
-            -o {{ item.option }}
-            -v {{ item.value }}'
+            -c "{{ galaxy_config_file }}"
+            -s "{{ item.section }}"
+            -o "{{ item.option }}"
+            -v "{{ item.value }}"'
   with_items:
     - { section: 'galaxy', option: 'filter-with', value: "proxy-prefix" }
     - { section: 'galaxy', option: 'cookie_path', value: "/galaxy" }

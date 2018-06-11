@@ -23,10 +23,10 @@
 - name: '[release_18.**] uWSGI options for performance and robustness'
   command: '{{ galaxy_venv_path }}/bin/python
             {{ galaxy_custom_script_path }}/parse_galaxy_yaml.py
-            -c {{ galaxy_config_file }}
-            -s {{ item.section }}
-            -o {{ item.option }}
-            -v {{ item.value }}'
+            -c "{{ galaxy_config_file }}"
+            -s "{{ item.section }}"
+            -o "{{ item.option }}"
+            -v "{{ item.value }}"'
   with_items:
     - { section: 'uwsgi', option: 'single-interpreter', value: '{{ uwsgi_single_interpreter }}' }
     - { section: 'uwsgi', option: 'harakiri', value: '{{ uwsgi_harakiri_value }}' }
@@ -65,10 +65,10 @@
 - name: '[release_18.**] Edit galaxy.yml'
   command: '{{ galaxy_venv_path }}/bin/python
             {{ galaxy_custom_script_path }}/parse_galaxy_yaml.py
-            -c {{ galaxy_config_file }}
-            -s {{ item.section }}
-            -o {{ item.option }}
-            -v {{ item.value }}'
+            -c "{{ galaxy_config_file }}"
+            -s "{{ item.section }}"
+            -o "{{ item.option }}"
+            -v "{{ item.value }}"'
   with_items:
     - { section: 'galaxy', option: 'static_enabled', value: 'false' }
     - { section: 'galaxy', option: 'track_jobs_in_database', value: 'true' }

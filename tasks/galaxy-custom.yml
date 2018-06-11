@@ -47,10 +47,10 @@
 - name: '[release_18.**] Set Galaxy admin in galaxy.ini file'
   command: '{{ galaxy_venv_path }}/bin/python
             {{ galaxy_custom_script_path }}/parse_galaxy_yaml.py
-            -c {{ galaxy_config_file }}
+            -c "{{ galaxy_config_file }}"
             -s galaxy
             -o admin_users
-            -v {{ GALAXY_ADMIN_EMAIL }}'
+            -v "{{ GALAXY_ADMIN_EMAIL }}"'
   when:
     - (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number >= 18)
     - create_galaxy_admin|bool
@@ -86,7 +86,7 @@
             -c {{ galaxy_config_file }}
             -s galaxy
             -o id_secret
-            -v {{ galaxy_id_secret.stdout }}'
+            -v "{{ galaxy_id_secret.stdout }}"'
 
 #______________________________________
 # Update UCSC genome database

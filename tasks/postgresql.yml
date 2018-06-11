@@ -77,7 +77,7 @@
   become_user: postgres
   become_method: sudo
 
-- name: Set DB galaxy.ini values
+- name: '[release_17.**] Set DB galaxy.ini values'
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: '{{ item.section }}'
@@ -90,13 +90,13 @@
     - { section: 'app:main', option: 'install_database_engine_option_server_side_cursors', value: "True" }
   when: (galaxy_version_number is defined) and (galaxy_version_number < 18.01)
 
-- name: Set DB galaxy.ini values
+- name: '[release_18.**] Set DB galaxy.ini values'
   command: '{{ galaxy_venv_path }}/bin/python
             {{ galaxy_custom_script_path }}/parse_galaxy_yaml.py
-            -c {{ galaxy_config_file }}
-            -s {{ item.section }}
-            -o {{ item.option }}
-            -v {{ item.value }}'
+            -c "{{ galaxy_config_file }}"
+            -s "{{ item.section }}"
+            -o "{{ item.option }}"
+            -v "{{ item.value }}"'
   with_items:
     - { section: 'galaxy', option: 'database_connection', value: "{{ galaxy_database_connection }}" }
     - { section: 'galaxy', option: 'database_engine_option_server_side_cursors', value: "True" }
