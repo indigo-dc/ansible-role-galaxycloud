@@ -21,7 +21,7 @@
 
 - name: 'Clone Galaxy Central Management Tool (galaxyctl)'
   git:
-    repo: 'https://github.com/mtangaro/galaxyctl.git'
+    repo: 'https://github.com/galaxycloud-elixir-IT/galaxyctl.git'
     clone: yes
     update: yes
     dest: '{{ galaxyctl_path }}'
