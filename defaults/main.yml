@@ -143,3 +143,8 @@ enable_storage_advanced_options: false
 # If yes, galaxy is not started
 galaxy_flavor: 'galaxy-no-tools'
 get_refdata: false
+
+#______________________________________
+# Enable debug messages
+
+enable_debug_msg: true

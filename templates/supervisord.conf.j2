@@ -63,9 +63,9 @@ killasgroup     = true
 
 [program:galaxy_web]
 
-{% if (galaxy_version_number is defined) and (galaxy_version_number < 18.01) %}
+{% if (galaxy_version_number is defined) and (galaxy_version_number|float < 18.01) %}
 command         = {{ galaxy_venv_path }}/bin/uwsgi --virtualenv {{ galaxy_venv_path }} --ini-paste {{ galaxy_config_file }} --pidfile {{ uwsgi_pidfile }} 
-{% elif (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number >= 18) %} 
+{% elif (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number|float >= 18) %} 
 command         = {{ galaxy_venv_path }}/bin/uwsgi --virtualenv {{ galaxy_venv_path }} --yaml {{ galaxy_config_file }} --pidfile {{ uwsgi_pidfile }} 
 {% endif %}
 directory       = {{ galaxy_install_path }}

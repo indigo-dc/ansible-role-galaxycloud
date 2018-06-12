@@ -17,7 +17,12 @@
   when: (GALAXY_VERSION != 'master') or (GALAXY_VERSION != 'dev')
 
 - debug:
-    msg: '{{ galaxy_version_number }}'
+    msg: 'Galaxy version: {{ GALAXY_VERSION }}'
+  when: (enable_debug_msg|bool)
+
+- debug:
+    msg: 'Galaxy version number: {{ galaxy_version_number }}'
+  when: (enable_debug_msg|bool) and (galaxy_version_number is defined)
 
 - name: Support for older version with ini configuration file
   set_fact:

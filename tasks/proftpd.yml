@@ -83,7 +83,7 @@
     option: 'ftp_upload_site'
     value: '{{ ansible_default_ipv4.address }}'
   when:
-    - (galaxy_version_number is defined) and (galaxy_version_number < 18.01)
+    - (galaxy_version_number is defined) and (galaxy_version_number|float < 18.01)
     - ansible_virtualization_type != "docker"
 
 - name: '[Docker][release_17.**] Set ip addressin galaxy.ini'
@@ -93,10 +93,10 @@
     option: ftp_upload_site
     value: 'galaxycloud docker by elixir-italy.org'
   when:
-    - (galaxy_version_number is defined) and (galaxy_version_number < 18.01)
+    - (galaxy_version_number is defined) and (galaxy_version_number|float < 18.01)
     - ansible_virtualization_type == "docker"
 
-- name: '[VM][release_18.**] Set ip address in galaxy.yml (Galaxy >= 18.01)'
+- name: '[VM][release_18.**] Set ip address in galaxy.yml'
   command: '{{ galaxy_venv_path }}/bin/python
             {{ galaxy_custom_script_path }}/parse_galaxy_yaml.py
             -c "{{ galaxy_config_file }}"
@@ -104,10 +104,10 @@
             -o ftp_upload_site
             -v "{{ ansible_default_ipv4.address }}"'
   when: 
-    - (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number >= 18)
+    - (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number|float >= 18)
     - ansible_virtualization_type != "docker"
 
-- name: '[Docker][release_18.**] Set ip addressin galaxy.yml (Galaxy >= 18.01)'
+- name: '[Docker][release_18.**] Set ip addressin galaxy.yml'
   command: '{{ galaxy_venv_path }}/bin/python
             {{ galaxy_custom_script_path }}/parse_galaxy_yaml.py
             -c {{ galaxy_config_file }}
@@ -115,5 +115,5 @@
             -o ftp_upload_site
             -v galaxycloud docker by elixir-italy.org'
   when:
-    - (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number >= 18)
+    - (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number|float >= 18)
     - ansible_virtualization_type == "docker"

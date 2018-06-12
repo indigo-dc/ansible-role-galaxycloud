@@ -46,14 +46,14 @@
 # Galaxy < release_18.01
 
 - include: uwsgi_ini.yml
-  when: (galaxy_version_number is defined) and (galaxy_version_number < 18.01)
+  when: (galaxy_version_number is defined) and (galaxy_version_number|float < 18.01)
 
 #______________________________________
 # Edit uWSGI section in galaxy.tyml file
 # Galaxy >= release_18.05
 
 - include: uwsgi_yaml.yml
-  when: (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number >= 18)
+  when: (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number|float >= 18)
 
 #______________________________________
 ### job_conf section
