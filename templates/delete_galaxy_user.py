@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
-sys.path.insert(1,'/home/galaxy/galaxy')
-sys.path.insert(1,'/home/galaxy/galaxy/lib')
+sys.path.insert(1,'{{ galaxy_install_path }}')
+sys.path.insert(1,'{{ galaxy_install_path }}/lib')
 
 from galaxy.model import User, APIKeys
 from galaxy.model.mapping import init
