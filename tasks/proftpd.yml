@@ -107,13 +107,13 @@
     - (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number|float >= 18)
     - ansible_virtualization_type != "docker"
 
-- name: '[Docker][release_18.**] Set ip addressin galaxy.yml'
+- name: '[Docker][release_18.**] Set ip address in galaxy.yml'
   command: '{{ galaxy_venv_path }}/bin/python
             {{ galaxy_custom_script_path }}/parse_galaxy_yaml.py
             -c {{ galaxy_config_file }}
             -s galaxy
             -o ftp_upload_site
-            -v galaxycloud docker by elixir-italy.org'
+            -v "galaxycloud docker by elixir-italy.org"'
   when:
     - (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number|float >= 18)
     - ansible_virtualization_type == "docker"
