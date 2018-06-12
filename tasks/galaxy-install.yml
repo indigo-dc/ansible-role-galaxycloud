@@ -16,7 +16,8 @@
     galaxy_version_number: "{{ GALAXY_VERSION | replace('release_','') }}"
   when: (GALAXY_VERSION != 'master') or (GALAXY_VERSION != 'dev')
 
-- shell: 'echo {{ galaxy_version_number }} > /tmp/prova.log'
+- debug:
+    msg: '{{ galaxy_version_number }}'
 
 - name: Support for older version with ini configuration file
   set_fact:
