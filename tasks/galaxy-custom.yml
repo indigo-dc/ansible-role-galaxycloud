@@ -24,15 +24,17 @@
 # Galaxy administrator: email. username, password and api_key
 # IMPORTANT: start Galaxy database postgresql to setup the galaxy administrator credentials
 
-- name: 'Copy create/delete user script to {{ galaxy_custom_script_path }}'
+- name: '[release_17.**] Copy create/delete user script to {{ galaxy_custom_script_path }}'
   template:
     src: '{{ item.src }}'
     dest: '{{ item.dest }}'
   with_items:
-    - { src: 'create_galaxy_user.py.old.j2', dest: '{{ galaxy_custom_script_path }}/create_galaxy_user.py' }
-    - { src: 'delete_galaxy_user.py.j2', dest: '{{ galaxy_custom_script_path }}/delete_galaxy_user.py' }
+    - { src: 'create_galaxy_user.py.0.j2', dest: '{{ galaxy_custom_script_path }}/create_galaxy_user.py' }
+    - { src: 'delete_galaxy_user.py.0.j2', dest: '{{ galaxy_custom_script_path }}/delete_galaxy_user.py' }
   become_user: root
   become_method: sudo
+  when:
+    - (galaxy_version_number is defined) and (galaxy_version_number|float < 18.01)
 
 - name: '[release_17.**] Set Galaxy admin in galaxy.ini file'
   ini_file:
@@ -43,6 +45,18 @@
   when:
     - (galaxy_version_number is defined) and (galaxy_version_number|float < 18.01)
     - create_galaxy_admin|bool
+
+- name: '[release_18.**] Copy create/delete user script to {{ galaxy_custom_script_path }}'
+  template:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+  with_items:
+    - { src: 'create_galaxy_user.py.j2', dest: '{{ galaxy_custom_script_path }}/create_galaxy_user.py' }
+    - { src: 'delete_galaxy_user.py.j2', dest: '{{ galaxy_custom_script_path }}/delete_galaxy_user.py' }
+  become_user: root
+  become_method: sudo
+  when:
+    - (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number|float >= 18)
 
 - name: '[release_18.**] Set Galaxy admin in galaxy.ini file'
   command: '{{ galaxy_venv_path }}/bin/python
