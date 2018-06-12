@@ -3,15 +3,15 @@
 # Add uWSGI section to galaxy.ini file
 # Galaxy < release_18.01
 
-- name: Copy uwsgi section to galaxy.ini
+- name: '[release_17.**] Copy uwsgi section to galaxy.ini'
   template:
     src: 'uwsgi.ini.j2'
     dest: '/tmp/uwsgi.ini.sample'
 
-- name: Copy uwsgi section to galaxy.ini
+- name: '[release_17.**] Copy uwsgi section to galaxy.ini'
   shell: 'cat /tmp/uwsgi.ini.sample >> {{ galaxy_config_file }}'
 
-- name: uWSGI section config
+- name: '[release_17.**] uWSGI section config'
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: '{{ item.section }}'
@@ -29,7 +29,7 @@
     - { section: 'uwsgi', option: 'no-orphans', value: 'True' }
     - { section: 'uwsgi', option: 'buffer-size', value: '{{ uwsgi_buffer_size }}' }
 
-- name: uWSGI options for performance and robustness
+- name: '[release_17.**] uWSGI options for performance and robustness'
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: '{{ item.section }}'
@@ -41,7 +41,7 @@
     - { section: 'uwsgi', option: 'harakiri', value: '{{ uwsgi_harakiri_value }}' }
   when: enable_robustness_features|bool
 
-- name: '[VM] Set at least 2 uWSGI wn if proc<=2'
+- name: '[VM][release_17.**] Set at least 2 uWSGI wn if proc<=2'
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: 'uwsgi'
@@ -49,7 +49,7 @@
     value: '2'
   when: ansible_processor_vcpus <= 2
 
-- name: '[VM] Set 8 uWSGI wn if proc>8'
+- name: '[VM][release_17.**] Set 8 uWSGI wn if proc>8'
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: 'uwsgi'
@@ -57,7 +57,7 @@
     value: '8'
   when: ansible_processor_vcpus > 8
 
-- name: '[Docker] Force processes to 2 on Docker for automated build' 
+- name: '[Docker][release_17.**] Force processes to 2 on Docker for automated build' 
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: 'uwsgi'
@@ -68,7 +68,7 @@
 #______________________________________
 # Edit galaxy.ini file
 
-- name: Edit galaxy.ini
+- name: '[release_17.**] Edit galaxy.ini'
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: '{{ item.section }}'
@@ -76,4 +76,4 @@
     value: ' {{item.value }}'
   with_items:
     - { section: 'app:main', option: 'static_enabled', value: 'False' }
-    - { section: 'app:main', option: 'track_jobs_in_database', value: 'True' } # The track_jobs_in_database option in galaxy.ini can still be set but should be unnecessary. If there are more than one [server:...] sections in the file, database job tracking will be enabled automatically.
+    - { section: 'app:main', option: 'track_jobs_in_database', value: 'True' }
