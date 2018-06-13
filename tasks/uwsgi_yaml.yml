@@ -6,19 +6,26 @@
 - name: '[release_18.**] Edit uWSGI configuration in galaxy.yml'
   command: '{{ galaxy_venv_path }}/bin/python
             {{ galaxy_custom_script_path }}/parse_galaxy_yaml.py
-            -c {{ galaxy_config_file }}
-            -s {{ item.section }}
-            -o {{ item.option }}
-            -v {{ item.value }}'
+            -c "{{ galaxy_config_file }}"
+            -s "{{ item.section }}"
+            -o "{{ item.option }}"
+            -v "{{ item.value }}"'
   with_items:
     - { section: 'uwsgi', option: 'master', value: 'true' }
     - { section: 'uwsgi', option: 'processes', value: '{{ uwsgi_processes }}' }
     - { section: 'uwsgi', option: 'socket', value: '{{ uwsgi_socket_port }}' }
+    - { section: 'uwsgi', option: 'mount', value: '/galaxy=galaxy.webapps.galaxy.buildapp:uwsgi_app()' }
     - { section: 'uwsgi', option: 'stats', value: '{{ uwsgi_stats_port }}' }
     - { section: 'uwsgi', option: 'threads', value: '{{ uwsgi_threads }}' }
     - { section: 'uwsgi', option: 'logto', value: '{{ uwsgi_errorlog }}' }
     - { section: 'uwsgi', option: 'no-orphans', value: 'true' }
     - { section: 'uwsgi', option: 'thunder-lock', value: '{{ uwsgi_thunder_lock }}' }
+
+- name: '[release_18.**] Comment module option when mount is enabled'
+  lineinfle:
+    dest: '{{ galaxy_config_file }}'
+    regexp: 'module: galaxy.webapps.galaxy.buildapp:uwsgi_app()'
+    line: '#module: galaxy.webapps.galaxy.buildapp:uwsgi_app()'
 
 - name: '[release_18.**] uWSGI options for performance and robustness'
   command: '{{ galaxy_venv_path }}/bin/python
