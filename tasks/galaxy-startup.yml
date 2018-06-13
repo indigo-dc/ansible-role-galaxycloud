@@ -10,7 +10,6 @@
     mode: '{{ item.mode }}'
   with_items:
     - { src: 'galaxy_startup.j2', dest: '{{ galaxy_custom_script_path }}/galaxy-startup', mode: 'a+x' }
-    - { src: 'galaxy_restart.j2', dest: '{{ galaxy_custom_script_path }}/galaxy-restart', mode: 'a+x' }
   become_user: root
   become_method: sudo
 
