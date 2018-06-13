@@ -25,7 +25,7 @@
   lineinfile:
     dest: '{{ galaxy_config_file }}'
     regexp: 'module: galaxy.webapps.galaxy.buildapp:uwsgi_app()'
-    line: 'mount: /galaxy=galaxy.webapps.galaxy.buildapp:uwsgi_app()'
+    line: '  mount: /galaxy=galaxy.webapps.galaxy.buildapp:uwsgi_app()'
 
 - name: '[release_18.**] uWSGI options for performance and robustness'
   command: '{{ galaxy_venv_path }}/bin/python
