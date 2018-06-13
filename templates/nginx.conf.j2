@@ -117,6 +117,9 @@ http {
             expires 24;
         }
 
+        # redirect /prefix -> /prefix/
+        rewrite ^/galaxy$ /galaxy/ last;
+
         # handle file uploads via the upload module
         location /galaxy/_upload {
             upload_store {{nginx_upload_store_path}};
