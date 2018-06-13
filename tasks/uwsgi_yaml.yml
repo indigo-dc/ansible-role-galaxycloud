@@ -22,7 +22,7 @@
     - { section: 'uwsgi', option: 'thunder-lock', value: '{{ uwsgi_thunder_lock }}' }
 
 - name: '[release_18.**] Fix prefix configuration'
-  lineinfle:
+  lineinfile:
     dest: '{{ galaxy_config_file }}'
     regexp: 'module: galaxy.webapps.galaxy.buildapp:uwsgi_app()'
     line: 'mount: /galaxy=galaxy.webapps.galaxy.buildapp:uwsgi_app()'
