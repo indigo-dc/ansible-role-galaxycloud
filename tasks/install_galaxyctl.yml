@@ -22,14 +22,22 @@
 - name: 'Clone Galaxy Central Management Tool (galaxyctl)'
   git:
     repo: 'https://github.com/galaxycloud-elixir-IT/galaxyctl.git'
+    version: devel
     clone: yes
     update: yes
     dest: '{{ galaxyctl_path }}'
   when: galaxyctl_is_installed.rc != 0
 
+- name: Find system pip path
+  command: '/usr/bin/which pip'
+  register: pip_path
+  environment:
+    PATH: '/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin'
+
 - name: Install galaxyctl
   pip:
     name: '{{ galaxyctl_path }}/.'
+    executable: '{{ pip_path.stdout }}'
   become_user: root
   become_method: sudo
   when: galaxyctl_is_installed.rc != 0
