@@ -151,4 +151,8 @@ http {
 
     # include /etc/nginx/sites-enabled/*;
 
+    client_body_temp_path /tmp 1 2;
+    client_body_buffer_size 256k;
+    client_body_in_file_only off;
+
 } # end http section
