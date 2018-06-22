@@ -21,7 +21,7 @@
 
 - name: 'Clone Galaxy Central Management Tool (galaxyctl)'
   git:
-    repo: 'https://github.com/galaxycloud-elixir-IT/galaxyctl.git'
+    repo: 'https://github.com/Laniakea-elixir-it/galaxyctl.git'
     version: devel
     clone: yes
     update: yes
