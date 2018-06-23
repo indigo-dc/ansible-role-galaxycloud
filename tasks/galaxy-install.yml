@@ -54,7 +54,7 @@
 # Add python script to edit galaxy yaml configuration file
 - name: Get python script to configure galaxy.yml
   get_url:
-    url: 'https://raw.githubusercontent.com/Laniakea-elixir-it/Scripts/master/python/parse_galaxy_yaml.py'
+    url: 'https://raw.githubusercontent.com/Laniakea-elixir-it/Scripts/master/galaxy/parse_galaxy_yaml.py'
     dest: '{{ galaxy_custom_script_path }}'
     mode: a+x
   become_user: root
