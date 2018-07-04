@@ -8,10 +8,30 @@
     dest: '{{ galaxy_install_path }}'
     version: '{{ GALAXY_VERSION }}'
 
-- name: Create galaxy.ini file
+#______________________________________
+# support for older galaxy versione (<18.01) when ini file was used
+
+- name: Get Galaxy version number only for comparison
+  set_fact:
+    galaxy_version_number: "{{ GALAXY_VERSION | replace('release_','') }}"
+  when: (GALAXY_VERSION != 'master') or (GALAXY_VERSION != 'dev')
+
+- debug:
+    msg: 'Galaxy version: {{ GALAXY_VERSION }}'
+
+- debug:
+    msg: 'Galaxy version number: {{ galaxy_version_number }}'
+  when: galaxy_version_number is defined
+
+- name: Support for older version with ini configuration file
+  set_fact:
+    galaxy_config_file: '{{ galaxy_config_path }}/galaxy.ini'
+  when: (galaxy_version_number is defined) and (galaxy_version_number|float < 18.01)
+
+- name: Create galaxy configuration file
   copy:
-    src: '{{ galaxy_config_path }}/galaxy.ini.sample'
-    dest: '{{ galaxy_config_path }}/galaxy.ini'
+    src: '{{ galaxy_config_file }}.sample'
+    dest: '{{ galaxy_config_file }}'
     remote_src: true 
 
 - name: Install Galaxy dependencies
@@ -28,3 +48,13 @@
     content: |
       # Source Galaxy virutalenv
       source {{ galaxy_venv_path }}/bin/activate
+
+#______________________________________
+# Add python script to edit galaxy yaml configuration file
+- name: Get python script to configure galaxy.yml
+  get_url:
+    url: 'https://raw.githubusercontent.com/Laniakea-elixir-it/Scripts/master/galaxy/parse_galaxy_yaml.py'
+    dest: '{{ galaxy_custom_script_path }}'
+    mode: a+x
+  become_user: root
+  become_method: sudo

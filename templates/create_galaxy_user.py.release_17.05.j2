@@ -1,20 +1,28 @@
-#!/usr/bin/env python
-"""
-Original script location:
-https://github.com/galaxyproject/ansible-galaxy-extras/blob/master/templates/create_galaxy_user.py.j2
-Just changed ansible name variables.
-"""
+###
+# adapted from https://github.com/galaxyproject/ansible-galaxy-extras/blob/master/templates/create_galaxy_user.py.j2
+###
 
 import sys
-sys.path.insert(1,'{{ galaxy_install_path }}')
-sys.path.insert(1,'{{ galaxy_install_path }}/lib')
+sys.path.insert(1,'{{galaxy_install_path}}')
+sys.path.insert(1,'{{galaxy_install_path}}')
 
-from galaxy.model import User, APIKeys
-from galaxy.model.mapping import init
-from galaxy.model.orm.scripts import get_config
+from scripts.db_shell import *
+from galaxy.util.bunch import Bunch
+from galaxy.security import GalaxyRBACAgent
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import *
 import argparse
+bunch = Bunch( **globals() )
+engine = create_engine('{{galaxy_database_connection}}')
+bunch.session = sessionmaker(bind=engine)
+# For backward compatibility with "model.context.current"
+bunch.context = sessionmaker(bind=engine)
 
-def add_user(sa_session, security_agent, email, password, key=None, username="admin"):
+security_agent = GalaxyRBACAgent( bunch )
+security_agent.sa_session = sa_session
+
+
+def add_user(email, password, key=None, username="admin"):
     """
         Add Galaxy User.
         From John https://gist.github.com/jmchilton/4475646
@@ -23,7 +31,7 @@ def add_user(sa_session, security_agent, email, password, key=None, username="ad
     if query.count() > 0:
         return query.first()
     else:
-        User.use_pbkdf2 = {{ use_pbkdf2 }}
+        User.use_pbkdf2 = {{use_pbkdf2}}
         user = User(email)
         user.username = username
         user.set_password_cleartext(password)
@@ -44,7 +52,6 @@ def add_user(sa_session, security_agent, email, password, key=None, username="ad
 
 
 if __name__ == "__main__":
-    db_url = get_config(sys.argv, use_argparse=False)['db_url']
 
     parser = argparse.ArgumentParser(description='Create Galaxy Admin User.')
 
@@ -55,12 +62,7 @@ if __name__ == "__main__":
     parser.add_argument("--key", help="API-Key.")
     parser.add_argument("--username", default="admin",
                     help="The public username. Public names must be at least three characters in length and contain only lower-case letters, numbers, and the '-' character.")
-    parser.add_argument('args', nargs=argparse.REMAINDER)
 
     options = parser.parse_args()
 
-    mapping = init('/tmp/', db_url)
-    sa_session = mapping.context
-    security_agent = mapping.security_agent
-
-    add_user(sa_session, security_agent, options.user, options.password, key=options.key, username=options.username)
+    add_user(options.user, options.password, key=options.key, username=options.username)

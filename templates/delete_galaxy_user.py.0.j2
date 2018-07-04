@@ -31,7 +31,7 @@ def delete_user(sa_session, security_agent, email):
 #______________________________________
 def delete_galaxy_user():
 
-  db_url = get_config(sys.argv, use_argparse=False)['db_url']
+  db_url = get_config(sys.argv)['db_url']
 
   options = cli_options()
 

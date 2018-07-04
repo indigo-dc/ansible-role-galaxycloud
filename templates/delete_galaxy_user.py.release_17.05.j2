@@ -1,12 +1,23 @@
 #!/usr/bin/env python
-import sys
-sys.path.insert(1,'{{ galaxy_install_path }}')
-sys.path.insert(1,'{{ galaxy_install_path }}/lib')
 
-from galaxy.model import User, APIKeys
-from galaxy.model.mapping import init
-from galaxy.model.orm.scripts import get_config
+import sys
+sys.path.insert(1,'{{galaxy_install_path}}')
+sys.path.insert(1,'{{galaxy_install_path}}')
+
+from scripts.db_shell import *
+from galaxy.util.bunch import Bunch
+from galaxy.security import GalaxyRBACAgent
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import *
 import argparse
+bunch = Bunch( **globals() )
+engine = create_engine('{{galaxy_database_connection}}')
+bunch.session = sessionmaker(bind=engine)
+# For backward compatibility with "model.context.current"
+bunch.context = sessionmaker(bind=engine)
+
+security_agent = GalaxyRBACAgent( bunch )
+security_agent.sa_session = sa_session
 
 #______________________________________
 def cli_options():
@@ -16,7 +27,7 @@ def cli_options():
   return parser.parse_args()
 
 #______________________________________
-def delete_user(sa_session, security_agent, email):
+def delete_user(email):
 
   query = sa_session.query( User ).filter_by( email=email )
 
@@ -31,16 +42,9 @@ def delete_user(sa_session, security_agent, email):
 #______________________________________
 def delete_galaxy_user():
 
-  db_url = get_config(sys.argv, use_argparse=False)['db_url']
-
   options = cli_options()
 
-  mapping = init('/tmp/', db_url)
-  sa_session = mapping.context
-  security_agent = mapping.security_agent
+  delete_user(options.user)
 
-  delete_user(sa_session, security_agent, options.user)
-
-#______________________________________
 if __name__ == "__main__":
    delete_galaxy_user()

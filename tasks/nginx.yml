@@ -76,15 +76,24 @@
 
 - name: Copy the NGINX configuration file
   template:
+    src: 'nginx.conf.release_17.05.j2'
+    dest: '/etc/nginx/nginx.conf'
+  become_user: root
+  become_method: sudo
+  when: (galaxy_version_number is defined) and (galaxy_version_number|float < 18.01)
+
+- name: Copy the NGINX configuration file
+  template:
     src: 'nginx.conf.j2'
     dest: '/etc/nginx/nginx.conf'
   become_user: root
   become_method: sudo
+  when: (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number|float >= 18)
 
 #______________________________________
 # NGINX configuration in galaxy.ini
 
-- name: Edit galaxy.ini
+- name: '[release_17.**] Edit galaxy.ini'
   ini_file:
     dest: '{{ galaxy_config_file }}'
     section: '{{ item.section }}'
@@ -97,6 +106,23 @@
     - { section: 'app:main', option: 'nginx_upload_path', value: "/galaxy/_upload" }
     - { section: 'app:main', option: 'nginx_x_accel_redirect_base', value: "/_x_accel_redirect" }
     - { section: 'app:main', option: 'nginx_x_archive_files_base', value: "/_x_accel_redirect" }
+  when: (galaxy_version_number is defined) and (galaxy_version_number|float < 18.01)
+
+- name: '[release_18.**] Edit galaxy.yml'
+  command: '{{ galaxy_venv_path }}/bin/python
+            {{ galaxy_custom_script_path }}/parse_galaxy_yaml.py
+            -c "{{ galaxy_config_file }}"
+            -s "{{ item.section }}"
+            -o "{{ item.option }}"
+            -v "{{ item.value }}"'
+  with_items:
+    - { section: 'galaxy', option: 'filter-with', value: "proxy-prefix" }
+    - { section: 'galaxy', option: 'cookie_path', value: "/galaxy" }
+    - { section: 'galaxy', option: 'nginx_upload_store', value: "{{ nginx_upload_store_path }}" }
+    - { section: 'galaxy', option: 'nginx_upload_path', value: "/galaxy/_upload" } 
+    - { section: 'galaxy', option: 'nginx_x_accel_redirect_base', value: "/_x_accel_redirect" }
+    - { section: 'galaxy', option: 'nginx_x_archive_files_base', value: "/_x_accel_redirect" }
+  when: (GALAXY_VERSION == 'master') or (GALAXY_VERSION == 'dev') or (galaxy_version_number|float >= 18)
 
 - name: Create NGINX upload_store dir
   file:

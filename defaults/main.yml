@@ -1,6 +1,6 @@
 ---
 # Galaxy instance description
-galaxy_instance_description: "INDIGO-CNR test"
+galaxy_instance_description: "ELIXIR-IT"
 
 # User to launch the Galaxy portal
 galaxy_user: galaxy
@@ -19,10 +19,10 @@ galaxy_install_path: "{{galaxy_FS_path}}/{{galaxy_directory}}"
 
 # Galaxy config/galaxy.ini path
 galaxy_config_path: "{{galaxy_install_path}}/config"
-galaxy_config_file: "{{galaxy_config_path}}/galaxy.ini"
+galaxy_config_file: "{{galaxy_config_path}}/galaxy.yml"
 
 # Galaxy version to install
-GALAXY_VERSION: "release_17.05"
+GALAXY_VERSION: "release_18.05"
 
 # Virtualenv directory
 galaxy_venv_path: "{{galaxy_install_path}}/.venv"
