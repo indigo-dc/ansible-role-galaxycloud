@@ -111,18 +111,3 @@
 
 - include: updateucsc.yml
   when: update_ucsc
-
-#______________________________________
-# Configure {{ galaxy_user }} bashrc to show instance status
-
-- name: 'Copy check_instance script'
-  template:
-    src: 'check_instance.sh.j2'
-    dest: '{{ galaxy_custom_script_path }}/check_instance'
-    mode: a+x
-
-- name: Add luks scripts
-  lineinfile:
-    dest: '/home/{{ galaxy_user }}/.bashrc'
-    line: '{{ galaxy_custom_script_path }}/check_instance'
-    state: present
