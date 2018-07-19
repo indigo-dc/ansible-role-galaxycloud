@@ -68,7 +68,7 @@
 # Change supervisord.sock ownership
 - name: 'Grant {{ galaxy_user }} supervisor access' 
   ini_file:
-    dest: '{{ supervisord_conf_path }}'
+    dest: '{{ supervisord_conf_path }}/supervisord.conf'
     section: '{{ item.section }}'
     option: '{{ item.option }}'
     value: '{{ item.value }}'
