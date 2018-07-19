@@ -1,0 +1,190 @@
+#!/bin/bash
+
+OS_STORAGE='{{ os_storage }}'
+URL='{{ galaxy_instance_url }}'
+cryptdev_ini_file='/etc/galaxy/luks-cryptdev.ini'
+
+_ok='[ OK ]'
+_fail='[ FAIL ]'
+
+#____________________________________
+# Script needs superuser
+
+function __su_check(){
+  if [[ $(/usr/bin/id -u) -ne 0 ]]; then
+    echo -e "[Error] Not running as root."
+    exit
+ fi
+}
+
+#____________________________________
+# Check if Galaxy instance by curl
+function __galaxy_curl(){
+  if curl -s --head  --request GET ${URL} | grep "200 OK" > /dev/null
+  then
+    return 0
+  else
+    if curl -s --head  --request GET ${URL} | grep "302 Found" > /dev/null
+    then
+      return 0
+    else
+      return 1
+    fi
+  fi
+}
+
+#____________________________________
+# Show galaxy status
+function __galaxy_url_status(){
+  __galaxy_curl &> /dev/null
+  code=$?
+  if [ $code -eq "0" ]; then 
+    echo -e "\nGalaxy server on-line: ${_ok}"
+    return 0
+  else
+    echo -e "\nGalaxy server on-line: ${_fail}"
+    echo -e "\nCheking Galaxy server..."
+    return 1
+  fi
+}
+
+#____________________________________
+# Check if supervisord is running
+function __check_supervisord(){
+  if ps ax | grep -v grep | grep supervisord > /dev/null
+  then
+    return 0
+  else
+    return 1
+  fi
+}
+
+#____________________________________
+# Check supervisord status
+function __supervisord_status(){
+  __check_supervisord &> /dev/null
+  code=$?
+  if [ $code -eq "0" ]; then
+    echo -e "\nSupervisord service: ${_ok}"
+    return 0
+  else
+    echo -e "\nSupervisord service: ${_fail}"
+    echo -e "\nPlease start Galaxy: sudo galaxy-startup"
+    return 1
+  fi
+}
+
+#____________________________________
+# Display supervisorctl status output for Galaxy
+
+function __galaxy_server_status(){
+  supervisorctl status galaxy:
+  echo -e "\nPlese restart Galaxy using: sudo supervisorctl restart galaxy:"
+  echo -e "You can also try to force restart with: sudo galaxyctl restart galaxy --force"
+}
+
+#____________________________________
+# Display supervisorctl status output for Galaxy
+
+function __galaxy_status(){
+  __supervisord_status
+  code=$?
+  if [[ $code -eq "0" ]]; then
+    __galaxy_server_status
+  fi
+}
+
+#____________________________________
+# Check ini file
+function __stat_ini_file(){
+  if [[ ! -e $cryptdev_ini_file ]]; then
+    echo -e "There is no $cryptdev_ini_file configuration file: ${_fail}"
+    exit
+  fi  
+}
+
+#____________________________________
+# Read ini file
+function cfg.parser ()
+# http://theoldschooldevops.com/2008/02/09/bash-ini-parser/
+{
+	IFS=$'\n' && ini=( $(<$1) ) # convert to line-array
+	ini=( ${ini[*]//;*/} )      # remove comments with ;
+	ini=( ${ini[*]//\#*/} )     # remove comments with #
+	ini=( ${ini[*]/\	=/=} )  # remove tabs before =
+	ini=( ${ini[*]/=\	/=} )   # remove tabs be =
+	ini=( ${ini[*]/\ =\ /=} )   # remove anything with a space around =
+	ini=( ${ini[*]/#[/\}$'\n'cfg.section.} ) # set section prefix
+	ini=( ${ini[*]/%]/ \(} )    # convert text2function (1)
+	ini=( ${ini[*]/=/=\( } )    # convert item to array
+	ini=( ${ini[*]/%/ \)} )     # close array parenthesis
+	ini=( ${ini[*]/%\\ \)/ \\} ) # the multiline trick
+	ini=( ${ini[*]/%\( \)/\(\) \{} ) # convert text2function (2)
+	ini=( ${ini[*]/%\} \)/\}} ) # remove extra parenthesis
+	ini[0]="" # remove first element
+	ini[${#ini[*]} + 1]='}'    # add the last brace
+	eval "$(echo "${ini[*]}")" # eval the result
+}
+
+function __read_ini_file(){
+
+  cfg.parser $cryptdev_ini_file
+  cfg.section.luks
+
+}
+
+#____________________________________
+# Display dmsetup info
+
+function __dmsetup_info(){
+  dmsetup info /dev/mapper/$cryptdev
+}
+
+#____________________________________
+# check encrypted storage mounted
+function __check_encrypted_device(){
+
+  # check if $mountpoint is a mount point
+  mountpoint $mountpoint &> /dev/null
+  if [ $? -ne 0 ]; then
+    echo -e "\n${mountpoint} is not a mount point."
+    echo -e "Please open your device typing: sudo luksctl open"
+    exit 1
+  fi
+
+  # if $mountpoint is a mount point 
+  __dmsetup_info &>/dev/null
+
+  echo 'LUKS volume configuration'
+  echo 'Cipher algorithm:' $cipher_algorithm
+  echo 'Hash algorithm:' $hash_algorithm
+  echo 'Key size:' $keysize
+  echo 'Device:' $device
+  echo 'UUID:' $uuid
+  echo 'Crypt device:' $cryptdev
+  echo 'Mapper:' $mapper
+  echo 'Mount point:' $mountpoint
+  echo 'File system:' $filesystem
+
+  if [ $? -eq 0 ]; then
+    echo -e "\nEncrypted volume: [ OK ]"
+  else
+    echo -e "\nEncrypted volume: [ FAIL ]"
+  fi
+}
+
+#____________________________________
+#____________________________________
+
+__galaxy_url_status
+code=$?
+if [[ $code -ne 0 ]]; then
+  __galaxy_status
+fi
+
+if [[ $OS_STORAGE == 'encryption' ]]; then
+  echo -e "\nChecking the encrypted volume:"
+  __stat_ini_file
+  __read_ini_file
+  __check_encrypted_device
+fi
