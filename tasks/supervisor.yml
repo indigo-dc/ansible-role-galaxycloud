@@ -73,11 +73,19 @@
     option: '{{ item.option }}'
     value: '{{ item.value }}'
   with_items:
-    - { section: 'unix_http_server', option: 'file', value: '/var/run/supervisor.sock' }
     - { section: 'unix_http_server', option: 'chmod', value: '0770' }
     - { section: 'unix_http_server', option: 'chown', value: 'root:{{ galaxy_user }}' }
   become_user: root
   become_method: sudo
+
+- name: Edit supervisor.sock directory permissions
+  file:
+    path: /var/run/supervisor
+    state: directory
+    mode: 0755
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "RedHat"
 
 #______________________________________
 # Supervisord systemd unit file
