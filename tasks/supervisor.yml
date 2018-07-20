@@ -73,6 +73,7 @@
     option: '{{ item.option }}'
     value: '{{ item.value }}'
   with_items:
+    - { section: 'unix_http_server', option: 'file', value: '/var/run/supervisor.sock' }
     - { section: 'unix_http_server', option: 'chmod', value: '0770' }
     - { section: 'unix_http_server', option: 'chown', value: 'root:{{ galaxy_user }}' }
   become_user: root
