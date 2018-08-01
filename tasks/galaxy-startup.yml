@@ -101,3 +101,10 @@
   become_user: root
   become_method: sudo
   when: ansible_virtualization_type != "docker"
+
+# Send success mail only if this is the last play, i.e. no tools and no reference data installation.
+- include: send_success_mail.yml
+  when:
+    - ansible_virtualization_type != "docker"
+    - galaxy_flavor == "galaxy-no-tools"
+    - get_refdata == "false"
