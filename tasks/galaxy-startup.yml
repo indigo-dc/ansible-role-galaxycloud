@@ -107,4 +107,4 @@
   when:
     - ansible_virtualization_type != "docker"
     - galaxy_flavor == "galaxy-no-tools"
-    - get_refdata == "false"
+    - not get_refdata|bool
