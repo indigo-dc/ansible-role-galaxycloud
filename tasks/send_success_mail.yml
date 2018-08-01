@@ -16,6 +16,8 @@
 #________________________________
 # Send mail using ansible
 
+- include_vars: mail_vars.yml
+
 - name: Copy mail
   template:
     src: 'mail_success.html.j2'
