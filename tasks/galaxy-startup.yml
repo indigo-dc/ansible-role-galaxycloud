@@ -103,8 +103,10 @@
   when: ansible_virtualization_type != "docker"
 
 # Send success mail only if this is the last play, i.e. no tools and no reference data installation.
+# The mail is configured in indigo-dc.galaxycloud-os
 - include: send_success_mail.yml
   when:
+    - enable_storage_advanced_options|bool
     - ansible_virtualization_type != "docker"
     - galaxy_flavor == "galaxy-no-tools"
     - not get_refdata|bool

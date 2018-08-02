@@ -16,18 +16,5 @@
 #________________________________
 # Send mail using ansible
 
-- include_vars: mail_vars.yml
-
-- name: Copy mail
-  template:
-    src: 'mail_success.html.j2'
-    dest: '/tmp/mail_success.txt'
-
 - name: Send mail to alert user. ONLY FOR TESTING, this is not passing gmail antispam filters
-  mail:
-    from: '{{ mail_from }}'
-    to: "{{ GALAXY_ADMIN_EMAIL }}"
-    subject: '{{ mail_subject }}'
-    body: '{{ lookup("file", "/tmp/mail_success.txt") }}'
-    subtype: html
-    #attach: /tmp/instructions.pdf
+  command:  '{{ custom_utils_path }}/mail_wrapper.sh html {{ custom_utils_path }}/mail_success.html.j2'
