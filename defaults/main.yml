@@ -117,7 +117,7 @@ proftpd_db_passwd: 'galaxy'
 proftpd_files_path: "{{galaxy_db_dir}}/ftp"
 proftpd_ftp_port: 21
 proftpd_passive_port_low: 30000
-proftpd_passive_port_high: 40000
+proftpd_passive_port_high: 30009
 set_proftpd_random_password: true
 
 #______________________________________
