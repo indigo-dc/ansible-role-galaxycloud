@@ -94,8 +94,8 @@
 - name: '[Docker] Switch from socket file to http for supervisor'
   replace:
     dest: '{{ supervisord_conf_path }}/supervisord.conf'
-    regexp: '{{ regexp.item }}'
-    replace: '{{ replace.item }}'
+    regexp: '{{ item.regexp }}'
+    replace: '{{ item.replace }}'
   with_items:
     - { regexp: '[unix_http_server]', replace: ';[unix_http_server]' }
     - { regexp: 'file=/var/run/supervisor/supervisor.sock   ; (the path to the socket file)', replace: ';file=/var/run/supervisor/supervisor.sock   ; (the path to the socket file)' }
