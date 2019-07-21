@@ -21,6 +21,7 @@
     value: '{{ item.value }}'
   with_items:
     - { section: 'app:main', option: 'require_login', value: '{{ require_login }}' }
+    - { section: 'app:main', option: 'allow_user_creation', value: '{{ allow_user_creation }}' }
     - { section: 'app:main', option: 'allow_user_impersonation', value: '{{ allow_user_impersonation }}' }
     - { section: 'app:main', option: 'new_user_dataset_access_role_default_private', value: '{{ new_user_dataset_access_role_default_private }}' }
   when: item.value|bool
