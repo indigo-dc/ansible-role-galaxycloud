@@ -23,7 +23,6 @@
             -v "{{ item.value }}"'
   with_items:
     - { section: 'galaxy', option: 'require_login', value: '{{ require_login }}' }
-    - { section: 'galaxy', option: 'allow_user_creation', value: '{{ allow_user_creation }}' }
     - { section: 'galaxy', option: 'allow_user_impersonation', value: '{{ allow_user_impersonation }}' }
     - { section: 'galaxy', option: 'new_user_dataset_access_role_default_private', value: '{{ new_user_dataset_access_role_default_private }}' }
   when: item.value|bool
