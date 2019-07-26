@@ -64,7 +64,7 @@
 
 - name: Copy systemd unit file
   copy:
-    src: '{{ galaxyctl_path }}/gunicorn/galaxyctl-api.service'
+    src: '{{ galaxyctl_path }}/api/gunicorn/galaxyctl-api.service'
     dest: '/etc/systemd/system/galaxyctl-api.service'
     remote_src: yes
   become_user: root
