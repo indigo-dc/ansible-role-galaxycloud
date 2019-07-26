@@ -1,7 +1,7 @@
 ---
 # Galaxy startup recipe
 
-- include: install_galaxyctl.yml
+- include: galaxyctl.yml
 
 - name: Copy Galaxy startup script
   template:
