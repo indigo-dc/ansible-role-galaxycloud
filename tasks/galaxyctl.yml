@@ -70,7 +70,7 @@
   become_user: root
   become_method: sudo
 
-- name: Start and enable ggalaxyyctl_api
+- name: Start and enable galaxyyctl_api
   service:
     name: galaxyctl-api
     state: started
