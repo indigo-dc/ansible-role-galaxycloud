@@ -56,3 +56,24 @@
     - { section: 'galaxy', option: 'galaxyctl_log_file', value: '{{ galaxy_log_path }}/galaxyctl.log' }
   become_user: root
   become_method: sudo
+
+- name: Create api virtual environment
+  pip:
+    requirements: '{{ galaxyctl_path }}/api/requirements.txt'
+    virtualenv: '{{ galaxyctl_path }}/api/venv'
+
+- name: Copy systemd unit file
+  copy:
+    src: '{{ galaxyctl_path }}/api/gunicorn/galaxyctl-api.service'
+    dest: '/etc/systemd/system/galaxyctl-api.service'
+    remote_src: yes
+  become_user: root
+  become_method: sudo
+
+- name: Start and enable galaxyyctl_api
+  service:
+    name: galaxyctl-api
+    state: started
+    enabled: yes
+  become_user: root
+  become_method: sudo

@@ -66,7 +66,7 @@
 
 #______________________________________
 # Change supervisord.sock ownership
-- name: 'Grant {{ galaxy_user }} supervisor access' 
+- name: '[VM] Grant {{ galaxy_user }} supervisor access' 
   ini_file:
     dest: '{{ supervisord_conf_path }}/supervisord.conf'
     section: '{{ item.section }}'
@@ -75,17 +75,39 @@
   with_items:
     - { section: 'unix_http_server', option: 'chmod', value: '0770' }
     - { section: 'unix_http_server', option: 'chown', value: 'root:{{ galaxy_user }}' }
+  when:
+    - ansible_virtualization_type != "docker"
   become_user: root
   become_method: sudo
 
-- name: Edit supervisor.sock directory permissions
+- name: '[VM] Edit supervisor.sock directory permissions'
   file:
     path: /var/run/supervisor
     state: directory
     mode: 0755
   become_user: root
   become_method: sudo
-  when: ansible_os_family == "RedHat"
+  when:
+    - ansible_virtualization_type != "docker"
+    - ansible_os_family == "RedHat"
+
+- name: '[Docker] Switch from socket file to http for supervisor'
+  replace:
+    dest: '{{ supervisord_conf_path }}/supervisord.conf'
+    regexp: '{{ item.regexp }}'
+    replace: '{{ item.replace }}'
+  with_items:
+    - { regexp: '[unix_http_server]', replace: ';[unix_http_server]' }
+    - { regexp: 'file=/var/run/supervisor/supervisor.sock   ; (the path to the socket file)', replace: ';file=/var/run/supervisor/supervisor.sock   ; (the path to the socket file)' }
+    - { regexp: 'serverurl=unix:///var/run/supervisor/supervisor.sock ; use a unix:// URL  for a  unix socket', replace: ';serverurl=unix:///var/run/supervisor/supervisor.sock ; use a unix:// URL  for a  unix socket' }
+    - { regexp: ';[inet_http_server]         ; inet (TCP) server disabled by default', replace: '[inet_http_server]' }
+    - { regexp: ';port=127.0.0.1:9001        ; (ip_address:port specifier, *:port for all iface)', replace: 'port=127.0.0.1:30901' }
+    - { regexp: ';serverurl=http://127.0.0.1:9001 ; use an http:// url to specify an inet socket', replace: 'serverurl=http://127.0.0.1:30901' }
+  become_user: root
+  become_method: sudo
+  when:
+    - ansible_virtualization_type == "docker"
+    - ansible_os_family == "RedHat"
 
 #______________________________________
 # Supervisord systemd unit file
