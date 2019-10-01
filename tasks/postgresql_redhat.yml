@@ -38,11 +38,8 @@
 
 - name: '[EL] Install postgresql {{ postgresql_version }}'
   yum:
-    name: '{{ packages }}'
+    name: 'postgresql{{ postgresql_version_terse }}-server'
     state: present
-  vars:
-    packages:
-    - 'postgresql{{ postgresql_version_terse }}-server'
 
 - name: '[EL] Ensure pgdata directory not exists'
   stat: path={{ postgresql_pgdata }}/base
