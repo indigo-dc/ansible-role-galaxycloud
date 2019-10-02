@@ -47,7 +47,7 @@
 
 - name: Avoid psycopg update
   ini_file:
-    path: /ect/yum.conf
+    dest: /ect/yum.conf
     section: main
     option: exclude
     value: python2-psycopg2
