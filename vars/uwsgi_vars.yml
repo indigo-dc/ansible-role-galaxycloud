@@ -13,7 +13,7 @@ uwsgi_threads: 4
 # https://wiki.galaxyproject.org/Admin/Config/Performance/Cluster
 # Local: runs jobs locally on the Galaxy application server (no DRM). 
 galaxy_workers: 2 # Number of concurrent local jobs that can be run
-galaxy_local_slos: 2 # Number of CPU slots to assign for each destination using the local runner (default is 1). The value of local_slots is used to define GALAXY_SLOTS
+galaxy_local_slot: 2 # Number of CPU slots to assign for each destination using the local runner (default is 1). The value of local_slots is used to define GALAXY_SLOTS
 galaxy_registered_concurrent_jobs: 1
 galaxy_unregistered_concurrent_jobs: 0
 
