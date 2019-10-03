@@ -43,13 +43,16 @@
   shell: command -v clues --help >/dev/null 2>&1
   register: is_elastic
   ignore_errors: yes
+  when: galaxy_lrms == "slurm"
 
 - debug:
     msg: "{{ is_elastic.rc }}"
+  when: galaxy_lrms == "slurm"
 - debug:
     var: is_elastic
+  when: galaxy_lrms == "slurm"
 
-- name: Copy job_conf configration file
+- name: Copy job_conf configuration file
   template:
     src: 'job_conf.xml.j2'
     dest: '{{ galaxy_config_path }}/job_conf.xml'

@@ -18,9 +18,10 @@
 
 - name: '[EL] Install packages'
   yum:
-    name: '{{ item }}'
+    name: "{{ packages }}"
     state: present
-  with_items:
+  vars:
+    packages:
     - git
     - vim
     - wget
@@ -52,9 +53,10 @@
 
 - name: '[Ubuntu] Install packages'
   apt:
-    name: '{{ item }}'
+    name: '{{ packages }}'
     state: present
-  with_items:
+  vars:
+    packages:
     - apt-transport-https
     - software-properties-common
     - git

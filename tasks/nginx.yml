@@ -12,9 +12,10 @@
 
 - name: '[EL] Install NGINX'
   yum:
-    name: '{{ item }}'
+    name: '{{ packages }}'
     state: present
-  with_items:
+  vars:
+    packages:
     - openssl-devel
     - pcre-devel
     - nginx-galaxy
@@ -44,10 +45,11 @@
 
 - name: '[Ubuntu] Install NGINX'
   apt:
-    name: '{{ item }}'
+    name: '{{ packages }}'
     state: present
     update_cache: yes
-  with_items:
+  vars:
+    packages:
     - nginx
     - nginx-extras
     #- nginx-extras=1.4.6-1ubuntu3.4ppa1

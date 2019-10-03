@@ -6,9 +6,10 @@
 
 - name: '[EL] Check and install Supervisor dependencies'
   yum:
-    name: '{{ item }}'
+    name: '{{ packages }}'
     state: present
-  with_items:
+  vars:
+    packages:
     - supervisor
   become_user: root
   become_method: sudo
@@ -34,9 +35,10 @@
 
 - name: '[Ubuntu] Check and install Supervisor dependencies'
   apt:
-    name: '{{ item }}'
+    name: '{{ packages }}'
     state: present
-  with_items:
+  vars:
+    packages:
     - python-meld3
     - supervisor
   become_user: root
