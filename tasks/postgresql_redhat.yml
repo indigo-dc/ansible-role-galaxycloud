@@ -38,11 +38,19 @@
 
 - name: '[EL] Install postgresql {{ postgresql_version }}'
   yum:
-    name: '{{ item }}'
+    name: "{{ packages }}"
     state: present
-  with_items:
+  vars:
+    packages:
     - 'postgresql{{ postgresql_version_terse }}-server'
-    - python-psycopg2
+    - python2-psycopg2-2.8.3-1.rhel7
+
+- name: Avoid psycopg update
+  ini_file:
+    dest: /etc/yum.conf
+    section: main
+    option: exclude
+    value: python2-psycopg2
 
 - name: '[EL] Ensure pgdata directory not exists'
   stat: path={{ postgresql_pgdata }}/base

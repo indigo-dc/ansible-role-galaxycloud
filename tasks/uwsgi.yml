@@ -6,9 +6,10 @@
 
 - name: '[EL] Check and install uWSGI dependencies'
   yum:
-    name: '{{ item }}'
+    name: '{{ packages }}'
     state: present
-  with_items:
+  vars:
+    packages:
     - python
     - python-devel
   become_user: root
@@ -19,9 +20,10 @@
 # Ubuntu 14.04
 - name: '[Ubuntu] Check and install uWSGI dependencies'
   apt:
-    name: '{{ item }}'
+    name: '{{ packages }}'
     state: present
-  with_items:
+  vars:
+    packages:
     - python
     - python-dev
   become_user: root

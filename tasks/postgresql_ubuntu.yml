@@ -26,9 +26,10 @@
 
 - name: '[Ubuntu] Install postgresql {{ postgresql_version }}'
   apt:
-    name: '{{ item }}'
+    name: '{{ packages }}'
     state: present
-  with_items:
+  vars:
+    packages:
     - "postgresql{{ '-' ~ postgresql_version if postgresql_version is defined else '' }}"
     - python-psycopg2
 
