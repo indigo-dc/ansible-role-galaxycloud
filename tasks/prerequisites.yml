@@ -28,6 +28,7 @@
     - logrotate
     - cronie
     - lsof
+    - python-virtualenv
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
@@ -66,6 +67,7 @@
     - build-essential
     - python-apt #needed by apt_repository ansible core module
     - lsof
+    - python-virtualenv
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian"
@@ -95,19 +97,6 @@
   become_user: root
   become_method: sudo
   when: ansible_os_family == "Debian" and pip_is_installed.rc != 0
-
-#______________________________________
-# Install virtualenv using pip.
-# This prevent the system to use old virtualenv.
-
-- name: Install Virtualenv package
-  pip:
-    name: '{{ item }}'
-    state: forcereinstall
-  with_items:
-    - virtualenv
-  become_user: root
-  become_method: sudo
 
 #______________________________________
 # Create directories
