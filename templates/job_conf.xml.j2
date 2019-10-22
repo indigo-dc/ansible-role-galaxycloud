@@ -5,6 +5,7 @@
 {% if galaxy_lrms == "slurm" %}
         <plugin id="slurm" type="runner" load="galaxy.jobs.runners.drmaa:DRMAAJobRunner" workers="100">
             <param id="drmaa_library_path">/usr/local/lib/libdrmaa.so</param>
+            <param id="internalexception_retries">100</param>
         </plugin>
 {% endif %}
     </plugins>
