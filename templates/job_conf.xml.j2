@@ -18,7 +18,7 @@
 {% if galaxy_lrms == "slurm" %}
     <destinations default="slurm">
         <destination id="slurm" runner="slurm" tags="mycluster" >
-                <param id="nativeSpecification">--nodes=1 --ntasks={{ galaxy_workers }}</param>
+            <param id="nativeSpecification">--nodes=1 --ntasks=2</param>
         </destination>
 {% else %}
     <destinations>
