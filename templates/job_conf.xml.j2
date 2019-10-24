@@ -17,13 +17,9 @@
     </handlers>
 {% if galaxy_lrms == "slurm" %}
     <destinations default="slurm">
-{% if is_elastic.rc == 0  %}
-        <destination id="slurm" runner="slurm" tags="mycluster" />
-{% else %}
         <destination id="slurm" runner="slurm" tags="mycluster" >
                 <param id="nativeSpecification">--nodes=1 --ntasks={{ galaxy_workers }}</param>
         </destination>
-{% endif %}
 {% else %}
     <destinations>
 {% endif %}
