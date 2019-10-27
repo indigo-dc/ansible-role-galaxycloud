@@ -6,7 +6,7 @@ This role has been specifically developed to be used in the INDIGO project.
 
 Requirements
 ------------
-This ansible role supports CentOS 7, Ubuntu 14.04 Trusty and Ubuntu 16.04 Xenial
+This ansible role supports CentOS 7 and Ubuntu 16.04 Xenial
 
 Minimum ansible version: 2.1.2.0
 
@@ -154,6 +154,14 @@ It is possible to exploit supervisord to manage postegreSQL, NGINX and proftpd s
 ### Advanced storage configuration ###
 
 ``enable_storage_advanced_options``: this option, ``false`` by the default, has to be set to ``true`` only if you run the ansible role indigo-dc.galaxycloud-os, for advanced path configuration, onedata and filesystem encryption support. More details here: :doc:`ansible_galaxycloud-os` (default: ``false``).
+
+### Tools and Reference data ###
+
+Inform the role if galaxy tools and reference data will be installed. If yes, galaxy is not started to configure tools and reference data.
+
+``galaxy_flavor``: specify the galaxy flavour. (default: ``galaxy-no-tools``, i.e. galaxy without tools).
+
+``get_refdata``: specify if reference data will be configured (default: ``false``)
 
 Example Playbook
 ----------------
