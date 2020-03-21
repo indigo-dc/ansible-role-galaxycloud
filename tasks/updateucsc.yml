@@ -35,5 +35,5 @@
   when: fast_update
 
 - name: Copy ucsc genome indexes
-  unarchive: src=/tmp/ucsc.tar.gz dest=/home/galaxy/galaxy/tool-data/shared/ remote_src=yes
+  unarchive: src=/tmp/ucsc.tar.gz dest={{ galaxy_install_path}}/tool-data/shared/ remote_src=yes
   when: fast_update
