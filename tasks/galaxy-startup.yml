@@ -101,3 +101,9 @@
   become_user: root
   become_method: sudo
   when: ansible_virtualization_type != "docker"
+
+- name: '[VM] Update Conda'
+  shell: '{{ conda_prefix }}/bin/python {{ conda_prefix }}/bin/conda update conda'
+  become_user: root
+  become_method: sudo
+  when: ansible_virtualization_type != "docker"
