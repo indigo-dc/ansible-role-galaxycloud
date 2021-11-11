@@ -32,7 +32,18 @@
   become_user: root
   become_method: sudo
   when: ansible_os_family == "RedHat"
-
+  
+- name: '[EL] Update ca-certificates'
+  yum:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+    - ca-certificates
+  become_user: root
+  become_method: sudo
+  when: ansible_os_family == "RedHat"
+  
 - name: '[EL] Install the Development tools package group'
   yum:
     name: "@Development tools"
