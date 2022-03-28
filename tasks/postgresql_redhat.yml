@@ -21,35 +21,10 @@
     - { section: 'base', option: 'exclude', value: 'postgresql*' }
     - { section: 'updates', option: 'exclude', value: 'postgresql*' }
 
-- name: '[EL] Install repository'
-  yum:
-    name: '{{ postgresql_yum_repository_url }}'
-    state: present
-
-# This workaround has to be removed with ansible update
-- name: '[EL] Temporary disable pgdg repository for postgresql > 9.6'
-  ini_file:
-    dest: /etc/yum.repos.d/pgdg-redhat-all.repo
-    section: '{{ item }}'
-    option: enabled
-    value: 0
-  with_items:
-    - pgdg14
-    - pgdg13
-    - pgdg12
-    - pgdg11
-    - pgdg10
-
-# This workaround has to be removed with ansible update
-- name: '[EL] Temporary disable GPG check for pgdc repository'
-  ini_file:
-    dest: /etc/yum.repos.d/pgdg-redhat-all.repo
-    section: '{{ item }}'
-    option: repo_gpgcheck
-    value: 0
-  with_items:
-    - pgdg-common
-    - pgdg96
+- name: '[EL] Install postgresql repository'
+  copy:
+    src: 'pgdg-96.repo'
+    dest: '/etc/yum.repos.d/pgdg-96.repo'
 
 - name: '[EL] Install postgresql {{ postgresql_version }}'
   yum:
