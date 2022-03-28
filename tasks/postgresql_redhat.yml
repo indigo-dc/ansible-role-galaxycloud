@@ -26,6 +26,11 @@
     src: 'pgdg-96.repo'
     dest: '/etc/yum.repos.d/pgdg-96.repo'
 
+- name: '[EL] Install postgresql repository GPG key'
+  rpm_key:
+    state: present
+    key: 'https://download.postgresql.org/pub/repos/yum/RPM-GPG-KEY-PGDG-96'
+
 - name: '[EL] Install postgresql {{ postgresql_version }}'
   yum:
     name: "{{ packages }}"
